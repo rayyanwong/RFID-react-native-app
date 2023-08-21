@@ -138,8 +138,27 @@ const Home = ({navigation}) => {
           (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
               console.log(`${input} successfully inserted into conducts table`);
-              setlastinsertId(resultSet.insertId);
+              // insert into Attendance table
               console.log(resultSet.insertId);
+              var curConductid = resultSet.insertId;
+              console.log(curConductid);
+              db.transaction(tx => {
+                tx.executeSql(
+                  `SELECT userid FROM USERS where userid > 0`,
+                  [],
+                  (txObj, res) => {
+                    var curUsers = res.rows;
+                    for (let i = 0; i < curUsers.length; i++) {
+                      let curUserid = curUsers.item(i).userid;
+                      insertAttendance(curUserid, curConductid);
+                    }
+                  },
+                  error => {
+                    console.log(error);
+                  },
+                );
+              });
+
               setInput('');
               setmodalVisible(false);
               getAllConducts();
@@ -159,20 +178,52 @@ const Home = ({navigation}) => {
       data: conductObj,
     });
   };
+
+  const insertAttendance = (userid, conductid) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        `INSERT INTO ATTENDANCE(userid,conductid,accounted) VALUES (?,?,?)`,
+        [userid, conductid, 0],
+        (txObj, resultSet) => {
+          if (resultSet.rowsAffected > 0) {
+            console.log(
+              `Inserted userid: ${userid} into conductid: ${conductid}`,
+            );
+          }
+        },
+        error => {
+          console.log(error);
+        },
+      );
+    });
+  };
+
   const handleDelete = conductid => {
     db.transaction(tx => {
       tx.executeSql(
-        `DELETE FROM Conducts where conductid = (?)`,
+        `DELETE FROM ATTENDANCE where conductid = (?)`,
         [conductid],
         (txObj, resultSet) => {
-          if (resultSet.rowsAffected > 0) {
-            console.log(`Removed ${conductid} from Conducts table`);
-            Alert.alert(`Delete successful`);
-            let existingConducts = [...allConducts].filter(
-              conduct => conduct.conductid !== conductid,
+          console.log('Deleted from attendance');
+          db.transaction(tx => {
+            tx.executeSql(
+              `DELETE FROM Conducts where conductid = (?)`,
+              [conductid],
+              (txObj, resultSet) => {
+                if (resultSet.rowsAffected > 0) {
+                  console.log(`Removed ${conductid} from Conducts table`);
+                  Alert.alert(`Delete successful`);
+                  let existingConducts = [...allConducts].filter(
+                    conduct => conduct.conductid !== conductid,
+                  );
+                  setallConducts(existingConducts);
+                }
+              },
+              error => {
+                console.log(error);
+              },
             );
-            setallConducts(existingConducts);
-          }
+          });
         },
         error => {
           console.log(error);

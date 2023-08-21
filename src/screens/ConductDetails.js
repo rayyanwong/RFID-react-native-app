@@ -17,6 +17,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {openDatabase} from 'react-native-sqlite-storage';
 import NfcManager, {NfcEvents, NfcTech, Ndef} from 'react-native-nfc-manager';
 import AndroidPrompt from '../components/AndroidPrompt';
+import NotAccounted from '../components/NotAccounted';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -58,7 +59,7 @@ const ConductDetails = props => {
           var result = resultSet.rows;
           var curAccounted = [];
           for (let i = 0; i < result.length; i++) {
-            curAccounted.push(result.item(0));
+            curAccounted.push(result.item(i));
           }
           setAccFor(curAccounted);
         },
@@ -79,7 +80,7 @@ const ConductDetails = props => {
           var result = resultSet.rows;
           var curNotAccounted = [];
           for (let i = 0; i < result.length; i++) {
-            curNotAccounted.push(result.item(0));
+            curNotAccounted.push(result.item(i));
           }
           setNotAccFor(curNotAccounted);
         },
@@ -166,8 +167,8 @@ const ConductDetails = props => {
       <FlatList
         style={styles.notAccountedContainer}
         data={notAccFor}
-        keyExtractor={item => String(item.userName + item.userid)}
-        renderItem={({item}) => {}}
+        keyExtractor={item => String(item.userid)}
+        renderItem={({item}) => <NotAccounted data={item} />}
       />
       <View style={styles.headerContainer}>
         <Text style={styles.listHeader}>Accounted for</Text>

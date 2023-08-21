@@ -154,10 +154,12 @@ const ScanningPage = () => {
       let bytes = Ndef.encodeMessage([Ndef.textRecord(newWriteData)]);
       if (bytes) {
         await NfcManager.ndefHandler.writeNdefMessage(bytes);
+        Alert.alert('Tag successfully written');
         result = true;
       }
     } catch (e) {
       console.log(e);
+      Alert.alert('Error writing tag, try again!');
     } finally {
       NfcManager.cancelTechnologyRequest();
       promptRef.current.setHintText('');

@@ -47,6 +47,36 @@ const DatabasePage = () => {
   const removeUser = userid => {
     db.transaction(tx => {
       tx.executeSql(
+        `DELETE FROM ATTENDANCE WHERE USERID = (?)`,
+        [userid],
+        (txObj, resultSet) => {
+          db.transaction(tx => {
+            tx.executeSql(
+              `DELETE FROM USERS WHERE userid = (?)`,
+              [userid],
+              (txObj, resultSet) => {
+                if (resultSet.rowsAffected > 0) {
+                  Alert.alert(`Successfully removed user from database`);
+                  var existingNames = [...allNames].filter(data => {
+                    data.userid !== userid;
+                  });
+                  setallNames(existingNames);
+                  loadAllNames();
+                }
+              },
+              error => {
+                console.log(error);
+              },
+            );
+          });
+        },
+        error => {
+          console.log(error);
+        },
+      );
+    });
+    db.transaction(tx => {
+      tx.executeSql(
         `DELETE FROM USERS WHERE userid = (?)`,
         [userid],
         (txObj, resultSet) => {
