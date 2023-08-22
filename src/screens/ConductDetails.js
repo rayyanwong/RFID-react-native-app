@@ -30,6 +30,7 @@ const ConductDetails = props => {
   const [nricinput, setnricinput] = useState(null);
   const [addModalVisible, setaddModalVisible] = useState(false);
   const [hasNfc, setHasNfc] = useState(false);
+  const promptRef = useRef();
 
   useEffect(() => {
     const checkIsSupported = async () => {
@@ -46,10 +47,10 @@ const ConductDetails = props => {
   }, []);
 
   useEffect(() => {
-    updateAccounted();
-    updatenotAccounted();
+    getAccounted();
+    getnotAccounted();
   });
-  const updateAccounted = () => {
+  const getAccounted = () => {
     db.transaction(tx => {
       tx.executeSql(
         `SELECT ATTENDANCE.userid, USERS.userName FROM ATTENDANCE
@@ -70,7 +71,7 @@ const ConductDetails = props => {
     });
   };
 
-  const updatenotAccounted = () => {
+  const getnotAccounted = () => {
     db.transaction(tx => {
       tx.executeSql(
         `SELECT ATTENDANCE.userid, USERS.userName FROM ATTENDANCE
@@ -111,8 +112,7 @@ const ConductDetails = props => {
                   (txObj, resultSet) => {
                     if (resultSet.rowsAffected > 0) {
                       // need to RELOAD the FLATLIST HERE.
-                      updateAccounted();
-                      updatenotAccounted();
+
                       Alert.alert(
                         'User has been added into nominal roll for this conduct',
                       );
@@ -143,12 +143,13 @@ const ConductDetails = props => {
   const resetNomRoll = () => {
     db.transaction(tx => {
       tx.executeSql(
-        `UPDATE ATTENDANCE SET accounted = 0 WHERE userid > 0`,
-        [],
+        `UPDATE ATTENDANCE SET accounted = 0 WHERE userid > 0 AND conductid = (?)`,
+        [conductid],
         (txObj, resultSet) => {
           if (resultSet.rowsAffected > 0) {
-            updateAccounted();
-            updatenotAccounted();
+            // change list
+            notAccFor.map(userdata => accFor.push(userdata));
+            setNotAccFor([]);
           }
         },
         error => {
@@ -158,6 +159,68 @@ const ConductDetails = props => {
     });
     Alert.alert('Nominal roll has been reset');
   };
+
+  async function nfcAccountUser() {
+    await NfcManager.registerTagEvent();
+    if (Platform.OS === 'android') {
+      promptRef.current.setPromptVisible(true);
+      promptRef.current.setHintText('Please scan your NFC');
+    }
+    NfcManager.setEventListener(NfcEvents.DiscoverTag, tag => {
+      try {
+        var newTag = Ndef.text.decodePayload(tag.ndefMessage[0].payload);
+        const [newName, newNRIC, newHPNo] = newTag.split(',');
+        db.transaction(tx => {
+          tx.executeSql(
+            `SELECT USERID FROM USERS WHERE userNRIC = (?)`,
+            [newNRIC],
+            (txObj, resultSet) => {
+              if (resultSet.rows.length === 1) {
+                var userid = resultSet.rows.item(0).userid;
+                db.transaction(tx => {
+                  tx.executeSql(
+                    `UPDATE ATTENDANCE SET accounted = 1 WHERE USERID = (?) AND CONDUCTID = (?)`,
+                    [userid, conductid],
+                    (txObj, res) => {
+                      if (res.rowsAffected > 0) {
+                        var tempAccFor = [...accFor];
+                        for (let i = 0; i < notAccFor.length; i++) {
+                          if (notAccFor[i].userid === userid) {
+                            tempAccFor.push(notAccFor[i]);
+                            setAccFor(tempAccFor);
+                            break;
+                          }
+                        }
+                        var remainingNotAccounted = [...notAccFor].filter(
+                          userdata => {
+                            userdata.userid !== userid;
+                          },
+                        );
+                        setNotAccFor(remainingNotAccounted);
+                        Alert.alert(`${newName} has been accounted for`);
+                      }
+                    },
+                    error => {
+                      console.log(error);
+                    },
+                  );
+                });
+              }
+            },
+            error => {
+              console.log(error);
+            },
+          );
+        });
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        NfcManager.unregisterTagEvent().catch(() => 0);
+        promptRef.current.setHintText('');
+        promptRef.current.setPromptVisible(false);
+      }
+    });
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -173,35 +236,40 @@ const ConductDetails = props => {
       <View style={styles.headerContainer}>
         <Text style={styles.listHeader}>Accounted for</Text>
       </View>
-      <FlatList style={styles.accountedContainer} data={accFor} />
+      <FlatList
+        style={styles.accountedContainer}
+        data={accFor}
+        keyExtractor={item => String(item.userid)}
+        renderItem={({item}) => <NotAccounted data={item} />}
+      />
 
       <View style={styles.btnContainer}>
-        <TouchableOpacity style={styles.actionBtn} onPress={() => {}}>
+        <TouchableOpacity style={styles.actionBtn} onPress={nfcAccountUser}>
           <MaterialCommunityIcons
             name="credit-card-scan-outline"
-            size={30}
+            size={24}
             color="white"
           />
-          <Text style={{color: 'white', marginTop: 10, fontSize: 12}}>
+          <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
             Scan cadet tag
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionBtn}
           onPress={() => setaddModalVisible(true)}>
-          <Ionicons name="person-add" size={30} color="white" />
-          <Text style={{color: 'white', marginTop: 10, fontSize: 12}}>
+          <Ionicons name="person-add" size={24} color="white" />
+          <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
             Add manually
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionBtn} onPress={resetNomRoll}>
-          <MaterialCommunityIcons name="restart" size={30} color="white" />
-          <Text style={{color: 'white', marginTop: 10, fontSize: 12}}>
+          <MaterialCommunityIcons name="restart" size={24} color="white" />
+          <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
             Unaccount all
           </Text>
         </TouchableOpacity>
       </View>
-
+      <AndroidPrompt ref={promptRef} />
       <Modal visible={addModalVisible} animationType="fade">
         <SafeAreaView style={styles.addModalContainer}>
           <View style={styles.addModalHeader}>
@@ -266,8 +334,8 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     alignItems: 'center',
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
     backgroundColor: '#493c90',
     justifyContent: 'center',
     borderRadius: 30,
