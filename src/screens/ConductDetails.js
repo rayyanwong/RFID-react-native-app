@@ -92,72 +92,112 @@ const ConductDetails = props => {
     });
   };
 
-  const manualAddUser = () => {
-    // find if user exists in db first
-    // if exists in Attendance alr then can catch error
-    db.transaction(tx => {
-      tx.executeSql(
-        `SELECT userid FROM USERS where userNRIC = (?)`,
-        [nricinput],
-        (txObj, resultSet) => {
-          console.log(resultSet);
-          if (resultSet.rows.length === 1) {
-            var userid = resultSet.rows.item(0).userid;
-            // check if is in attendance
-            if (userid) {
-              db.transaction(tx => {
-                tx.executeSql(
-                  `INSERT INTO ATTENDANCE(userid,conductid,accounted) VALUES (?,?,?)`,
-                  [userid, conductid, 0],
-                  (txObj, resultSet) => {
-                    if (resultSet.rowsAffected > 0) {
-                      // need to RELOAD the FLATLIST HERE.
+  async function manualAddUser() {}
+  // const manualAddUser = () => {
+  //   // find if user exists in db first
+  //   // if exists in Attendance alr then can catch error
+  //   db.transaction(tx => {
+  //     tx.executeSql(
+  //       `SELECT userid FROM USERS where userNRIC = (?)`,
+  //       [nricinput],
+  //       (txObj, resultSet) => {
+  //         console.log(resultSet);
+  //         if (resultSet.rows.length === 1) {
+  //           var userid = resultSet.rows.item(0).userid;
+  //           // check if is in attendance
+  //           if (userid) {
+  //             db.transaction(tx => {
+  //               tx.executeSql(
+  //                 `INSERT INTO ATTENDANCE(userid,conductid,accounted) VALUES (?,?,?)`,
+  //                 [userid, conductid, 0],
+  //                 (txObj, resultSet) => {
+  //                   if (resultSet.rowsAffected > 0) {
+  //                     // need to RELOAD the FLATLIST HERE.
 
-                      Alert.alert(
-                        'User has been added into nominal roll for this conduct',
-                      );
-                    } else {
-                      Alert.alert('Nothing happened...');
-                    }
-                  },
-                  error => {
-                    console.log(error);
-                  },
-                );
-              });
-            }
-          } else {
-            Alert.alert('User cannot be found in database');
-          }
-        },
-        error => {
-          console.log(error);
-        },
-      );
-    });
+  //                     Alert.alert(
+  //                       'User has been added into nominal roll for this conduct',
+  //                     );
+  //                   } else {
+  //                     Alert.alert('Nothing happened...');
+  //                   }
+  //                 },
+  //                 error => {
+  //                   console.log(error);
+  //                 },
+  //               );
+  //             });
+  //           }
+  //         } else {
+  //           Alert.alert('User cannot be found in database');
+  //         }
+  //       },
+  //       error => {
+  //         console.log(error);
+  //       },
+  //     );
+  //   });
 
-    setnricinput(null);
-    setaddModalVisible(false);
-  };
+  //   setnricinput(null);
+  //   setaddModalVisible(false);
+  // };
+
+  async function accountManually(userid) {
+    var newAccFor = [...accFor];
+    var newNotAccFor = [];
+    for (let i = 0; i < notAccFor.length; i++) {
+      if (notAccFor[i].userid === userid) {
+        newAccFor.push(notAccFor[i]);
+        await db.transaction(tx => {
+          tx.executeSql(
+            `UPDATE ATTENDANCE SET ACCOUNTED = 1 WHERE USERID = (?) AND CONDUCTID = (?)`,
+            [userid, conductid],
+            (txObj, resultSet) => {
+              if (resultSet.rowsAffected > 0) {
+                console.log('User has been accounted for');
+                Alert.alert(`${notAccFor[i].userName} has been accounted for`);
+              }
+            },
+            error => {
+              console.log(error);
+            },
+          );
+        });
+      } else {
+        newNotAccFor.push(notAccFor[i]);
+      }
+    }
+    setAccFor(newAccFor);
+    setNotAccFor(newNotAccFor);
+  }
+
+  async function unaccountManually(userid) {
+    var newAccFor = [];
+    var newNotAccFor = [...notAccFor];
+    for (let i = 0; i < accFor.length; i++) {
+      if (accFor[i].userid === userid) {
+        newNotAccFor.push(accFor[i]);
+        await db.transaction(tx => {
+          tx.executeSql(
+            `UPDATE ATTENDANCE SET ACCOUNTED = 0 WHERE USERID = (?) AND CONDUCTID = (?)`,
+            [userid, conductid],
+            (txObj, resultSet) => {
+              if (resultSet.rowsAffected > 0) {
+                console.log('User has been unaccounted');
+                Alert.alert(`${accFor[i].userName} has been unaccounted`);
+              }
+            },
+          );
+        });
+        //db
+      } else {
+        newAccFor.push(accFor[i]);
+      }
+    }
+    setAccFor(newAccFor);
+    setNotAccFor(newNotAccFor);
+  }
 
   async function resetNomRoll() {
-    // db.transaction(tx => {
-    //   tx.executeSql(
-    //     `UPDATE ATTENDANCE SET accounted = 0 WHERE userid > 0 AND conductid = (?)`,
-    //     [conductid],
-    //     (txObj, resultSet) => {
-    //       if (resultSet.rowsAffected > 0) {
-    //         // change list
-    //         notAccFor.map(userdata => accFor.push(userdata));
-    //         setNotAccFor([]);
-    //       }
-    //     },
-    //     error => {
-    //       console.log(error);
-    //     },
-    //   );
-    // });
-    // Alert.alert('Nominal roll has been reset');
     var newNotAccFor = [...notAccFor];
     for (let i = 0; i < accFor.length; i++) {
       newNotAccFor.push(accFor[i]);
@@ -185,7 +225,6 @@ const ConductDetails = props => {
       promptRef.current.setPromptVisible(true);
       promptRef.current.setHintText('Please scan your NFC');
     }
-    var startScanTime = new Date().getTime();
     NfcManager.setEventListener(NfcEvents.DiscoverTag, tag => {
       try {
         var newTag = Ndef.text.decodePayload(tag.ndefMessage[0].payload);
@@ -218,50 +257,6 @@ const ConductDetails = props => {
         }
         setAccFor(newAccFor);
         setNotAccFor(newNotAccFor);
-        var stopScanTime = new Date().getTime();
-        console.log(stopScanTime - startScanTime);
-        // db.transaction(tx => {
-        //   tx.executeSql(
-        //     `SELECT USERID FROM USERS WHERE userNRIC = (?)`,
-        //     [newNRIC],
-        //     (txObj, resultSet) => {
-        //       if (resultSet.rows.length === 1) {
-        //         var userid = resultSet.rows.item(0).userid;
-        //         db.transaction(tx => {
-        //           tx.executeSql(
-        //             `UPDATE ATTENDANCE SET accounted = 1 WHERE USERID = (?) AND CONDUCTID = (?)`,
-        //             [userid, conductid],
-        //             (txObj, res) => {
-        //               if (res.rowsAffected > 0) {
-        //                 var tempAccFor = [...accFor];
-        //                 for (let i = 0; i < notAccFor.length; i++) {
-        //                   if (notAccFor[i].userid === userid) {
-        //                     tempAccFor.push(notAccFor[i]);
-        //                     setAccFor(tempAccFor);
-        //                     break;
-        //                   }
-        //                 }
-        //                 var remainingNotAccounted = [...notAccFor].filter(
-        //                   userdata => {
-        //                     userdata.userid !== userid;
-        //                   },
-        //                 );
-        //                 setNotAccFor(remainingNotAccounted);
-        //                 Alert.alert(`${newName} has been accounted for`);
-        //               }
-        //             },
-        //             error => {
-        //               console.log(error);
-        //             },
-        //           );
-        //         });
-        //       }
-        //     },
-        //     error => {
-        //       console.log(error);
-        //     },
-        //   );
-        // });
       } catch (e) {
         console.warn(e);
       } finally {
@@ -281,7 +276,9 @@ const ConductDetails = props => {
         style={styles.notAccountedContainer}
         data={notAccFor}
         keyExtractor={item => String(item.userid)}
-        renderItem={({item}) => <NotAccounted data={item} />}
+        renderItem={({item}) => (
+          <NotAccounted data={item} func={accountManually} choice="notacc" />
+        )}
       />
       <View style={styles.headerContainer}>
         <Text style={styles.listHeader}>Accounted for</Text>
@@ -290,17 +287,16 @@ const ConductDetails = props => {
         style={styles.accountedContainer}
         data={accFor}
         keyExtractor={item => String(item.userid)}
-        renderItem={({item}) => <NotAccounted data={item} />}
+        renderItem={({item}) => (
+          <NotAccounted data={item} func={unaccountManually} choice="acc" />
+        )}
       />
 
       <View style={styles.btnContainer}>
         <TouchableOpacity
           style={styles.actionBtn}
           onPress={async () => {
-            var sTIME = new Date().getTime();
             await nfcAccountUser();
-            var eTIME = new Date().getTime();
-            console.log(eTIME - sTIME);
           }}>
           <MaterialCommunityIcons
             name="credit-card-scan-outline"
@@ -322,10 +318,7 @@ const ConductDetails = props => {
         <TouchableOpacity
           style={styles.actionBtn}
           onPress={async () => {
-            var sTIME = new Date().getTime();
             await resetNomRoll();
-            var eTIME = new Date().getTime();
-            console.log(eTIME - sTIME);
           }}>
           <MaterialCommunityIcons name="restart" size={24} color="white" />
           <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>

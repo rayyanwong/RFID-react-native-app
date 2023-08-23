@@ -2,14 +2,20 @@ import React from 'react';
 import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const NotAccounted = ({data, accountManually, removeFromNR}) => {
+const NotAccounted = ({data, func, choice}) => {
   return (
     <View style={styles.cardContainer}>
       <View>
         <Text style={styles.cardText}>{data.userName}</Text>
       </View>
-      <TouchableOpacity onPress={() => {}} style={styles.accountManuallyBtn}>
-        <MaterialCommunityIcons name="account-check" size={24} color="white" />
+      <TouchableOpacity
+        onPress={() => func(data.userid)}
+        style={styles.manualBtn}>
+        <MaterialCommunityIcons
+          name={choice === 'notacc' ? 'account-check' : 'account-minus'}
+          size={24}
+          color="grey"
+        />
       </TouchableOpacity>
     </View>
   );
@@ -43,7 +49,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     fontWeight: 'bold',
   },
-  accountManuallyBtn: {
+  manualBtn: {
     position: 'absolute',
     right: 20,
   },

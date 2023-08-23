@@ -75,30 +75,12 @@ const DatabasePage = () => {
         },
       );
     });
-    db.transaction(tx => {
-      tx.executeSql(
-        `DELETE FROM USERS WHERE userid = (?)`,
-        [userid],
-        (txObj, resultSet) => {
-          if (resultSet.rowsAffected > 0) {
-            Alert.alert(`Successfully removed user from database`);
-            var existingNames = [...allNames].filter(data => {
-              data.userid !== userid;
-            });
-            setallNames(existingNames);
-            loadAllNames();
-          }
-        },
-        error => {
-          console.log(error);
-        },
-      );
-    });
   };
 
   useEffect(() => {
     loadAllNames();
-  }, []);
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
