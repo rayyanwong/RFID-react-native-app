@@ -1,16 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  Alert,
-} from 'react-native';
+import {SafeAreaView, StyleSheet, FlatList, Alert} from 'react-native';
 import {openDatabase} from 'react-native-sqlite-storage';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import NamesList from '../components/NamesList';
 
 const db = openDatabase({

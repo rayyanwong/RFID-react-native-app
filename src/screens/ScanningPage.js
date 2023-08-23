@@ -15,6 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import NfcManager, {NfcEvents, NfcTech, Ndef} from 'react-native-nfc-manager';
 import AndroidPrompt from '../components/AndroidPrompt';
+import {validInputData} from '../validation/validInputData';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -49,12 +50,7 @@ const ScanningPage = () => {
   }, []);
 
   const manualAddUser = () => {
-    if (
-      nameinput === '' ||
-      nricinput === '' ||
-      hpinput === '' ||
-      isNaN(hpinput)
-    ) {
+    if (!validInputData(nameinput, nricinput, hpinput)) {
       Alert.alert('Invalid inputs, please try again');
       setnameinput('');
       sethpinput('');
@@ -116,12 +112,7 @@ const ScanningPage = () => {
   }
 
   const setWriteData = () => {
-    if (
-      towriteName === '' ||
-      towriteNRIC === '' ||
-      towriteHP === '' ||
-      isNaN(towriteHP)
-    ) {
+    if (!validInputData(towriteName, towriteNRIC, towriteHP)) {
       Alert.alert('Invalid inputs, please try again');
       settoWriteName('');
       settoWriteNRIC('');
@@ -294,6 +285,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     padding: 16,
+    fontWeight: 'bold',
   },
   addBtn: {
     backgroundColor: '#493c90',
