@@ -153,6 +153,7 @@ const ScanningPage = () => {
       Alert.alert('Error writing tag, try again!');
     } finally {
       NfcManager.cancelTechnologyRequest();
+      NfcManager.unregisterTagEvent().catch(() => 0);
       promptRef.current.setHintText('');
       promptRef.current.setPromptVisible(false);
     }

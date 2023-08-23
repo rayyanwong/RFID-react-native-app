@@ -7,6 +7,8 @@ import {
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import NfcManager from 'react-native-nfc-manager';
 
 const AndroidPrompt = (props, ref) => {
   const [promptVisible, setPromptVisible] = useState(false);
@@ -27,11 +29,18 @@ const AndroidPrompt = (props, ref) => {
         <View style={[styles.backdrop, StyleSheet.absoluteFill]} />
         <View style={styles.prompt}>
           <Text style={styles.hint}>{hintText || 'Hello NFC'}</Text>
+          <MaterialCommunityIcons
+            name="nfc"
+            size={50}
+            color="black"
+            padding={20}
+          />
           <TouchableOpacity
             style={styles.btn}
             onPress={() => {
               setPromptVisible(false);
               setHintText('');
+              NfcManager.unregisterTagEvent().catch(() => 0);
             }}>
             <Text style={{color: 'black'}}>CANCEL</Text>
           </TouchableOpacity>
@@ -62,8 +71,9 @@ const styles = StyleSheet.create({
   },
   hint: {
     fontSize: 24,
-    marginBottom: 20,
+    marginBottom: 0,
     color: 'black',
+    textAlign: 'center',
   },
   btn: {
     borderWidth: 1,

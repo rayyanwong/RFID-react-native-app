@@ -1,5 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {SafeAreaView, StyleSheet, FlatList, Alert} from 'react-native';
+import {
+  SafeAreaView,
+  StyleSheet,
+  FlatList,
+  Alert,
+  ActivityIndicator,
+  View,
+} from 'react-native';
 import {openDatabase} from 'react-native-sqlite-storage';
 import NamesList from '../components/NamesList';
 
@@ -9,6 +16,7 @@ const db = openDatabase({
 
 const DatabasePage = () => {
   const [allNames, setallNames] = useState([]);
+  const [isLoading, setisLoading] = useState(false);
 
   const loadAllNames = () => {
     db.transaction(tx => {
@@ -25,6 +33,7 @@ const DatabasePage = () => {
               tempNames.push(existingNames.item(i));
             }
             setallNames(tempNames);
+            setisLoading(false);
           }
         },
         error => {
@@ -68,8 +77,21 @@ const DatabasePage = () => {
   };
 
   useEffect(() => {
+    setisLoading(true);
+    loadAllNames();
+  }, []);
+
+  useEffect(() => {
     loadAllNames();
   });
+
+  if (isLoading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color="#5500dc" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
