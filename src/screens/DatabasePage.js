@@ -98,7 +98,7 @@ const DatabasePage = () => {
 
   useEffect(() => {
     loadAllNames();
-  });
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
