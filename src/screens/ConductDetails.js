@@ -10,6 +10,7 @@ import {
   Alert,
   TextInput,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -17,7 +18,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {openDatabase} from 'react-native-sqlite-storage';
 import NfcManager, {NfcEvents, NfcTech, Ndef} from 'react-native-nfc-manager';
 import AndroidPrompt from '../components/AndroidPrompt';
-import NotAccounted from '../components/NotAccounted';
+import AccountingNameList from '../components/AccountingNameList';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -31,6 +32,7 @@ const ConductDetails = props => {
   const [addModalVisible, setaddModalVisible] = useState(false);
   const [hasNfc, setHasNfc] = useState(false);
   const promptRef = useRef();
+  const [isLoading, setisLoading] = useState(false);
 
   useEffect(() => {
     const checkIsSupported = async () => {
@@ -47,9 +49,12 @@ const ConductDetails = props => {
   }, []);
 
   useEffect(() => {
+    setisLoading(true);
     getAccounted();
     getnotAccounted();
+    setisLoading(false);
   }, []);
+
   const getAccounted = () => {
     db.transaction(tx => {
       tx.executeSql(
@@ -92,43 +97,25 @@ const ConductDetails = props => {
     });
   };
 
-  async function manualAddUser() {}
-  // const manualAddUser = () => {
-  //   // find if user exists in db first
-  //   // if exists in Attendance alr then can catch error
-  //   db.transaction(tx => {
+  function manualAddUser() {}
+  // async function manualAddUser() {
+  //   // check if in db
+  //   await db.transaction(tx => {
   //     tx.executeSql(
-  //       `SELECT userid FROM USERS where userNRIC = (?)`,
+  //       `SELECT * FROM USERS WHERE USERNRIC = (?)`,
   //       [nricinput],
   //       (txObj, resultSet) => {
-  //         console.log(resultSet);
   //         if (resultSet.rows.length === 1) {
   //           var userid = resultSet.rows.item(0).userid;
-  //           // check if is in attendance
-  //           if (userid) {
-  //             db.transaction(tx => {
-  //               tx.executeSql(
-  //                 `INSERT INTO ATTENDANCE(userid,conductid,accounted) VALUES (?,?,?)`,
-  //                 [userid, conductid, 0],
-  //                 (txObj, resultSet) => {
-  //                   if (resultSet.rowsAffected > 0) {
-  //                     // need to RELOAD the FLATLIST HERE.
-
-  //                     Alert.alert(
-  //                       'User has been added into nominal roll for this conduct',
-  //                     );
-  //                   } else {
-  //                     Alert.alert('Nothing happened...');
-  //                   }
-  //                 },
-  //                 error => {
-  //                   console.log(error);
-  //                 },
-  //               );
-  //             });
-  //           }
-  //         } else {
-  //           Alert.alert('User cannot be found in database');
+  //           db.transaction(tx => {
+  //             tx.executeSql(
+  //               `INSERT INTO ATTENDANCE(USERID,CONDUCTID,ACCOUNTED) VALUES (?,?,?)`,
+  //               [userid, conductid, 0],
+  //             );
+  //           });
+  //           var newNotAccFor = [...notAccFor];
+  //           newNotAccFor.push(resultSet.rows.item(0));
+  //           setNotAccFor(newNotAccFor);
   //         }
   //       },
   //       error => {
@@ -136,10 +123,9 @@ const ConductDetails = props => {
   //       },
   //     );
   //   });
-
   //   setnricinput(null);
   //   setaddModalVisible(false);
-  // };
+  // }
 
   async function accountManually(userid) {
     var newAccFor = [...accFor];
@@ -154,7 +140,7 @@ const ConductDetails = props => {
             (txObj, resultSet) => {
               if (resultSet.rowsAffected > 0) {
                 console.log('User has been accounted for');
-                Alert.alert(`${notAccFor[i].userName} has been accounted for`);
+                //Alert.alert(`${notAccFor[i].userName} has been accounted for`);
               }
             },
             error => {
@@ -183,7 +169,7 @@ const ConductDetails = props => {
             (txObj, resultSet) => {
               if (resultSet.rowsAffected > 0) {
                 console.log('User has been unaccounted');
-                Alert.alert(`${accFor[i].userName} has been unaccounted`);
+                // Alert.alert(`${accFor[i].userName} has been unaccounted`);
               }
             },
           );
@@ -267,6 +253,14 @@ const ConductDetails = props => {
     });
   }
 
+  if (isLoading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color="#5500dc" />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
@@ -277,7 +271,11 @@ const ConductDetails = props => {
         data={notAccFor}
         keyExtractor={item => String(item.userid)}
         renderItem={({item}) => (
-          <NotAccounted data={item} func={accountManually} choice="notacc" />
+          <AccountingNameList
+            data={item}
+            func={accountManually}
+            choice="notacc"
+          />
         )}
       />
       <View style={styles.headerContainer}>
@@ -288,7 +286,11 @@ const ConductDetails = props => {
         data={accFor}
         keyExtractor={item => String(item.userid)}
         renderItem={({item}) => (
-          <NotAccounted data={item} func={unaccountManually} choice="acc" />
+          <AccountingNameList
+            data={item}
+            func={unaccountManually}
+            choice="acc"
+          />
         )}
       />
 

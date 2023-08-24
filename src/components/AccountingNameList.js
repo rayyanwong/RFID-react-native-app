@@ -2,7 +2,7 @@ import React from 'react';
 import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const NotAccounted = ({data, func, choice}) => {
+const AccountingNameList = ({data, func, choice}) => {
   return (
     <View style={styles.cardContainer}>
       <View>
@@ -55,4 +55,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NotAccounted;
+export default AccountingNameList;

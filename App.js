@@ -15,7 +15,10 @@ const Tab = createBottomTabNavigator();
 const HomeStack = () => {
   return (
     <NavigationContainer independent={true}>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={{gestureEnabled: true, gestureDirection: 'horizontal'}}
+        animation="fade">
         <Stack.Screen
           component={Home}
           name="Home"
