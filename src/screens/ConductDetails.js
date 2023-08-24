@@ -19,6 +19,7 @@ import {openDatabase} from 'react-native-sqlite-storage';
 import NfcManager, {NfcEvents, NfcTech, Ndef} from 'react-native-nfc-manager';
 import AndroidPrompt from '../components/AndroidPrompt';
 import AccountingNameList from '../components/AccountingNameList';
+import {get} from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -54,6 +55,20 @@ const ConductDetails = props => {
     getnotAccounted();
     setisLoading(false);
   }, []);
+
+  const getAttendance = () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        `select * from attendance where conductid = (?)`,
+        [conductid],
+        (_, res) => {
+          for (let i = 0; i < res.rows.length; i++) {
+            console.log(res.rows.item(i));
+          }
+        },
+      );
+    });
+  };
 
   const getAccounted = () => {
     db.transaction(tx => {
@@ -97,35 +112,32 @@ const ConductDetails = props => {
     });
   };
 
-  function manualAddUser() {}
-  // async function manualAddUser() {
-  //   // check if in db
-  //   await db.transaction(tx => {
-  //     tx.executeSql(
-  //       `SELECT * FROM USERS WHERE USERNRIC = (?)`,
-  //       [nricinput],
-  //       (txObj, resultSet) => {
-  //         if (resultSet.rows.length === 1) {
-  //           var userid = resultSet.rows.item(0).userid;
-  //           db.transaction(tx => {
-  //             tx.executeSql(
-  //               `INSERT INTO ATTENDANCE(USERID,CONDUCTID,ACCOUNTED) VALUES (?,?,?)`,
-  //               [userid, conductid, 0],
-  //             );
-  //           });
-  //           var newNotAccFor = [...notAccFor];
-  //           newNotAccFor.push(resultSet.rows.item(0));
-  //           setNotAccFor(newNotAccFor);
-  //         }
-  //       },
-  //       error => {
-  //         console.log(error);
-  //       },
-  //     );
-  //   });
-  //   setnricinput(null);
-  //   setaddModalVisible(false);
-  // }
+  async function manualAddUser() {
+    console.log(notAccFor);
+    await db.transaction(tx => {
+      tx.executeSql(
+        `INSERT INTO ATTENDANCE(USERID,CONDUCTID,ACCOUNTED)
+        SELECT (SELECT USERID FROM USERS WHERE USERNRIC = (?)),(?),(?)
+        WHERE NOT EXISTS (SELECT 1 FROM ATTENDANCE WHERE USERID = (SELECT USERID FROM USERS WHERE USERNRIC = (?)) 
+        AND CONDUCTID = (?)) AND  (SELECT USERID FROM USERS WHERE USERNRIC = (?)) IS NOT NULL`,
+        [nricinput, conductid, 0, nricinput, conductid, nricinput],
+        (_, resultSet) => {
+          console.log(resultSet);
+          if (resultSet.rowsAffected === 1) {
+            console.log('Insert of user is successful');
+            getnotAccounted();
+          } else {
+            console.log('No changes');
+          }
+        },
+        error => {
+          console.log(error);
+        },
+      );
+    });
+    setnricinput(null);
+    setaddModalVisible(false);
+  }
 
   async function accountManually(userid) {
     var newAccFor = [...accFor];
