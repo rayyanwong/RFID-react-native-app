@@ -19,7 +19,6 @@ import {openDatabase} from 'react-native-sqlite-storage';
 import NfcManager, {NfcEvents, NfcTech, Ndef} from 'react-native-nfc-manager';
 import AndroidPrompt from '../components/AndroidPrompt';
 import AccountingNameList from '../components/AccountingNameList';
-import {get} from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -223,46 +222,44 @@ const ConductDetails = props => {
       promptRef.current.setPromptVisible(true);
       promptRef.current.setHintText('Please scan your NFC');
     }
-    NfcManager.setEventListener(NfcEvents.DiscoverTag, tag => {
-      try {
-        var newTag = Ndef.text.decodePayload(tag.ndefMessage[0].payload);
-        const [newName, newNRIC, newHPNo] = newTag.split(',');
-        var newNotAccFor = [];
-        var newAccFor = [...accFor];
-        for (let i = 0; i < notAccFor.length; i++) {
-          if (
-            notAccFor[i].userNRIC === newNRIC &&
-            notAccFor[i].userName === newName
-          ) {
-            // do update query
-            var userid = notAccFor[i].userid;
-            db.transaction(tx => {
-              tx.executeSql(
-                `UPDATE ATTENDANCE SET ACCOUNTED = 1 WHERE USERID = (?) AND CONDUCTID = (?)`,
-                [userid, conductid],
-                (txObj, resultSet) => {
-                  console.log(`${newName} has been accounted for`);
-                },
-                error => {
-                  console.log(error);
-                },
-              );
-            });
-            newAccFor.push(notAccFor[i]);
-          } else {
-            newNotAccFor.push(notAccFor[i]);
+    while (promptRef.current.promptVisible) {
+      NfcManager.setEventListener(NfcEvents.DiscoverTag, tag => {
+        try {
+          var newTag = Ndef.text.decodePayload(tag.ndefMessage[0].payload);
+          const [newName, newNRIC, newHPNo] = newTag.split(',');
+          var newNotAccFor = [];
+          var newAccFor = [...accFor];
+          for (let i = 0; i < notAccFor.length; i++) {
+            if (
+              notAccFor[i].userNRIC === newNRIC &&
+              notAccFor[i].userName === newName
+            ) {
+              // do update query
+              var userid = notAccFor[i].userid;
+              db.transaction(tx => {
+                tx.executeSql(
+                  `UPDATE ATTENDANCE SET ACCOUNTED = 1 WHERE USERID = (?) AND CONDUCTID = (?)`,
+                  [userid, conductid],
+                  (txObj, resultSet) => {
+                    console.log(`${newName} has been accounted for`);
+                  },
+                  error => {
+                    console.log(error);
+                  },
+                );
+              });
+              newAccFor.push(notAccFor[i]);
+            } else {
+              newNotAccFor.push(notAccFor[i]);
+            }
           }
+          setAccFor(newAccFor);
+          setNotAccFor(newNotAccFor);
+        } catch (e) {
+          console.warn(e);
         }
-        setAccFor(newAccFor);
-        setNotAccFor(newNotAccFor);
-      } catch (e) {
-        console.warn(e);
-      } finally {
-        NfcManager.unregisterTagEvent().catch(() => 0);
-        promptRef.current.setHintText('');
-        promptRef.current.setPromptVisible(false);
-      }
-    });
+      });
+    }
   }
 
   if (isLoading) {
