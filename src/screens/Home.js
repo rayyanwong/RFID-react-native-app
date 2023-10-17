@@ -18,7 +18,7 @@ import ConductList from '../components/ConductList';
 const db = openDatabase({
   name: 'appDatabase',
 });
-
+//test
 const Home = ({navigation}) => {
   //   const [newConduct, setnewConduct] = useState('');
   const [modalVisible, setmodalVisible] = useState(false);
