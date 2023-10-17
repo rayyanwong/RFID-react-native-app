@@ -8,21 +8,16 @@ export default function ConductList({
   handleConductDetails,
 }) {
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={() => handleDelete(data.conductid)}>
-        <Ionicons name="trash" size={20} color="#212121" />
-      </TouchableOpacity>
-      <View>
-        <Text style={styles.conducts}>{data.conductName} </Text>
-      </View>
-
+    <View>
       <TouchableOpacity
-        onPress={() => handleConductDetails(data)}
-        style={{
-          position: 'absolute',
-          right: 10,
-        }}>
-        <Ionicons name="log-in" size={25} color="#212121" />
+        style={styles.container}
+        onPress={() => handleConductDetails(data)}>
+        <TouchableOpacity onPress={() => handleDelete(data.conductid)}>
+          <Ionicons name="trash" size={20} color="#212121" />
+        </TouchableOpacity>
+        <View>
+          <Text style={styles.conducts}>{data.conductName} </Text>
+        </View>
       </TouchableOpacity>
     </View>
   );

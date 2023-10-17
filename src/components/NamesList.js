@@ -1,17 +1,22 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // need to implement handle user details (view their information)
-const NamesList = ({data, removeUser}) => {
+const NamesList = ({data, removeUser, handleUserDetails}) => {
   return (
-    <View style={styles.cardContainer}>
-      <TouchableOpacity onPress={() => removeUser(data.userid)}>
-        <Ionicons name="trash" size={20} color="#212121" />
+    <View>
+      <TouchableOpacity
+        style={styles.cardContainer}
+        onPress={() => handleUserDetails(data)}>
+        <TouchableOpacity onPress={() => removeUser(data.userid)}>
+          <Ionicons name="trash" size={20} color="#212121" />
+        </TouchableOpacity>
+        <View>
+          <Text style={styles.cardText}>{data.userName}</Text>
+        </View>
       </TouchableOpacity>
-      <View>
-        <Text style={styles.cardText}>{data.userName}</Text>
-      </View>
     </View>
   );
 };

@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Dimensions,
   View,
-  Alert,
   TextInput,
   Modal,
   ActivityIndicator,
@@ -19,20 +18,27 @@ import {openDatabase} from 'react-native-sqlite-storage';
 import NfcManager, {NfcEvents, NfcTech, Ndef} from 'react-native-nfc-manager';
 import AndroidPrompt from '../components/AndroidPrompt';
 import AccountingNameList from '../components/AccountingNameList';
+import QRCode from 'react-native-qrcode-svg';
 
 const db = openDatabase({
   name: 'appDatabase',
 });
 
 const ConductDetails = props => {
+  // state init
   const [accFor, setAccFor] = useState([]);
   const [notAccFor, setNotAccFor] = useState([]);
-  const conductid = props.route.params.data.conductid;
   const [nricinput, setnricinput] = useState(null);
   const [addModalVisible, setaddModalVisible] = useState(false);
   const [hasNfc, setHasNfc] = useState(false);
-  const promptRef = useRef();
   const [isLoading, setisLoading] = useState(false);
+  const [qrModalVisibility, setQRmodalvisibility] = useState(false);
+  const qrData = useRef([]);
+
+  //variable init
+  const promptRef = useRef();
+  const conductid = props.route.params.data.conductid;
+  const conductname = props.route.params.name;
 
   useEffect(() => {
     const checkIsSupported = async () => {
@@ -222,45 +228,60 @@ const ConductDetails = props => {
       promptRef.current.setPromptVisible(true);
       promptRef.current.setHintText('Please scan your NFC');
     }
-    while (promptRef.current.promptVisible) {
-      NfcManager.setEventListener(NfcEvents.DiscoverTag, tag => {
-        try {
-          var newTag = Ndef.text.decodePayload(tag.ndefMessage[0].payload);
-          const [newName, newNRIC, newHPNo] = newTag.split(',');
-          var newNotAccFor = [];
-          var newAccFor = [...accFor];
-          for (let i = 0; i < notAccFor.length; i++) {
-            if (
-              notAccFor[i].userNRIC === newNRIC &&
-              notAccFor[i].userName === newName
-            ) {
-              // do update query
-              var userid = notAccFor[i].userid;
-              db.transaction(tx => {
-                tx.executeSql(
-                  `UPDATE ATTENDANCE SET ACCOUNTED = 1 WHERE USERID = (?) AND CONDUCTID = (?)`,
-                  [userid, conductid],
-                  (txObj, resultSet) => {
-                    console.log(`${newName} has been accounted for`);
-                  },
-                  error => {
-                    console.log(error);
-                  },
-                );
-              });
-              newAccFor.push(notAccFor[i]);
-            } else {
-              newNotAccFor.push(notAccFor[i]);
-            }
+    NfcManager.setEventListener(NfcEvents.DiscoverTag, tag => {
+      try {
+        var newTag = Ndef.text.decodePayload(tag.ndefMessage[0].payload);
+        const [newName, newNRIC, newHPNo] = newTag.split(',');
+        console.log(newName, newNRIC, newHPNo);
+        var newNotAccFor = [];
+        var newAccFor = [...accFor];
+        for (let i = 0; i < notAccFor.length; i++) {
+          if (
+            notAccFor[i].userNRIC === newNRIC &&
+            notAccFor[i].userName === newName
+          ) {
+            // do update query
+            var userid = notAccFor[i].userid;
+            db.transaction(tx => {
+              tx.executeSql(
+                `UPDATE ATTENDANCE SET ACCOUNTED = 1 WHERE USERID = (?) AND CONDUCTID = (?)`,
+                [userid, conductid],
+                (txObj, resultSet) => {
+                  console.log(`${newName} has been accounted for`);
+                },
+                error => {
+                  console.log(error);
+                },
+              );
+            });
+            newAccFor.push(notAccFor[i]);
+          } else {
+            newNotAccFor.push(notAccFor[i]);
           }
-          setAccFor(newAccFor);
-          setNotAccFor(newNotAccFor);
-        } catch (e) {
-          console.warn(e);
         }
-      });
-    }
+        setAccFor(newAccFor);
+        setNotAccFor(newNotAccFor);
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        promptRef.current.setPromptVisible(false);
+        promptRef.current.setHintText('');
+        NfcManager.unregisterTagEvent().catch(() => 0);
+      }
+    });
   }
+
+  const generateQRCode = () => {
+    var tempData = [];
+    var tempAccFor = [...accFor];
+    // conducting will scan tag to check against db -> primary key
+    // store a list of nrics that can check in db with the user data.
+    for (let i = 0; i < tempAccFor.length; i++) {
+      tempData.push(tempAccFor[i].userNRIC);
+    }
+    qrData.current = tempData;
+    console.log(qrData.current);
+  };
 
   if (isLoading) {
     return (
@@ -328,6 +349,17 @@ const ConductDetails = props => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionBtn}
+          onPress={() => {
+            generateQRCode();
+            setQRmodalvisibility(true);
+          }}>
+          <Ionicons name="qr-code-outline" size={24} color="white" />
+          <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
+            Create QRCode
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.actionBtn}
           onPress={async () => {
             await resetNomRoll();
           }}>
@@ -339,8 +371,8 @@ const ConductDetails = props => {
       </View>
       <AndroidPrompt ref={promptRef} />
       <Modal visible={addModalVisible} animationType="fade">
-        <SafeAreaView style={styles.addModalContainer}>
-          <View style={styles.addModalHeader}>
+        <SafeAreaView style={styles.ModalContainer}>
+          <View style={styles.ModalHeader}>
             <TouchableOpacity onPress={() => setaddModalVisible(false)}>
               <Ionicons
                 name="arrow-back-circle-outline"
@@ -348,7 +380,7 @@ const ConductDetails = props => {
                 color="white"
               />
             </TouchableOpacity>
-            <Text style={styles.addModalTitle}>
+            <Text style={styles.ModalTitle}>
               Manually add user from database
             </Text>
           </View>
@@ -363,6 +395,21 @@ const ConductDetails = props => {
             <MaterialIcons name="person-search" size={24} color="white" />
             <Text style={styles.manualAddbtnText}>Find user in database</Text>
           </TouchableOpacity>
+        </SafeAreaView>
+      </Modal>
+      <Modal visible={qrModalVisibility} animationType="fade">
+        <SafeAreaView style={styles.ModalContainer}>
+          <View style={styles.ModalHeader}>
+            <TouchableOpacity onPress={() => setQRmodalvisibility(false)}>
+              <Ionicons
+                name="arrow-back-circle-outline"
+                size={30}
+                color="white"
+              />
+            </TouchableOpacity>
+            <Text style={styles.ModalTitle}>{conductname}'s NR QR Code</Text>
+          </View>
+          <QRCode size={200} value={qrData.current.toString() || []} />
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
@@ -425,9 +472,11 @@ const styles = StyleSheet.create({
     alignContent: 'space-between',
     justifyContent: 'center',
   },
-  addModalContainer: {
+  ModalContainer: {
     backgroundColor: '#dedbf0',
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   textInput: {
     fontSize: 15,
@@ -441,24 +490,29 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
 
-  addModalTitle: {
+  ModalTitle: {
     color: '#FFF',
     fontSize: 20,
     marginLeft: 15,
     fontWeight: '500',
   },
-  addModalHeader: {
+  ModalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
     backgroundColor: '#bdb7e1',
+    position: 'absolute',
+    width: Dimensions.get('screen').width,
+    zIndex: 10,
+    top: 0,
   },
   manualAddbtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     backgroundColor: '#493c90',
     margin: 30,
+    width: Dimensions.get('screen').width / 2,
     marginTop: 50,
     borderRadius: 8,
     shadowOpacity: 0.4,

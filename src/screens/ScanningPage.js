@@ -24,6 +24,7 @@ const db = openDatabase({
 const ScanningPage = () => {
   const [addModalVisible, setaddModalVisible] = useState(false);
   const [writeModalVisible, setwriteModalVisible] = useState(false);
+  const [qrScannerVisible, setQRScannerVisible] = useState(false);
   const [towriteName, settoWriteName] = useState(null);
   const [towriteNRIC, settoWriteNRIC] = useState(null);
   const [towriteHP, settoWriteHP] = useState(null);
@@ -185,6 +186,9 @@ const ScanningPage = () => {
           nfcWriteUser();
         }}>
         <Text style={styles.btnText}>Write data onto NFC tag</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.qrscanBtn} onPress={() => {}}>
+        <Text style={styles.btnText}>Scan Conduct QRCode</Text>
       </TouchableOpacity>
       <AndroidPrompt ref={promptRef} />
       <Modal visible={addModalVisible} animationType="fade">
@@ -387,6 +391,15 @@ const styles = StyleSheet.create({
     padding: 18,
     fontSize: 14,
     color: '#FFF',
+  },
+  qrscanBtn: {
+    margin: 10,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#bdb7e1',
+    width: 260,
+    alignItems: 'center',
+    backgroundColor: '#DA627D',
   },
 });
 

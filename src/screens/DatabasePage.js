@@ -14,7 +14,7 @@ const db = openDatabase({
   name: 'appDatabase',
 });
 
-const DatabasePage = () => {
+const DatabasePage = ({navigation}) => {
   const [allNames, setallNames] = useState([]);
   const [isLoading, setisLoading] = useState(false);
 
@@ -85,6 +85,13 @@ const DatabasePage = () => {
     loadAllNames();
   });
 
+  const handleUserDetails = userObj => {
+    navigation.navigate('EditUserPage', {
+      name: userObj.userName,
+      data: userObj,
+    });
+  };
+
   if (isLoading) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -102,7 +109,11 @@ const DatabasePage = () => {
         data={allNames}
         keyExtractor={item => String(item.userid)}
         renderItem={({item}) => (
-          <NamesList data={item} removeUser={removeUser} />
+          <NamesList
+            data={item}
+            removeUser={removeUser}
+            handleUserDetails={handleUserDetails}
+          />
         )}
       />
     </SafeAreaView>

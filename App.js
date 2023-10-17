@@ -8,6 +8,7 @@ import Home from './src/screens/Home';
 import ScanningPage from './src/screens/ScanningPage';
 import DatabasePage from './src/screens/DatabasePage';
 import ConductDetails from './src/screens/ConductDetails';
+import EditUserPage from './src/screens/EditUserPage';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -27,6 +28,28 @@ const HomeStack = () => {
         <Stack.Screen
           component={ConductDetails}
           name="ConductDetails"
+          options={({route}) => ({title: route.params.name})}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+const DatabaseStack = () => {
+  return (
+    <NavigationContainer independent={true}>
+      <Stack.Navigator
+        initialRouteName="Database"
+        screenOptions={{gestureEnabled: true, gestureDirection: 'horizontal'}}
+        animation="fade">
+        <Stack.Screen
+          component={DatabasePage}
+          name="Database"
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          component={EditUserPage}
+          name="EditUserPage"
           options={({route}) => ({title: route.params.name})}
         />
       </Stack.Navigator>
@@ -72,9 +95,10 @@ const App = () => {
           }}
         />
         <Tab.Screen
-          name="Database"
-          component={DatabasePage}
+          name="DatabaseStack"
+          component={DatabaseStack}
           options={{
+            tabBarLabel: 'Database',
             headerShown: false,
             tabBarIcon: ({focused, color, size}) => (
               <MaterialCommunityIcons
