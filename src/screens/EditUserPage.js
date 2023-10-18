@@ -15,6 +15,7 @@ import {useEffect, useState, useRef} from 'react';
 import SelectDropdown from 'react-native-select-dropdown';
 import DatePicker from 'react-native-date-picker';
 import StatusList from '../components/StatusList';
+import EditStatusPrompt from '../components/EditStatusPrompt';
 
 const checkExist = async userNRIC => {
   const {data, error} = await SupaUser.findUser(userNRIC);
@@ -38,6 +39,8 @@ const EditUserPage = props => {
   const [new_endDate, setNewEndDate] = useState(new Date());
   const [sdVisible, setSdVisible] = useState(false);
   const [edVisible, setEdVisible] = useState(false);
+  const [editStatusVisible, setEditStatusVisible] = useState(false);
+  const toEditObj = useRef();
 
   const getStatusUser = async userId => {
     const {data, error} = await SupaUserStatus.getUserStatus(userId);
@@ -62,8 +65,25 @@ const EditUserPage = props => {
     }
   };
 
-  const handleEditStatus = () => {};
-  const handleRemoveStatus = () => {};
+  const handleEditStatus = UserStatusObj => {
+    toEditObj.current = UserStatusObj;
+    setEditStatusVisible(true);
+  };
+
+  const DBEditStatus = () => {};
+
+  const handleRemoveStatus = async statusUUID => {
+    const {data, error} = await SupaUserStatus.deleteUserStatus(statusUUID);
+    if (error) {
+      'Error occured while deleting status: ', error;
+    } else {
+      'Successfully deleted status: ', console.log(data);
+    }
+  };
+
+  const cancelEditPrompt = () => {
+    setEditStatusVisible(false);
+  };
   useEffect(() => {
     const getDBStatus = async () => {
       const {data, error} = await SupaStatus.getAllStatusNames();
@@ -211,6 +231,12 @@ const EditUserPage = props => {
           </View>
         </View>
       </Modal>
+      <EditStatusPrompt
+        data={toEditObj.current}
+        editStatusVisible={editStatusVisible}
+        updateDBUserStatus={DBEditStatus}
+        cancelPrompt={cancelEditPrompt}
+      />
     </View>
   );
 };
