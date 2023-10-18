@@ -40,7 +40,7 @@ const EditUserPage = props => {
   const [sdVisible, setSdVisible] = useState(false);
   const [edVisible, setEdVisible] = useState(false);
   const [editStatusVisible, setEditStatusVisible] = useState(false);
-  const toEditObj = useRef();
+  const toEditObj = useRef(null);
 
   const getStatusUser = async userId => {
     const {data, error} = await SupaUserStatus.getUserStatus(userId);
@@ -65,12 +65,23 @@ const EditUserPage = props => {
     }
   };
 
-  const handleEditStatus = UserStatusObj => {
+  const handleEditStatus = (UserStatusObj, editingStatusName) => {
     toEditObj.current = UserStatusObj;
+    toEditObj.current.statusName = editingStatusName;
     setEditStatusVisible(true);
   };
 
-  const DBEditStatus = () => {};
+  const DBEditStatus = async (statusUUID, new_endDate) => {
+    const {data, error} = await SupaUserStatus.updateUserStatus(
+      statusUUID,
+      new_endDate,
+    );
+    if (error) {
+      console.log('Error occured while updating status: ', error);
+    } else {
+      console.log('Successfully updated status: ', console.log(data));
+    }
+  };
 
   const handleRemoveStatus = async statusUUID => {
     const {data, error} = await SupaUserStatus.deleteUserStatus(statusUUID);
@@ -83,6 +94,7 @@ const EditUserPage = props => {
 
   const cancelEditPrompt = () => {
     setEditStatusVisible(false);
+    toEditObj.current = null;
   };
   useEffect(() => {
     const getDBStatus = async () => {
@@ -232,7 +244,7 @@ const EditUserPage = props => {
         </View>
       </Modal>
       <EditStatusPrompt
-        data={toEditObj.current}
+        data={toEditObj.current || null}
         editStatusVisible={editStatusVisible}
         updateDBUserStatus={DBEditStatus}
         cancelPrompt={cancelEditPrompt}

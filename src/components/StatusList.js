@@ -18,7 +18,7 @@ const StatusList = ({
       <View style={styles.dateContainer}>
         <Text style={styles.dateText}>Start: {data.start_date}</Text>
         <Text style={styles.dateText}>End: {data.end_date}</Text>
-        <TouchableOpacity onPress={() => handleEditStatus(data)}>
+        <TouchableOpacity onPress={() => handleEditStatus(data, statusName)}>
           <MaterialIcons name="edit-note" size={30} color="black" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => handleRemoveStatus(statusUUID)}>
