@@ -14,6 +14,8 @@ import {openDatabase} from 'react-native-sqlite-storage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ConductList from '../components/ConductList';
+import NetInfo from '@react-native-community/netinfo';
+import NetworkModal from '../components/NetworkModal';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -25,7 +27,28 @@ const Home = ({navigation}) => {
   const [input, setInput] = useState('');
   const [lastinsertId, setlastinsertId] = useState(null);
   const [allConducts, setallConducts] = useState([]);
+  const [isOffline, setIsOffline] = useState(false);
+  const [networkModalVisible, setNetworkModalVisible] = useState(isOffline);
 
+  NetInfo.addEventListener(networkState => {
+    console.log('Connection type - ', networkState.type);
+    console.log('Is connected? - ', networkState.isConnected);
+  });
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      const offline = !state.isConnected;
+      setIsOffline(offline);
+      setNetworkModalVisible(offline);
+    });
+
+    // fetch data
+    return () => unsubscribe();
+  }, []);
+  console.log(isOffline);
+  const onDismiss = () => {
+    setNetworkModalVisible(false);
+  };
   const createUserTable = () => {
     db.transaction(tx => {
       tx.executeSql(
@@ -258,6 +281,7 @@ const Home = ({navigation}) => {
           />
         )}
       />
+      <NetworkModal show={networkModalVisible} onDismiss={onDismiss} />
       <Modal animationType="fade" visible={modalVisible}>
         <SafeAreaView style={styles.modalContainer}>
           <View style={styles.modalHeader}>

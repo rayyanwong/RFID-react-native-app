@@ -16,6 +16,7 @@ import SelectDropdown from 'react-native-select-dropdown';
 import DatePicker from 'react-native-date-picker';
 import StatusList from '../components/StatusList';
 import EditStatusPrompt from '../components/EditStatusPrompt';
+import NetInfo from '@react-native-community/netinfo';
 
 const checkExist = async userNRIC => {
   const {data, error} = await SupaUser.findUser(userNRIC);
@@ -41,6 +42,7 @@ const EditUserPage = props => {
   const [edVisible, setEdVisible] = useState(false);
   const [editStatusVisible, setEditStatusVisible] = useState(false);
   const toEditObj = useRef(null);
+  const [isOffline, setIsOffline] = useState(false);
 
   const getStatusUser = async userId => {
     const {data, error} = await SupaUserStatus.getUserStatus(userId);
@@ -96,6 +98,7 @@ const EditUserPage = props => {
     setEditStatusVisible(false);
     toEditObj.current = null;
   };
+
   useEffect(() => {
     const getDBStatus = async () => {
       const {data, error} = await SupaStatus.getAllStatusNames();
@@ -110,9 +113,13 @@ const EditUserPage = props => {
       }
       console.log('User supabase id is: ', userIdRef.current);
     };
-
+    const unsubscribe = NetInfo.addEventListener(state => {
+      const offline = !state.isConnected;
+      setIsOffline(offline);
+    });
     setUserIdRef(userNRIC);
     getDBStatus();
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -142,19 +149,26 @@ const EditUserPage = props => {
           />
         </View>
       </View>
-      <FlatList
-        marginHorizontal={10}
-        data={userExistingStatus}
-        keyExtractor={item => String(item.statusUUID)}
-        renderItem={({item}) => (
-          <StatusList
-            data={item}
-            handleEditStatus={handleEditStatus}
-            handleRemoveStatus={handleRemoveStatus}
-            statusArr={statusArr}
-          />
-        )}
-      />
+      {!isOffline && (
+        <FlatList
+          marginHorizontal={10}
+          data={userExistingStatus}
+          keyExtractor={item => String(item.statusUUID)}
+          renderItem={({item}) => (
+            <StatusList
+              data={item}
+              handleEditStatus={handleEditStatus}
+              handleRemoveStatus={handleRemoveStatus}
+              statusArr={statusArr}
+            />
+          )}
+        />
+      )}
+      {isOffline && (
+        <Text>
+          You are currently offline and unable to retrieve the User's statuses
+        </Text>
+      )}
       <View style={styles.btnContainer}>
         <Button
           title="Find User in Supbase"
