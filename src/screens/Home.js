@@ -16,6 +16,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import ConductList from '../components/ConductList';
 import NetInfo from '@react-native-community/netinfo';
 import NetworkModal from '../components/NetworkModal';
+import {SupaConduct} from '../../supabase/database';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -29,6 +30,7 @@ const Home = ({navigation}) => {
   const [allConducts, setallConducts] = useState([]);
   const [isOffline, setIsOffline] = useState(false);
   const [networkModalVisible, setNetworkModalVisible] = useState(isOffline);
+  const [conductsCreationArr, setConductsCreationArr] = useState([]);
 
   NetInfo.addEventListener(networkState => {
     console.log('Connection type - ', networkState.type);
@@ -45,7 +47,35 @@ const Home = ({navigation}) => {
     // fetch data
     return () => unsubscribe();
   }, []);
-  console.log(isOffline);
+
+  useEffect(() => {
+    const fetchDBData = async () => {
+      if (!isOffline) {
+        const {data, error} = await SupaConduct.getAllConducts();
+        if (error) {
+          console.log(
+            'An Error has occured while fetching DB conduct details: ',
+            error,
+          );
+        } else {
+          setConductsCreationArr(data);
+          // [{'conductid','conductName'},...]
+          console.log(
+            'Successfully set Conductss Creation Arr with all Database type of conducts',
+          );
+        }
+      } else {
+        setConductsCreationArr([
+          {conductName: 'Conventional Operation Outfield', conductid: 23},
+          {conductName: 'Urban Operation Outfield', conductid: 22},
+        ]);
+      }
+    };
+    fetchDBData();
+  }, [isOffline]);
+
+  console.log(conductsCreationArr);
+
   const onDismiss = () => {
     setNetworkModalVisible(false);
   };
