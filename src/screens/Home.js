@@ -412,9 +412,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerText: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 24,
     color: '#000',
+    fontFamily: 'OpenSans-Bold',
   },
   addConductBtn: {
     position: 'absolute',

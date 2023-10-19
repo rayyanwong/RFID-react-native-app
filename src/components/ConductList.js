@@ -49,5 +49,6 @@ const styles = StyleSheet.create({
     paddingRight: 0,
     maxWidth: '90%',
     marginLeft: 15,
+    fontFamily: 'OpenSans-Medium',
   },
 });
