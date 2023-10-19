@@ -1,6 +1,5 @@
 import React, {useEffect, useState, useRef} from 'react';
 import {
-  FlatList,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -17,8 +16,9 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {openDatabase} from 'react-native-sqlite-storage';
 import NfcManager, {NfcEvents, NfcTech, Ndef} from 'react-native-nfc-manager';
 import AndroidPrompt from '../components/AndroidPrompt';
-import AccountingNameList from '../components/AccountingNameList';
 import QRCode from 'react-native-qrcode-svg';
+import AccountedForFlatList from '../components/AccountedForFlatList';
+import NotAccountForFlatList from '../components/NotAccountForFlatList';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -40,7 +40,9 @@ const ConductDetails = props => {
   const conductid = props.route.params.data.conductid;
   const conductname = props.route.params.name;
   const conductDBid = props.route.params.data.conductDBid;
-
+  const offlineConduct =
+    conductDBid === 22 || conductDBid === 23 ? true : false;
+  console.log('Is offline?: ', offlineConduct);
   useEffect(() => {
     const checkIsSupported = async () => {
       const deviceIsSupported = await NfcManager.isSupported();
@@ -300,33 +302,18 @@ const ConductDetails = props => {
       <View style={styles.headerContainer}>
         <Text style={styles.listHeader}>Not accounted for</Text>
       </View>
-      <FlatList
-        style={styles.notAccountedContainer}
-        data={notAccFor}
-        keyExtractor={item => String(item.userid)}
-        renderItem={({item}) => (
-          <AccountingNameList
-            data={item}
-            func={accountManually}
-            choice="notacc"
-          />
-        )}
+      <NotAccountForFlatList
+        notAccFor={notAccFor}
+        accountManually={accountManually}
       />
       <View style={styles.headerContainer}>
         <Text style={styles.listHeader}>Accounted for</Text>
       </View>
-      <FlatList
-        style={styles.accountedContainer}
-        data={accFor}
-        keyExtractor={item => String(item.userid)}
-        renderItem={({item}) => (
-          <AccountingNameList
-            data={item}
-            func={unaccountManually}
-            choice="acc"
-          />
-        )}
+      <AccountedForFlatList
+        accFor={accFor}
+        unaccountManually={unaccountManually}
       />
+      {!offlineConduct && <Text>This is an online conduct</Text>}
 
       <View style={styles.btnContainer}>
         <TouchableOpacity
@@ -426,18 +413,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: '#dedbf0',
     alignContent: 'center',
-  },
-  notAccountedContainer: {
-    flexGrow: 0,
-    height: Dimensions.get('screen').height / 4,
-    backgroundColor: 'white',
-    marginHorizontal: 15,
-  },
-  accountedContainer: {
-    flexGrow: 0,
-    height: Dimensions.get('screen').height / 4,
-    backgroundColor: 'white',
-    marginHorizontal: 15,
   },
   listHeader: {
     backgroundColor: '#493c90',
