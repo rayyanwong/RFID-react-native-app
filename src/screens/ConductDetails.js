@@ -39,6 +39,7 @@ const ConductDetails = props => {
   const promptRef = useRef();
   const conductid = props.route.params.data.conductid;
   const conductname = props.route.params.name;
+  const conductDBid = props.route.params.data.conductDBid;
 
   useEffect(() => {
     const checkIsSupported = async () => {
@@ -52,6 +53,9 @@ const ConductDetails = props => {
       }
     };
     checkIsSupported();
+    console.log(
+      `[ConductDetails] You have selected local Conductid: ${conductid} | DB conductid: ${conductDBid} | ConductName: ${conductname} `,
+    );
   }, []);
 
   useEffect(() => {

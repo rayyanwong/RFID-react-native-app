@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   StyleSheet,
@@ -33,6 +33,7 @@ const Home = ({navigation}) => {
   const [isOffline, setIsOffline] = useState(false);
   const [networkModalVisible, setNetworkModalVisible] = useState(isOffline);
   const [conductsCreationArr, setConductsCreationArr] = useState([]);
+  const newconductDBid = useRef(null);
 
   // NetInfo.addEventListener(networkState => {
   //   console.log('Connection type - ', networkState.type);
@@ -187,15 +188,19 @@ const Home = ({navigation}) => {
     db.transaction(
       tx => {
         tx.executeSql(
-          `INSERT INTO Conducts(conductName) values (?)`,
-          [input],
+          `INSERT INTO Conducts(conductName,conductDBid) values (?,?)`,
+          [input, newconductDBid.current],
           (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
               console.log(`${input} successfully inserted into conducts table`);
               // insert into Attendance table
-              console.log(resultSet.insertId);
+              console.log('Insert id: ', resultSet.insertId);
               var curConductid = resultSet.insertId;
-              console.log(curConductid);
+              console.log('Current conduct id: ', curConductid);
+              console.log(
+                'ConductDBid of newly created conduct: ',
+                newconductDBid.current,
+              );
               db.transaction(tx => {
                 tx.executeSql(
                   `SELECT userid FROM USERS where userid > 0`,
@@ -336,7 +341,8 @@ const Home = ({navigation}) => {
           <SelectDropdown
             data={conductsCreationArr}
             onSelect={(selectedItem, index) => {
-              console.log(selectedItem, index);
+              //console.log(selectedItem, index);
+              newconductDBid.current = selectedItem.conductid;
             }}
             defaultButtonText={'Select Conduct Type'}
             buttonTextAfterSelection={(selectedItem, index) => {
