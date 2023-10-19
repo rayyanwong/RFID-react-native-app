@@ -13,10 +13,12 @@ import {
 import {openDatabase} from 'react-native-sqlite-storage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import ConductList from '../components/ConductList';
 import NetInfo from '@react-native-community/netinfo';
 import NetworkModal from '../components/NetworkModal';
 import {SupaConduct} from '../../supabase/database';
+import SelectDropdown from 'react-native-select-dropdown';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -32,10 +34,10 @@ const Home = ({navigation}) => {
   const [networkModalVisible, setNetworkModalVisible] = useState(isOffline);
   const [conductsCreationArr, setConductsCreationArr] = useState([]);
 
-  NetInfo.addEventListener(networkState => {
-    console.log('Connection type - ', networkState.type);
-    console.log('Is connected? - ', networkState.isConnected);
-  });
+  // NetInfo.addEventListener(networkState => {
+  //   console.log('Connection type - ', networkState.type);
+  //   console.log('Is connected? - ', networkState.isConnected);
+  // });
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
@@ -44,7 +46,6 @@ const Home = ({navigation}) => {
       setNetworkModalVisible(offline);
     });
 
-    // fetch data
     return () => unsubscribe();
   }, []);
 
@@ -74,7 +75,7 @@ const Home = ({navigation}) => {
     fetchDBData();
   }, [isOffline]);
 
-  console.log(conductsCreationArr);
+  //console.log(conductsCreationArr);
 
   const onDismiss = () => {
     setNetworkModalVisible(false);
@@ -99,7 +100,7 @@ const Home = ({navigation}) => {
   const createConductTable = () => {
     db.transaction(tx => {
       tx.executeSql(
-        `CREATE TABLE IF NOT EXISTS Conducts (conductid INTEGER PRIMARY KEY AUTOINCREMENT, conductName TEXT)`,
+        `CREATE TABLE IF NOT EXISTS Conducts (conductid INTEGER PRIMARY KEY AUTOINCREMENT, conductName TEXT, conductDBid integer)`,
         [],
         (txObj, resultSet) => {
           if (resultSet.rowsAffected > 0) {
@@ -139,10 +140,10 @@ const Home = ({navigation}) => {
   const delConductTable = () => {
     db.transaction(tx => {
       tx.executeSql(
-        `DROP TABLE IF EXISTS Attendance`,
+        `DROP TABLE IF EXISTS Conducts`,
         [],
         (txObj, resultSet) => {
-          console.log('Attendance table removed');
+          console.log('Conducts table removed');
         },
         error => {
           console.log(error);
@@ -330,7 +331,45 @@ const Home = ({navigation}) => {
             style={styles.conductInput}
             value={input}
             onChangeText={text => setInput(text)}
+            textAlignVertical="center"
           />
+          <SelectDropdown
+            data={conductsCreationArr}
+            onSelect={(selectedItem, index) => {
+              console.log(selectedItem, index);
+            }}
+            defaultButtonText={'Select Conduct Type'}
+            buttonTextAfterSelection={(selectedItem, index) => {
+              return selectedItem.conductName;
+            }}
+            rowTextForSelection={(item, index) => {
+              return item.conductName;
+            }}
+            buttonStyle={styles.dropdownBtnStyle}
+            buttonTextStyle={styles.dropdownBtnTextStyle}
+            renderDropdownIcon={isOpened => {
+              return (
+                <FontAwesome
+                  name={isOpened ? 'chevron-up' : 'chevron-down'}
+                  color={'#FFF'}
+                  size={18}
+                />
+              );
+            }}
+            dropdownIconPosition="right"
+            dropdownStyle={styles.dropdownDropdownStyle}
+            rowStyle={styles.dropdownRowStyle}
+            rowTextStyle={styles.dropdownRowTextStyle}
+            selectedRowStyle={styles.dropdownSelectedRowStyle}
+            search
+            searchInputStyle={styles.dropdownSearhInputStyle}
+            searchPlaceHolder="Search for conduct"
+            searchPlaceHolderColor="#F8F8F8"
+            renderSearchInputLeftIcon={() => {
+              return <FontAwesome name="search" color="#FFF" size={18} />;
+            }}
+          />
+
           <TouchableOpacity
             style={styles.newConductBtn}
             onPress={handleAddConduct}>
@@ -348,7 +387,7 @@ const Home = ({navigation}) => {
 
       <TouchableOpacity
         style={styles.delConductBtn}
-        onPress={() => createAttendanceTable()}>
+        onPress={() => delConductTable()}>
         <MaterialIcons name="info-outline" size={25} color="white" />
       </TouchableOpacity>
     </SafeAreaView>
@@ -446,7 +485,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     backgroundColor: '#fff',
     padding: 9,
-    height: 85,
+    height: 55,
     textAlignVertical: 'top',
     color: '#000',
     borderRadius: 10,
@@ -456,6 +495,42 @@ const styles = StyleSheet.create({
     color: 'white',
     padding: 18,
     fontSize: 14,
+  },
+  dropdownBtnStyle: {
+    width: '80%',
+    height: 50,
+    backgroundColor: '#444',
+    borderRadius: 8,
+    marginVertical: 10,
+    marginTop: 30,
+    alignSelf: 'center',
+  },
+  dropdownBtnTextStyle: {
+    color: '#FFF',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  dropdownDropdownStyle: {
+    backgroundColor: '#444',
+    borderRadius: 12,
+  },
+  dropdownRowStyle: {
+    backgroundColor: '#444',
+    borderBottomColor: '#C5C5C5',
+  },
+  dropdownRowTextStyle: {
+    color: '#FFF',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  dropdownSelectedRowStyle: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  dropdownSearhInputStyle: {
+    backgroundColor: '#444',
+    borderBottomWidth: 1,
+    borderBottomColor: '#FFF',
   },
 });
 
