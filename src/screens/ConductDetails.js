@@ -19,7 +19,11 @@ import AndroidPrompt from '../components/AndroidPrompt';
 import QRCode from 'react-native-qrcode-svg';
 import AccountedForFlatList from '../components/AccountedForFlatList';
 import NotAccountForFlatList from '../components/NotAccountForFlatList';
-
+import {
+  SupaUserStatus,
+  SupaConductStatus,
+  SupaUser,
+} from '../../supabase/database';
 const db = openDatabase({
   name: 'appDatabase',
 });
@@ -28,13 +32,15 @@ const ConductDetails = props => {
   // state init
   const [accFor, setAccFor] = useState([]);
   const [notAccFor, setNotAccFor] = useState([]);
+  const [noGo, setNoGo] = useState([]);
   const [nricinput, setnricinput] = useState(null);
   const [addModalVisible, setaddModalVisible] = useState(false);
   const [hasNfc, setHasNfc] = useState(false);
   const [isLoading, setisLoading] = useState(false);
   const [qrModalVisibility, setQRmodalvisibility] = useState(false);
   const qrData = useRef([]);
-
+  const [noGoIdArr, setNoGoIdArr] = useState([]);
+  //console.log(props);
   //variable init
   const promptRef = useRef();
   const conductid = props.route.params.data.conductid;
@@ -42,7 +48,8 @@ const ConductDetails = props => {
   const conductDBid = props.route.params.data.conductDBid;
   const offlineConduct =
     conductDBid === 22 || conductDBid === 23 ? true : false;
-  console.log('Is offline?: ', offlineConduct);
+  //console.log('Is offline?: ', offlineConduct);
+  console.log('No GO list: ', noGo);
   useEffect(() => {
     const checkIsSupported = async () => {
       const deviceIsSupported = await NfcManager.isSupported();
@@ -61,7 +68,20 @@ const ConductDetails = props => {
   }, []);
 
   useEffect(() => {
+    const initialiseNoGoID = async () => {
+      const {data, error} = await SupaConductStatus.getNoGoIdForConduct(
+        conductDBid,
+      );
+      if (!error) {
+        setNoGoIdArr(data);
+        console.log('Ids are: ', data);
+      } else {
+        console.log('Error init: ', error);
+      }
+    };
+    initialiseNoGoID();
     setisLoading(true);
+    initialFilter();
     getAccounted();
     getnotAccounted();
     setisLoading(false);
@@ -81,11 +101,142 @@ const ConductDetails = props => {
     });
   };
 
+  const checkStatusEligible = statusObj => {
+    //console.log(statusObj);
+    //console.log(statusObj.statusId);
+    for (const c of noGoIdArr) {
+      // console.log(
+      //   'Checking ',
+      //   c.statusid,
+      //   'with statusid: ',
+      //   statusObj.statusId,
+      // );
+      if (c.statusid == statusObj.statusId) {
+        return 1;
+      }
+    }
+    return 0;
+  };
+
+  const initialFilter = async () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC from Attendance
+        inner join Users on Users.userid = Attendance.userid where
+        Attendance.accounted=0 and Attendance.conductid=(?)`,
+        [conductid],
+        (txObj, resultSet) => {
+          var result = resultSet.rows;
+          var curNotAccounted = [];
+          for (let i = 0; i < result.length; i++) {
+            curNotAccounted.push(result.item(i));
+          }
+          setNotAccFor(curNotAccounted);
+        },
+        e => {
+          console.log(e);
+        },
+      );
+    });
+    if (!offlineConduct) {
+      var filteredNotAcc = [];
+      var curNotAccounted = [...notAccFor];
+      var curNoGo = [];
+      //
+      for (let i = 0; i < curNotAccounted.length; i++) {
+        const {data, error} = await SupaUserStatus.joinUserQuery(
+          curNotAccounted[i].userNRIC,
+        );
+        const userStatuses = data[0].Statusid;
+        console.log(userStatuses);
+        if (userStatuses.length === 0) {
+          filteredNotAcc.push(curNotAccounted[i]);
+        } else {
+          var tempArr = [];
+          for (const j of userStatuses) {
+            const uneligible = checkStatusEligible(j);
+            tempArr.push(uneligible);
+          }
+          if (tempArr.includes(1)) {
+            //curNoGo.push(curNotAccounted[i]);
+            db.transaction(tx => {
+              tx.executeSql(
+                `UPDATE Attendance set eligible=0
+              where Attendance.userid = (?) and Attendance.conductid =(?) `,
+                [curNotAccounted[i].userid, conductid],
+                (_, resultSet) => {
+                  if (resultSet.rowsAffected > 0) {
+                    console.log('Successfully updated eligible to 0');
+                  }
+                },
+                e => {
+                  console.log(e);
+                },
+              );
+            });
+          }
+        }
+      }
+      getnotAccounted();
+    }
+  };
+
+  // const initialFilter = async () => {
+  //   // CHECK IF IS ONLINE CONDUCT
+  //   //RETRIEVE ATTENDANCE DATA
+  //   db.transaction(tx => {
+  //     tx.executeSql(
+  //       `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC FROM ATTENDANCE
+  //         INNER JOIN USERS on USERS.userid = ATTENDANCE.userid WHERE ATTENDANCE.accounted=0 and ATTENDANCE.conductid=(?)`,
+  //       [conductid],
+  //       async (txObj, resultSet) => {
+  //         var result = resultSet.rows;
+  //         var curNotAccounted = [];
+  //         var curNoGo = [];
+  //         for (let i = 0; i < result.length; i++) {
+  //           if (offlineConduct) {
+  //             curNotAccounted.push(result.item(i));
+  //           } else {
+  //             console.log(result.item(i).userNRIC);
+  //             const {data, error} = await SupaUserStatus.joinUserQuery(
+  //               result.item(i).userNRIC,
+  //             );
+  //             console.log(data);
+  //             const statusIds = data[0].Statusid;
+  //             //{"Statusid":[Obj], "userid": int}
+  //             if (statusIds.length === 0) {
+  //               curNotAccounted.push(result.item(i));
+  //             } else {
+  //               // CHECK FOR EACH STATUS
+  //               for (const j of statusIds) {
+  //                 var uneligible = checkStatusEligible(j);
+  //                 console.log('Logging: ', uneligible);
+  //                 if (uneligible) {
+  //                   break;
+  //                 }
+  //               }
+  //               if (uneligible) {
+  //                 curNoGo.push(result.item(i));
+  //               } else {
+  //                 curNotAccounted.push(result.item(i));
+  //               }
+  //             }
+  //           }
+  //         }
+  //         setNoGo(curNoGo);
+  //         setNotAccFor(curNotAccounted);
+  //       },
+  //       error => {
+  //         console.log('[ConductDetails][initialFilter] error: ', error);
+  //       },
+  //     );
+  //   });
+  // };
   const getAccounted = () => {
     db.transaction(tx => {
       tx.executeSql(
         `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC FROM ATTENDANCE
-         INNER JOIN USERS ON USERS.userid = ATTENDANCE.userid WHERE ATTENDANCE.accounted = 1 AND ATTENDANCE.conductid = (?)`,
+         INNER JOIN USERS ON USERS.userid = ATTENDANCE.userid WHERE ATTENDANCE.accounted = 1 AND ATTENDANCE.conductid = (?) AND ATTENDANCE.eligible=1`,
         [conductid],
         (txObj, resultSet) => {
           var result = resultSet.rows;
@@ -106,7 +257,7 @@ const ConductDetails = props => {
     db.transaction(tx => {
       tx.executeSql(
         `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC FROM ATTENDANCE
-         INNER JOIN USERS ON USERS.userid = ATTENDANCE.userid WHERE ATTENDANCE.accounted = 0 AND ATTENDANCE.conductid = (?)`,
+         INNER JOIN USERS ON USERS.userid = ATTENDANCE.userid WHERE ATTENDANCE.accounted = 0 AND ATTENDANCE.conductid = (?) and Attendance.eligible=1`,
         [conductid],
         (txObj, resultSet) => {
           var result = resultSet.rows;

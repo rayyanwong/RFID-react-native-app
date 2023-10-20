@@ -122,6 +122,7 @@ const Home = ({navigation}) => {
                 userid integer,
                 conductid integer,
                 accounted boolean ,
+                eligible boolean, 
                 primary key (userid, conductid), 
                 foreign key (userid) references Users(userid), 
                 foreign key (conductid) references Conducts(conductid));`,
@@ -145,6 +146,21 @@ const Home = ({navigation}) => {
         [],
         (txObj, resultSet) => {
           console.log('Conducts table removed');
+        },
+        error => {
+          console.log(error);
+        },
+      );
+    });
+  };
+
+  const delAttendanceTable = () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        `DROP TABLE IF EXISTS Attendance`,
+        [],
+        (txObj, resultSet) => {
+          console.log('Attendance table removed');
         },
         error => {
           console.log(error);
@@ -241,8 +257,8 @@ const Home = ({navigation}) => {
   const insertAttendance = (userid, conductid) => {
     db.transaction(tx => {
       tx.executeSql(
-        `INSERT INTO ATTENDANCE(userid,conductid,accounted) VALUES (?,?,?)`,
-        [userid, conductid, 0],
+        `INSERT INTO ATTENDANCE(userid,conductid,accounted,eligible) VALUES (?,?,?,?)`,
+        [userid, conductid, 0, 1],
         (txObj, resultSet) => {
           if (resultSet.rowsAffected > 0) {
             console.log(
@@ -343,6 +359,7 @@ const Home = ({navigation}) => {
             onSelect={(selectedItem, index) => {
               //console.log(selectedItem, index);
               newconductDBid.current = selectedItem.conductid;
+              console.log('Current conductdbid is: ', newconductDBid.current);
             }}
             defaultButtonText={'Select Conduct Type'}
             buttonTextAfterSelection={(selectedItem, index) => {
@@ -393,7 +410,7 @@ const Home = ({navigation}) => {
 
       <TouchableOpacity
         style={styles.delConductBtn}
-        onPress={() => delConductTable()}>
+        onPress={() => delAttendanceTable()}>
         <MaterialIcons name="info-outline" size={25} color="white" />
       </TouchableOpacity>
     </SafeAreaView>
