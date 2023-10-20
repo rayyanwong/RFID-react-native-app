@@ -34,7 +34,14 @@ class UserStatusTable {
       .gte('end_date', new Date().toLocaleString());
     return {data, error};
   }
-
+  async getAllStatusId(userId) {
+    let {data, error} = await supabase
+      .from('UserStatus')
+      .select('statusid')
+      .eq('userId', userId)
+      .gte('end_date', new Date().toLocaleString());
+    return {data, error};
+  }
   async updateUserStatus(statusUUID, new_endDate) {
     let {data, error} = await supabase
       .from('UserStatus')
@@ -48,6 +55,18 @@ class UserStatusTable {
       .from('UserStatus')
       .delete()
       .eq('statusUUID', statusUUID);
+    return {data, error};
+  }
+
+  async joinUserQuery(userNRIC) {
+    let {data, error} = await supabase
+      .from('User')
+      .select(
+        `userid,
+        Statusid:UserStatus(statusId)`,
+      )
+      .eq('userNRIC', userNRIC)
+      .gte('UserStatus.end_date', new Date().toLocaleString());
     return {data, error};
   }
 }
@@ -66,6 +85,13 @@ class StatusTable {
   }
   async getAllStatusNames() {
     let {data, error} = await supabase.from('Status').select('statusName');
+    return {data, error};
+  }
+  async getStatusName(statusid) {
+    let {data, error} = await supabase
+      .from('Status')
+      .select('statusName')
+      .eq('statusId', statusid);
     return {data, error};
   }
 }
@@ -87,8 +113,27 @@ class ConductTable {
     return {data, error};
   }
 }
+class ConductStatusPairTable {
+  async searchByPair(conductid, statusid) {
+    let {data, error} = await supabase
+      .from('ConductStatusPair')
+      .select('go')
+      .eq('conductid', conductid)
+      .eq('statusid', statusid);
+    return {data, error};
+  }
 
+  async getNoGoIdForConduct(conductid) {
+    let {data, error} = await supabase
+      .from('ConductStatusPair')
+      .select('statusid')
+      .eq('conductid', conductid)
+      .eq('go', 0);
+    return {data, error};
+  }
+}
 export const SupaUser = new UserTable();
 export const SupaUserStatus = new UserStatusTable();
 export const SupaStatus = new StatusTable();
 export const SupaConduct = new ConductTable();
+export const SupaConductStatus = new ConductStatusPairTable();

@@ -31,7 +31,10 @@ const EditUserPage = props => {
   const userNRIC = props.route.params.data.userNRIC;
   const userObj = props.route.params.data;
   const userHPNo = props.route.params.data.userHPNo.toString();
-  const [statusArr, setStatusArr] = useState([]);
+  // const [statusArr, setStatusArr] = useState([]);
+  // const [statusNameArr, setStatusNameArr] = useState([]);
+  const statusArr = useRef([]);
+  const statusNameArr = useRef([]);
   const [userExistingStatus, setUserExistingStatus] = useState([]);
   const userIdRef = useRef(0);
   const [addPromptVisible, setPromptVisible] = useState(false);
@@ -101,9 +104,17 @@ const EditUserPage = props => {
 
   useEffect(() => {
     const getDBStatus = async () => {
+      const {data, error} = await SupaStatus.getAllStatus();
+      if (!error) {
+        //setStatusArr(data);
+        statusArr.current = data;
+      }
+    };
+    const getDBStatusNames = async () => {
       const {data, error} = await SupaStatus.getAllStatusNames();
       if (!error) {
-        setStatusArr(data);
+        // setStatusNameArr(data);
+        statusNameArr.current = data;
       }
     };
     const setUserIdRef = async userNRIC => {
@@ -119,14 +130,16 @@ const EditUserPage = props => {
     });
     setUserIdRef(userNRIC);
     getDBStatus();
+    getDBStatusNames();
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
     getStatusUser(userIdRef.current);
   });
-
+  //console.log('[EditUserPage] ', statusArr);
   //console.log(userObj);
+  //console.log('Existing: ', userExistingStatus);
   return (
     <View style={styles.container}>
       <View style={styles.infoContainer}>
@@ -159,7 +172,6 @@ const EditUserPage = props => {
               data={item}
               handleEditStatus={handleEditStatus}
               handleRemoveStatus={handleRemoveStatus}
-              statusArr={statusArr}
             />
           )}
         />
@@ -177,7 +189,7 @@ const EditUserPage = props => {
         <Button title="Get Add Prompt" onPress={() => setPromptVisible(true)} />
         <Button
           title="Get all statuses"
-          onPress={() => console.log(statusArr)}
+          onPress={() => console.log(statusArr.current)}
         />
       </View>
 
@@ -187,11 +199,11 @@ const EditUserPage = props => {
           <View style={styles.prompt}>
             <SelectDropdown
               buttonStyle={{marginBottom: 10}}
-              data={statusArr}
+              data={statusArr.current}
               onSelect={(selectedItem, index) => {
                 console.log(selectedItem);
-                newStatusRef.current = index;
-                console.log(index);
+                newStatusRef.current = selectedItem.statusId;
+                console.log(newStatusRef.current);
               }}
               buttonTextAfterSelection={(selectedItem, index) => {
                 return selectedItem.statusName;

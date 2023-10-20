@@ -1,7 +1,7 @@
 import React, {useRef, useState} from 'react';
 import {View, StyleSheet, Text, Modal, Dimensions, Button} from 'react-native';
 import DatePicker from 'react-native-date-picker';
-import {SupaUserStatus} from '../../supabase/database';
+import {SupaConductStatus} from '../../supabase/database';
 
 const EditStatusPrompt = ({
   data,
@@ -15,6 +15,7 @@ const EditStatusPrompt = ({
   const statusUUID = data.statusUUID;
   const [new_endDate, setNewEndDate] = useState(new Date(data.end_date));
   const [edVisible, setEdVisible] = useState(false);
+  const statusId = data.statusId;
   return (
     <View>
       <Modal visible={editStatusVisible} transparent={true}>
