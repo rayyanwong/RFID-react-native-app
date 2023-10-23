@@ -9,7 +9,7 @@ const NoGoNameList = ({data, func}) => {
         <Text style={styles.cardText}>{data.userName}</Text>
       </View>
       <TouchableOpacity onPress={() => func(data.userid)}>
-        <MaterialIcons name="verified-user" size={24} color="grey" />
+        <MaterialIcons name="verified-user" size={20} color="grey" />
       </TouchableOpacity>
     </View>
   );
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
       height: 3,
     },
     height: 40,
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
   },
   cardText: {
     color: '#121212',

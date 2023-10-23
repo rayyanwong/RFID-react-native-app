@@ -24,7 +24,7 @@ const AccountedForFlatList = ({accFor, unaccountManually}) => {
 const styles = StyleSheet.create({
   accountedContainer: {
     flexGrow: 0,
-    height: Dimensions.get('screen').height / 4,
+    height: Dimensions.get('screen').height / 5,
     backgroundColor: 'white',
     marginHorizontal: 15,
   },

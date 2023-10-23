@@ -9,6 +9,7 @@ import {
   TextInput,
   Modal,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -24,6 +25,7 @@ import {
   SupaConductStatus,
   SupaUser,
 } from '../../supabase/database';
+import NoGoFlatList from '../components/NoGoFlatList';
 const db = openDatabase({
   name: 'appDatabase',
 });
@@ -48,8 +50,7 @@ const ConductDetails = props => {
   const conductDBid = props.route.params.data.conductDBid;
   const offlineConduct =
     conductDBid === 22 || conductDBid === 23 ? true : false;
-  //console.log('Is offline?: ', offlineConduct);
-  console.log('No GO list: ', noGo);
+
   useEffect(() => {
     const checkIsSupported = async () => {
       const deviceIsSupported = await NfcManager.isSupported();
@@ -65,6 +66,7 @@ const ConductDetails = props => {
     console.log(
       `[ConductDetails] You have selected local Conductid: ${conductid} | DB conductid: ${conductDBid} | ConductName: ${conductname} `,
     );
+    console.log('[offlineConduct]: ', offlineConduct);
   }, []);
 
   useEffect(() => {
@@ -83,7 +85,7 @@ const ConductDetails = props => {
     setisLoading(true);
     initialFilter();
     getAccounted();
-    getnotAccounted();
+    //getnotAccounted();
     setisLoading(false);
   }, []);
 
@@ -119,6 +121,7 @@ const ConductDetails = props => {
   };
 
   const initialFilter = async () => {
+    const tempNotAccFor = [];
     db.transaction(tx => {
       tx.executeSql(
         `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC from Attendance
@@ -131,7 +134,7 @@ const ConductDetails = props => {
           for (let i = 0; i < result.length; i++) {
             curNotAccounted.push(result.item(i));
           }
-          setNotAccFor(curNotAccounted);
+          tempNotAccFor = curNotAccounted;
         },
         e => {
           console.log(e);
@@ -140,8 +143,7 @@ const ConductDetails = props => {
     });
     if (!offlineConduct) {
       var filteredNotAcc = [];
-      var curNotAccounted = [...notAccFor];
-      var curNoGo = [];
+      var curNotAccounted = [...tempNotAccFor];
       //
       for (let i = 0; i < curNotAccounted.length; i++) {
         const {data, error} = await SupaUserStatus.joinUserQuery(
@@ -177,61 +179,11 @@ const ConductDetails = props => {
           }
         }
       }
-      getnotAccounted();
+      getNoGoArr();
     }
+    getnotAccounted();
   };
 
-  // const initialFilter = async () => {
-  //   // CHECK IF IS ONLINE CONDUCT
-  //   //RETRIEVE ATTENDANCE DATA
-  //   db.transaction(tx => {
-  //     tx.executeSql(
-  //       `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC FROM ATTENDANCE
-  //         INNER JOIN USERS on USERS.userid = ATTENDANCE.userid WHERE ATTENDANCE.accounted=0 and ATTENDANCE.conductid=(?)`,
-  //       [conductid],
-  //       async (txObj, resultSet) => {
-  //         var result = resultSet.rows;
-  //         var curNotAccounted = [];
-  //         var curNoGo = [];
-  //         for (let i = 0; i < result.length; i++) {
-  //           if (offlineConduct) {
-  //             curNotAccounted.push(result.item(i));
-  //           } else {
-  //             console.log(result.item(i).userNRIC);
-  //             const {data, error} = await SupaUserStatus.joinUserQuery(
-  //               result.item(i).userNRIC,
-  //             );
-  //             console.log(data);
-  //             const statusIds = data[0].Statusid;
-  //             //{"Statusid":[Obj], "userid": int}
-  //             if (statusIds.length === 0) {
-  //               curNotAccounted.push(result.item(i));
-  //             } else {
-  //               // CHECK FOR EACH STATUS
-  //               for (const j of statusIds) {
-  //                 var uneligible = checkStatusEligible(j);
-  //                 console.log('Logging: ', uneligible);
-  //                 if (uneligible) {
-  //                   break;
-  //                 }
-  //               }
-  //               if (uneligible) {
-  //                 curNoGo.push(result.item(i));
-  //               } else {
-  //                 curNotAccounted.push(result.item(i));
-  //               }
-  //             }
-  //           }
-  //         }
-  //         setNoGo(curNoGo);
-  //         setNotAccFor(curNotAccounted);
-  //       },
-  //       error => {
-  //         console.log('[ConductDetails][initialFilter] error: ', error);
-  //       },
-  //     );
-  //   });
-  // };
   const getAccounted = () => {
     db.transaction(tx => {
       tx.executeSql(
@@ -269,6 +221,27 @@ const ConductDetails = props => {
         },
         e => {
           console.log('Update error', e);
+        },
+      );
+    });
+  };
+
+  const getNoGoArr = () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC FROM ATTENDANCE
+        INNER JOIN USERS on USERS.userid = ATTENDANCE.userid WHERE ATTENDANCE.accounted =0 AND ATTENDANCE.conductid = (?) AND ATTENDANCE.eligible = 0`,
+        [conductid],
+        (txObj, resultSet) => {
+          var result = resultSet.rows;
+          var curNoGo = [];
+          for (let i = 0; i < result.length; i++) {
+            curNoGo.push(result.item(i));
+          }
+          setNoGo(curNoGo);
+        },
+        e => {
+          console.log('Updating of No GO Arr Error: ', e);
         },
       );
     });
@@ -355,6 +328,25 @@ const ConductDetails = props => {
     }
     setAccFor(newAccFor);
     setNotAccFor(newNotAccFor);
+  }
+
+  async function forceGoManually(userid) {
+    await db.transaction(tx => {
+      tx.executeSql(
+        `UPDATE ATTENDANCE SET ELIGIBLE=1 WHERE USERID=(?) AND CONDUCTID=(?)`,
+        [userid, conductid],
+        (txObj, resultSet) => {
+          if (resultSet.rowsAffected > 0) {
+            console.log('Updated eligibility for user is successful');
+            getnotAccounted();
+            getNoGoArr();
+          }
+        },
+        e => {
+          console.log('ForceGoManually has failed: ', e);
+        },
+      );
+    });
   }
 
   async function resetNomRoll() {
@@ -464,8 +456,14 @@ const ConductDetails = props => {
         accFor={accFor}
         unaccountManually={unaccountManually}
       />
-      {!offlineConduct && <Text>This is an online conduct</Text>}
-
+      {!offlineConduct && (
+        <View>
+          <View style={styles.headerContainer}>
+            <Text style={styles.listHeader}>No Go</Text>
+          </View>
+          <NoGoFlatList noGoArr={noGo} forceGoManually={forceGoManually} />
+        </View>
+      )}
       <View style={styles.btnContainer}>
         <TouchableOpacity
           style={styles.actionBtn}
@@ -477,17 +475,17 @@ const ConductDetails = props => {
             size={24}
             color="white"
           />
-          <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
+          {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
             Scan cadet tag
-          </Text>
+          </Text> */}
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionBtn}
           onPress={() => setaddModalVisible(true)}>
           <Ionicons name="person-add" size={24} color="white" />
-          <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
+          {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
             Add manually
-          </Text>
+          </Text> */}
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionBtn}
@@ -496,9 +494,9 @@ const ConductDetails = props => {
             setQRmodalvisibility(true);
           }}>
           <Ionicons name="qr-code-outline" size={24} color="white" />
-          <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
+          {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
             Create QRCode
-          </Text>
+          </Text> */}
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionBtn}
@@ -506,9 +504,9 @@ const ConductDetails = props => {
             await resetNomRoll();
           }}>
           <MaterialCommunityIcons name="restart" size={24} color="white" />
-          <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
+          {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
             Unaccount all
-          </Text>
+          </Text> */}
         </TouchableOpacity>
       </View>
       <AndroidPrompt ref={promptRef} />
@@ -522,9 +520,9 @@ const ConductDetails = props => {
                 color="white"
               />
             </TouchableOpacity>
-            <Text style={styles.ModalTitle}>
+            {/* <Text style={styles.ModalTitle}>
               Manually add user from database
-            </Text>
+            </Text> */}
           </View>
           <TextInput
             style={styles.textInput}
@@ -535,7 +533,7 @@ const ConductDetails = props => {
           />
           <TouchableOpacity style={styles.manualAddbtn} onPress={manualAddUser}>
             <MaterialIcons name="person-search" size={24} color="white" />
-            <Text style={styles.manualAddbtnText}>Find user in database</Text>
+            {/* <Text style={styles.manualAddbtnText}>Find user in database</Text> */}
           </TouchableOpacity>
         </SafeAreaView>
       </Modal>
@@ -549,7 +547,7 @@ const ConductDetails = props => {
                 color="white"
               />
             </TouchableOpacity>
-            <Text style={styles.ModalTitle}>{conductname}'s NR QR Code</Text>
+            {/* <Text style={styles.ModalTitle}>{conductname}'s NR QR Code</Text> */}
           </View>
           <QRCode size={200} value={qrData.current.toString() || []} />
         </SafeAreaView>
@@ -568,8 +566,8 @@ const styles = StyleSheet.create({
   listHeader: {
     backgroundColor: '#493c90',
     color: '#FFF',
-    fontSize: 16,
-    padding: 10,
+    fontSize: 14,
+    padding: 8,
     fontWeight: 'bold',
   },
   headerContainer: {
@@ -579,11 +577,11 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     alignItems: 'center',
-    width: 80,
-    height: 80,
+    width: 60,
+    height: 60,
     backgroundColor: '#493c90',
     justifyContent: 'center',
-    borderRadius: 30,
+    borderRadius: 20,
     elevation: 2,
     zIndex: 10,
     margin: 5,
@@ -601,6 +599,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignContent: 'space-between',
     justifyContent: 'center',
+    position: 'absolute',
+    bottom: 5,
+    alignSelf: 'center',
   },
   ModalContainer: {
     backgroundColor: '#dedbf0',

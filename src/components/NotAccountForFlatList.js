@@ -23,7 +23,7 @@ const NotAccountForFlatList = ({notAccFor, accountManually}) => {
 const styles = StyleSheet.create({
   notAccountedContainer: {
     flexGrow: 0,
-    height: Dimensions.get('screen').height / 4,
+    height: Dimensions.get('screen').height / 5,
     backgroundColor: 'white',
     marginHorizontal: 15,
   },

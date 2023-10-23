@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, StyleSheet, Dimensions, Text, FlatList} from 'react-native';
-
+import NoGoNameList from './NoGoNameList';
 const NoGoFlatList = ({noGoArr, forceGoManually}) => {
   return (
     <View>
@@ -19,7 +19,7 @@ const NoGoFlatList = ({noGoArr, forceGoManually}) => {
 const styles = StyleSheet.create({
   noGoContainer: {
     flexGrow: 0,
-    height: Dimensions.get('screen').height / 4,
+    height: Dimensions.get('screen').height / 5,
     backgroundColor: 'white',
     marginHorizontal: 15,
   },
