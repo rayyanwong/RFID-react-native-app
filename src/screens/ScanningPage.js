@@ -15,7 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import NfcManager, {NfcEvents, NfcTech, Ndef} from 'react-native-nfc-manager';
 import AndroidPrompt from '../components/AndroidPrompt';
-import {validInputData} from '../validation/validInputData';
+import {validInputData} from '../utils/validInputData';
 
 const db = openDatabase({
   name: 'appDatabase',

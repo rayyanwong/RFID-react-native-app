@@ -9,23 +9,19 @@ import {
   TextInput,
   Modal,
   ActivityIndicator,
-  ScrollView,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {openDatabase} from 'react-native-sqlite-storage';
-import NfcManager, {NfcEvents, NfcTech, Ndef} from 'react-native-nfc-manager';
+import NfcManager, {NfcEvents, Ndef} from 'react-native-nfc-manager';
 import AndroidPrompt from '../components/AndroidPrompt';
 import QRCode from 'react-native-qrcode-svg';
 import AccountedForFlatList from '../components/AccountedForFlatList';
 import NotAccountForFlatList from '../components/NotAccountForFlatList';
-import {
-  SupaUserStatus,
-  SupaConductStatus,
-  SupaUser,
-} from '../../supabase/database';
+import {SupaUserStatus, SupaConductStatus} from '../../supabase/database';
 import NoGoFlatList from '../components/NoGoFlatList';
+
 const db = openDatabase({
   name: 'appDatabase',
 });
