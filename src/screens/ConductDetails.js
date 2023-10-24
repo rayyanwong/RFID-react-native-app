@@ -230,7 +230,7 @@ const ConductDetails = props => {
     db.transaction(tx => {
       tx.executeSql(
         `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC FROM ATTENDANCE
-        INNER JOIN USERS on USERS.userid = ATTENDANCE.userid WHERE ATTENDANCE.accounted =0 AND ATTENDANCE.conductid = (?) AND ATTENDANCE.eligible = 0`,
+        INNER JOIN USERS on USERS.userid = ATTENDANCE.userid WHERE ATTENDANCE.conductid = (?) AND ATTENDANCE.eligible = 0`,
         [conductid],
         (txObj, resultSet) => {
           var result = resultSet.rows;
@@ -338,8 +338,6 @@ const ConductDetails = props => {
         (txObj, resultSet) => {
           if (resultSet.rowsAffected > 0) {
             console.log('Updated eligibility for user is successful');
-            getnotAccounted();
-            getNoGoArr();
           }
         },
         e => {
@@ -347,6 +345,9 @@ const ConductDetails = props => {
         },
       );
     });
+    getnotAccounted();
+    getNoGoArr();
+    getAccounted();
   }
 
   async function noGoManually(userid) {
@@ -357,8 +358,6 @@ const ConductDetails = props => {
         (txObj, resultSet) => {
           if (resultSet.rowsAffected > 0) {
             console.log('Updated eligibility for user to 0 is successful');
-            getnotAccounted();
-            getNoGoArr();
           }
         },
         e => {
@@ -366,6 +365,9 @@ const ConductDetails = props => {
         },
       );
     });
+    getAccounted();
+    getnotAccounted();
+    getNoGoArr();
   }
 
   async function resetNomRoll() {
@@ -467,6 +469,7 @@ const ConductDetails = props => {
       <NotAccountForFlatList
         notAccFor={notAccFor}
         accountManually={accountManually}
+        noGoManually={noGoManually}
       />
       <View style={styles.headerContainer}>
         <Text style={styles.listHeader}>Accounted for</Text>
@@ -474,11 +477,12 @@ const ConductDetails = props => {
       <AccountedForFlatList
         accFor={accFor}
         unaccountManually={unaccountManually}
+        noGoManually={noGoManually}
       />
       {!offlineConduct && (
         <View>
           <View style={styles.headerContainer}>
-            <Text style={styles.listHeader}>No Go</Text>
+            <Text style={[styles.listHeader, styles.listHeaderRed]}>No Go</Text>
           </View>
           <NoGoFlatList noGoArr={noGo} forceGoManually={forceGoManually} />
         </View>
@@ -683,6 +687,9 @@ const styles = StyleSheet.create({
     padding: 18,
     fontSize: 14,
     color: '#FFF',
+  },
+  listHeaderRed: {
+    backgroundColor: '#f1807e',
   },
 });
 

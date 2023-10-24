@@ -1,8 +1,8 @@
 import React from 'react';
 import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
-const AccountingNameList = ({data, func, choice}) => {
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+const AccountingNameList = ({data, func, func2, choice}) => {
   return (
     <View style={styles.cardContainer}>
       <View>
@@ -16,6 +16,11 @@ const AccountingNameList = ({data, func, choice}) => {
           size={24}
           color="grey"
         />
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => func2(data.userid)}
+        style={styles.manualBtn2}>
+        <MaterialIcons name="remove-moderator" size={24} color="grey" />
       </TouchableOpacity>
     </View>
   );
@@ -38,7 +43,7 @@ const styles = StyleSheet.create({
       height: 3,
     },
     height: 40,
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
   },
   cardText: {
     color: '#121212',
@@ -51,7 +56,11 @@ const styles = StyleSheet.create({
   },
   manualBtn: {
     position: 'absolute',
-    right: 20,
+    right: 10,
+  },
+  manualBtn2: {
+    position: 'absolute',
+    right: 40,
   },
 });
 

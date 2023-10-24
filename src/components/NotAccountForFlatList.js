@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, StyleSheet, Dimensions, Text, FlatList} from 'react-native';
 import AccountingNameList from './AccountingNameList';
-const NotAccountForFlatList = ({notAccFor, accountManually}) => {
+const NotAccountForFlatList = ({notAccFor, accountManually, noGoManually}) => {
   return (
     <View>
       <FlatList
@@ -12,6 +12,7 @@ const NotAccountForFlatList = ({notAccFor, accountManually}) => {
           <AccountingNameList
             data={item}
             func={accountManually}
+            func2={noGoManually}
             choice="notacc"
           />
         )}

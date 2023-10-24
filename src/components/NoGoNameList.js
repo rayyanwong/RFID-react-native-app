@@ -9,7 +9,7 @@ const NoGoNameList = ({data, func}) => {
         <Text style={styles.cardText}>{data.userName}</Text>
       </View>
       <TouchableOpacity onPress={() => func(data.userid)}>
-        <MaterialIcons name="verified-user" size={20} color="grey" />
+        <MaterialIcons name="add-moderator" size={24} color="grey" />
       </TouchableOpacity>
     </View>
   );
