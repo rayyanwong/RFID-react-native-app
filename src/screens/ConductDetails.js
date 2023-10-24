@@ -349,6 +349,25 @@ const ConductDetails = props => {
     });
   }
 
+  async function noGoManually(userid) {
+    await db.transaction(tx => {
+      tx.executeSql(
+        `UPDATE ATTENDANCE SET ELIGIBLE=0 WHERE USERID=(?) AND CONDUCTID=(?)`,
+        [userid, conductid],
+        (txObj, resultSet) => {
+          if (resultSet.rowsAffected > 0) {
+            console.log('Updated eligibility for user to 0 is successful');
+            getnotAccounted();
+            getNoGoArr();
+          }
+        },
+        e => {
+          console.log('noGoManually has failed: ', e);
+        },
+      );
+    });
+  }
+
   async function resetNomRoll() {
     var newNotAccFor = [...notAccFor];
     for (let i = 0; i < accFor.length; i++) {
@@ -464,6 +483,14 @@ const ConductDetails = props => {
           <NoGoFlatList noGoArr={noGo} forceGoManually={forceGoManually} />
         </View>
       )}
+      {/* {offlineConduct && (
+        <View>
+          <View style={styles.headerContainer}>
+            <Text style={styles.listHeader}>Fall out</Text>
+          </View>
+          <NoGoFlatList noGoArr={noGo} forceGoManually={forceGoManually} />
+        </View>
+      )} */}
       <View style={styles.btnContainer}>
         <TouchableOpacity
           style={styles.actionBtn}
