@@ -251,11 +251,11 @@ const ConductDetails = props => {
     console.log(notAccFor);
     await db.transaction(tx => {
       tx.executeSql(
-        `INSERT INTO ATTENDANCE(USERID,CONDUCTID,ACCOUNTED)
-        SELECT (SELECT USERID FROM USERS WHERE USERNRIC = (?)),(?),(?)
+        `INSERT INTO ATTENDANCE(USERID,CONDUCTID,ACCOUNTED,ELIGIBLE)
+        SELECT (SELECT USERID FROM USERS WHERE USERNRIC = (?)),(?),(?),(?)
         WHERE NOT EXISTS (SELECT 1 FROM ATTENDANCE WHERE USERID = (SELECT USERID FROM USERS WHERE USERNRIC = (?)) 
         AND CONDUCTID = (?)) AND  (SELECT USERID FROM USERS WHERE USERNRIC = (?)) IS NOT NULL`,
-        [nricinput, conductid, 0, nricinput, conductid, nricinput],
+        [nricinput, conductid, 0, 1, nricinput, conductid, nricinput],
         (_, resultSet) => {
           console.log(resultSet);
           if (resultSet.rowsAffected === 1) {
@@ -560,7 +560,7 @@ const ConductDetails = props => {
           />
           <TouchableOpacity style={styles.manualAddbtn} onPress={manualAddUser}>
             <MaterialIcons name="person-search" size={24} color="white" />
-            {/* <Text style={styles.manualAddbtnText}>Find user in database</Text> */}
+            <Text style={styles.manualAddbtnText}>Find user in database</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </Modal>
