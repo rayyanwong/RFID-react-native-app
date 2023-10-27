@@ -123,6 +123,7 @@ const Home = ({navigation}) => {
                 conductid integer,
                 accounted boolean ,
                 eligible boolean, 
+                forcego boolean,
                 primary key (userid, conductid), 
                 foreign key (userid) references Users(userid), 
                 foreign key (conductid) references Conducts(conductid));`,
@@ -257,8 +258,8 @@ const Home = ({navigation}) => {
   const insertAttendance = (userid, conductid) => {
     db.transaction(tx => {
       tx.executeSql(
-        `INSERT INTO ATTENDANCE(userid,conductid,accounted,eligible) VALUES (?,?,?,?)`,
-        [userid, conductid, 0, 1],
+        `INSERT INTO ATTENDANCE(userid,conductid,accounted,eligible,forcego) VALUES (?,?,?,?,?)`,
+        [userid, conductid, 0, 1, 0],
         (txObj, resultSet) => {
           if (resultSet.rowsAffected > 0) {
             console.log(
