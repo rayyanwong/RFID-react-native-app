@@ -19,7 +19,11 @@ import AndroidPrompt from '../components/AndroidPrompt';
 import QRCode from 'react-native-qrcode-svg';
 import AccountedForFlatList from '../components/AccountedForFlatList';
 import NotAccountForFlatList from '../components/NotAccountForFlatList';
-import {SupaUserStatus, SupaConductStatus} from '../../supabase/database';
+import {
+  SupaUserStatus,
+  SupaConductStatus,
+  SupaStatus,
+} from '../../supabase/database';
 import NoGoFlatList from '../components/NoGoFlatList';
 
 const db = openDatabase({
@@ -66,23 +70,8 @@ const ConductDetails = props => {
   }, []);
 
   useEffect(() => {
-    const initialiseNoGoID = async () => {
-      const {data, error} = await SupaConductStatus.getNoGoIdForConduct(
-        conductDBid,
-      );
-      if (!error) {
-        setNoGoIdArr(data);
-        console.log('Ids are: ', data);
-      } else {
-        console.log('Error init: ', error);
-      }
-    };
-    initialiseNoGoID();
-    setisLoading(true);
-    initialFilter();
+    initialFilter2();
     getAccounted();
-    //getnotAccounted();
-    setisLoading(false);
   }, []);
 
   const getAttendance = () => {
@@ -99,16 +88,9 @@ const ConductDetails = props => {
     });
   };
 
-  const checkStatusEligible = statusObj => {
-    //console.log(statusObj);
-    //console.log(statusObj.statusId);
+  const checkStatusEligible = (statusObj, noGoIdArr) => {
+    console.log(statusObj.statusId);
     for (const c of noGoIdArr) {
-      // console.log(
-      //   'Checking ',
-      //   c.statusid,
-      //   'with statusid: ',
-      //   statusObj.statusId,
-      // );
       if (c.statusid == statusObj.statusId) {
         return 1;
       }
@@ -116,70 +98,82 @@ const ConductDetails = props => {
     return 0;
   };
 
-  const initialFilter = async () => {
-    const tempNotAccFor = [];
+  const initialFilter2 = async () => {
+    let tempNoGoIDs = [];
+    let tempNotAccFor = [];
+    const {data, error} = await SupaConductStatus.getNoGoIdForConduct(
+      conductDBid,
+    );
+    tempNoGoIDs = data;
+    console.log('tempNogoids: ', tempNoGoIDs);
+    setNoGoIdArr(data);
     db.transaction(tx => {
       tx.executeSql(
-        `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC from Attendance
-        inner join Users on Users.userid = Attendance.userid where
-        Attendance.accounted=0 and Attendance.conductid=(?)`,
+        `select attendance.userid, users.userName, users.userNRIC from attendance
+        inner join users on users.userid=attendance.userid where attendance.accounted=0 and attendance.conductid=(?) and attendance.eligible=1`,
         [conductid],
-        (txObj, resultSet) => {
+        async (_, resultSet) => {
+          //
           var result = resultSet.rows;
-          var curNotAccounted = [];
           for (let i = 0; i < result.length; i++) {
-            curNotAccounted.push(result.item(i));
+            tempNotAccFor.push(result.item(i));
           }
-          tempNotAccFor = curNotAccounted;
+          console.log('tempNotAccFor: ', tempNotAccFor);
+          if (offlineConduct) {
+            setNotAccFor(tempNotAccFor);
+            getNoGoArr();
+          } else {
+            let filteredNotAcc = [];
+            for (let i = 0; i < tempNotAccFor.length; i++) {
+              const {data, error} = await SupaUserStatus.joinUserQuery(
+                tempNotAccFor[i].userNRIC,
+              );
+              const userStatuses = data[0].Statusid;
+              console.log('userstatuses: ', userStatuses);
+              if (userStatuses.length === 0) {
+                filteredNotAcc.push(tempNotAccFor[i]);
+              } else {
+                var tempArr = [];
+                for (const j of userStatuses) {
+                  const uneligible = checkStatusEligible(j, tempNoGoIDs);
+                  tempArr.push(uneligible);
+                }
+                console.log('tempArr: ', tempArr);
+                if (tempArr.includes(1)) {
+                  db.transaction(tx => {
+                    tx.executeSql(
+                      `UPDATE Attendance set eligible=0
+                    where Attendance.userid = (?) and Attendance.conductid =(?) `,
+                      [tempNotAccFor[i].userid, conductid],
+                      (_, resultSet2) => {
+                        if (resultSet2.rowsAffected > 0) {
+                          console.log('Successfully updated eligible to 0');
+                        }
+                      },
+                      e => {
+                        console.log(e);
+                        //
+                        //
+                      },
+                    );
+                  });
+                } else {
+                  filteredNotAcc.push(tempNotAccFor[i]);
+                }
+              }
+              setNotAccFor(filteredNotAcc);
+              getNoGoArr();
+            }
+          }
         },
         e => {
           console.log(e);
         },
       );
     });
-    if (!offlineConduct) {
-      var filteredNotAcc = [];
-      var curNotAccounted = [...tempNotAccFor];
-      //
-      for (let i = 0; i < curNotAccounted.length; i++) {
-        const {data, error} = await SupaUserStatus.joinUserQuery(
-          curNotAccounted[i].userNRIC,
-        );
-        const userStatuses = data[0].Statusid;
-        console.log(userStatuses);
-        if (userStatuses.length === 0) {
-          filteredNotAcc.push(curNotAccounted[i]);
-        } else {
-          var tempArr = [];
-          for (const j of userStatuses) {
-            const uneligible = checkStatusEligible(j);
-            tempArr.push(uneligible);
-          }
-          if (tempArr.includes(1)) {
-            //curNoGo.push(curNotAccounted[i]);
-            db.transaction(tx => {
-              tx.executeSql(
-                `UPDATE Attendance set eligible=0
-              where Attendance.userid = (?) and Attendance.conductid =(?) `,
-                [curNotAccounted[i].userid, conductid],
-                (_, resultSet) => {
-                  if (resultSet.rowsAffected > 0) {
-                    console.log('Successfully updated eligible to 0');
-                  }
-                },
-                e => {
-                  console.log(e);
-                },
-              );
-            });
-          }
-        }
-      }
-      getNoGoArr();
-    }
-    getnotAccounted();
+    getAccounted();
   };
-
+  //
   const getAccounted = () => {
     db.transaction(tx => {
       tx.executeSql(
@@ -234,6 +228,7 @@ const ConductDetails = props => {
           for (let i = 0; i < result.length; i++) {
             curNoGo.push(result.item(i));
           }
+          console.log('[getNoGoArr]: pass');
           setNoGo(curNoGo);
         },
         e => {
@@ -278,7 +273,7 @@ const ConductDetails = props => {
         newAccFor.push(notAccFor[i]);
         await db.transaction(tx => {
           tx.executeSql(
-            `UPDATE ATTENDANCE SET ACCOUNTED = 1 WHERE USERID = (?) AND CONDUCTID = (?)`,
+            `UPDATE ATTENDANCE SET ACCOUNTED = 1 WHERE USERID = (?) AND CONDUCTID = (?) AND ELIGIBLE=1`,
             [userid, conductid],
             (txObj, resultSet) => {
               if (resultSet.rowsAffected > 0) {
@@ -307,7 +302,7 @@ const ConductDetails = props => {
         newNotAccFor.push(accFor[i]);
         await db.transaction(tx => {
           tx.executeSql(
-            `UPDATE ATTENDANCE SET ACCOUNTED = 0 WHERE USERID = (?) AND CONDUCTID = (?)`,
+            `UPDATE ATTENDANCE SET ACCOUNTED = 0 WHERE USERID = (?) AND CONDUCTID = (?) AND ELIGIBLE=1`,
             [userid, conductid],
             (txObj, resultSet) => {
               if (resultSet.rowsAffected > 0) {
@@ -373,7 +368,7 @@ const ConductDetails = props => {
     }
     await db.transaction(tx => {
       tx.executeSql(
-        `UPDATE ATTENDANCE SET accounted = 0 WHERE USERID > 0 AND CONDUCTID = (?)`,
+        `UPDATE ATTENDANCE SET accounted = 0 WHERE USERID > 0 AND CONDUCTID = (?) AND ELIGIBLE=1`,
         [conductid],
         (txObj, resultSet) => {
           console.log('Nominal roll has been reset');
