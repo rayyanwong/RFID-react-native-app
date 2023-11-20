@@ -132,8 +132,25 @@ class ConductStatusPairTable {
     return {data, error};
   }
 }
+
+class ArfAttendanceTable {
+  async insertRecord(new_userNRIC, new_userName, new_userHPNo) {
+    let {data, error} = await supabase
+      .from('ArfAttendance')
+      .insert([
+        {
+          userNRIC: new_userNRIC,
+          userName: new_userName,
+          userHPNo: new_userHPNo,
+        },
+      ])
+      .select();
+    return {data, error};
+  }
+}
 export const SupaUser = new UserTable();
 export const SupaUserStatus = new UserStatusTable();
 export const SupaStatus = new StatusTable();
 export const SupaConduct = new ConductTable();
 export const SupaConductStatus = new ConductStatusPairTable();
+export const SupaArfAttendance = new ArfAttendanceTable();

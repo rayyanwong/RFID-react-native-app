@@ -16,6 +16,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import NfcManager, {NfcEvents, NfcTech, Ndef} from 'react-native-nfc-manager';
 import AndroidPrompt from '../components/AndroidPrompt';
 import {validInputData} from '../utils/validInputData';
+import ArfModal from '../components/arfModal';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -34,6 +35,11 @@ const ScanningPage = () => {
   const [newWriteData, setNewWriteData] = useState('');
   const [hasNfc, setHasNfc] = useState(null);
   const promptRef = useRef();
+  const [arfVisible, setARFVisible] = useState(false);
+
+  const handleARFVisible = f => {
+    setARFVisible(f);
+  };
 
   useEffect(() => {
     const checkIsSupported = async () => {
@@ -190,6 +196,11 @@ const ScanningPage = () => {
       <TouchableOpacity style={styles.qrscanBtn} onPress={() => {}}>
         <Text style={styles.btnText}>Scan Conduct QRCode</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.qrscanBtn}
+        onPress={() => setARFVisible(true)}>
+        <Text style={styles.btnText}>ARF Scanner</Text>
+      </TouchableOpacity>
       <AndroidPrompt ref={promptRef} />
       <Modal visible={addModalVisible} animationType="fade">
         <SafeAreaView style={styles.addModalContainer}>
@@ -275,6 +286,7 @@ const ScanningPage = () => {
           </TouchableOpacity>
         </SafeAreaView>
       </Modal>
+      <ArfModal arfVisible={arfVisible} setARFVisible={handleARFVisible} />
     </SafeAreaView>
   );
 };
