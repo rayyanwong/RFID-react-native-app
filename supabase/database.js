@@ -147,6 +147,14 @@ class ArfAttendanceTable {
       .select();
     return {data, error};
   }
+
+  async generateReport(req_date) {
+    let {data, error} = await supabase
+      .from('ArfAttendance')
+      .select('*')
+      .eq('date', req_date);
+    return {data, error};
+  }
 }
 export const SupaUser = new UserTable();
 export const SupaUserStatus = new UserStatusTable();

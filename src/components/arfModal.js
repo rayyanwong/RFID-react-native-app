@@ -12,10 +12,12 @@ import NfcManager, {NfcEvents, NfcTech, Ndef} from 'react-native-nfc-manager';
 import AndroidPrompt from './AndroidPrompt';
 import {SupaArfAttendance} from '../../supabase/database';
 import ARFManualPrompt from './arfManualPrompt';
+import ReqReportPrompt from './reqReportPrompt';
 
 const ArfModal = ({arfVisible, setARFVisible}) => {
   const promptRef = useRef();
   const manualPromptRef = useRef();
+  const reqReportPromptRef = useRef();
 
   async function handleNFCScan() {
     await NfcManager.registerTagEvent();
@@ -88,7 +90,9 @@ const ArfModal = ({arfVisible, setARFVisible}) => {
             <TouchableOpacity style={styles.btn} onPress={handleManualAdd}>
               <Text style={styles.btnText}>Account Manually</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.btn} onPress={() => {}}>
+            <TouchableOpacity
+              style={styles.btn}
+              onPress={() => reqReportPromptRef.current.setPromptVisible(true)}>
               <Text style={styles.btnText}>Generate Report</Text>
             </TouchableOpacity>
           </View>
@@ -96,6 +100,7 @@ const ArfModal = ({arfVisible, setARFVisible}) => {
       </Modal>
       <AndroidPrompt ref={promptRef} />
       <ARFManualPrompt ref={manualPromptRef} />
+      <ReqReportPrompt ref={reqReportPromptRef} />
     </View>
   );
 };

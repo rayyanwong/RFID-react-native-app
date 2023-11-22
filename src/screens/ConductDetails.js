@@ -477,14 +477,14 @@ const ConductDetails = props => {
           <NoGoFlatList noGoArr={noGo} forceGoManually={forceGoManually} />
         </View>
       )}
-      {/* {offlineConduct && (
+      {offlineConduct && (
         <View>
           <View style={styles.headerContainer}>
             <Text style={styles.listHeader}>Fall out</Text>
           </View>
           <NoGoFlatList noGoArr={noGo} forceGoManually={forceGoManually} />
         </View>
-      )} */}
+      )}
       <View style={styles.btnContainer}>
         <TouchableOpacity
           style={styles.actionBtn}
