@@ -132,7 +132,7 @@ const EditUserPage = props => {
     getDBStatus();
     getDBStatusNames();
     return () => unsubscribe();
-  }, []);
+  }, [isOffline]);
 
   useEffect(() => {
     getStatusUser(userIdRef.current);
@@ -287,7 +287,10 @@ const styles = StyleSheet.create({
     alignContent: 'center',
   },
   infoContainer: {},
-  btnContainer: {},
+  btnContainer: {
+    backgroundColor: 'black',
+    height: 200,
+  },
   card: {
     flexDirection: 'row',
     padding: 15,

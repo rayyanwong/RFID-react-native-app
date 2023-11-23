@@ -25,6 +25,7 @@ import {
   SupaStatus,
 } from '../../supabase/database';
 import NoGoFlatList from '../components/NoGoFlatList';
+import useInternetCheck from '../hooks/useInternetCheck';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -50,6 +51,7 @@ const ConductDetails = props => {
   const conductDBid = props.route.params.data.conductDBid;
   const offlineConduct =
     conductDBid === 22 || conductDBid === 23 ? true : false;
+  const isOffline = useInternetCheck();
 
   useEffect(() => {
     const checkIsSupported = async () => {
@@ -67,12 +69,13 @@ const ConductDetails = props => {
       `[ConductDetails] You have selected local Conductid: ${conductid} | DB conductid: ${conductDBid} | ConductName: ${conductname} `,
     );
     console.log('[offlineConduct]: ', offlineConduct);
+    console.log('[isOffline]: ', isOffline);
   }, []);
 
   useEffect(() => {
     initialFilter2();
     getAccounted();
-  }, []);
+  }, [isOffline]);
 
   const getAttendance = () => {
     db.transaction(tx => {
@@ -450,7 +453,19 @@ const ConductDetails = props => {
       </View>
     );
   }
-
+  {
+    if (!offlineConduct && isOffline) {
+      return (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <ActivityIndicator size="large" color="#5500dc" />
+          <Text style={{textAlignVertical: 'center'}}>
+            You are currently offline, please check your internet connectivity
+            and try again
+          </Text>
+        </View>
+      );
+    }
+  }
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>

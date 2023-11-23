@@ -139,6 +139,9 @@ class ArfAttendanceTable {
       .from('ArfAttendance')
       .insert([
         {
+          scanned_time: new Date().toLocaleString('en-US', {
+            timeZone: 'Asia/Singapore',
+          }),
           userNRIC: new_userNRIC,
           userName: new_userName,
           userHPNo: new_userHPNo,
