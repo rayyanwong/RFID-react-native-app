@@ -17,6 +17,7 @@ import DatePicker from 'react-native-date-picker';
 import StatusList from '../components/StatusList';
 import EditStatusPrompt from '../components/EditStatusPrompt';
 import NetInfo from '@react-native-community/netinfo';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const checkExist = async userNRIC => {
   const {data, error} = await SupaUser.findUser(userNRIC);
@@ -198,7 +199,6 @@ const EditUserPage = props => {
           <View style={[styles.backdrop, StyleSheet.absoluteFill]} />
           <View style={styles.prompt}>
             <SelectDropdown
-              buttonStyle={{marginBottom: 10}}
               data={statusArr.current}
               onSelect={(selectedItem, index) => {
                 console.log(selectedItem);
@@ -211,15 +211,40 @@ const EditUserPage = props => {
               rowTextForSelection={(item, index) => {
                 return item.statusName;
               }}
+              buttonStyle={styles.dropdownBtnStyle}
+              buttonTextStyle={styles.dropdownBtnTextStyle}
+              renderDropdownIcon={isOpened => {
+                return (
+                  <FontAwesome
+                    name={isOpened ? 'chevron-up' : 'chevron-down'}
+                    color={'#FFF'}
+                    size={18}
+                  />
+                );
+              }}
+              dropdownIconPosition="right"
+              dropdownStyle={styles.dropdownDropdownStyle}
+              rowStyle={styles.dropdownRowStyle}
+              rowTextStyle={styles.dropdownRowTextStyle}
+              selectedRowStyle={styles.dropdownSelectedRowStyle}
+              search
+              searchInputStyle={styles.dropdownSearhInputStyle}
+              searchPlaceHolder="Search for status"
+              searchPlaceHolderColor="#F8F8F8"
+              renderSearchInputLeftIcon={() => {
+                return <FontAwesome name="search" color="#FFF" size={18} />;
+              }}
             />
-            <Button
-              title="Open start date picker"
-              onPress={() => setSdVisible(true)}
-            />
-            <Button
-              title="Open end date picker"
-              onPress={() => setEdVisible(true)}
-            />
+            <TouchableOpacity
+              style={styles.btn}
+              onPress={() => setSdVisible(true)}>
+              <Text style={{color: 'white'}}>Open start date picker</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.btn}
+              onPress={() => setEdVisible(true)}>
+              <Text style={{color: 'white'}}>Open end date picker</Text>
+            </TouchableOpacity>
             <DatePicker
               theme="dark"
               modal
@@ -289,7 +314,6 @@ const styles = StyleSheet.create({
   infoContainer: {},
   btnContainer: {
     backgroundColor: 'black',
-    height: 200,
   },
   card: {
     flexDirection: 'row',
@@ -311,7 +335,7 @@ const styles = StyleSheet.create({
   promptContainer: {flex: 1},
   prompt: {
     position: 'absolute',
-    bottom: Dimensions.get('window').height / 2,
+    bottom: Dimensions.get('window').height / 3,
     left: 20,
     width: Dimensions.get('window').width - 2 * 20,
     backgroundColor: 'white',
@@ -329,6 +353,54 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 15,
+    marginTop: 10,
+  },
+  btn: {
+    borderWidth: 1,
+    borderColor: '#b18feb',
+    borderRadius: 8,
+    padding: 15,
+    backgroundColor: '#ab59a7',
+    marginTop: 10,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dropdownBtnStyle: {
+    width: '80%',
+    height: 50,
+    backgroundColor: '#444',
+    borderRadius: 8,
+    marginVertical: 10,
+    marginTop: 30,
+    alignSelf: 'center',
+  },
+  dropdownBtnTextStyle: {
+    color: '#FFF',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  dropdownDropdownStyle: {
+    backgroundColor: '#444',
+    borderRadius: 12,
+  },
+  dropdownRowStyle: {
+    backgroundColor: '#444',
+    borderBottomColor: '#C5C5C5',
+  },
+  dropdownRowTextStyle: {
+    color: '#FFF',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  dropdownSelectedRowStyle: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  dropdownSearhInputStyle: {
+    backgroundColor: '#444',
+    borderBottomWidth: 1,
+    borderBottomColor: '#FFF',
   },
 });
 
