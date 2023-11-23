@@ -47,7 +47,12 @@ const ReqReportPrompt = (props, ref) => {
     let ws = XLSX.utils.json_to_sheet(export_data);
     XLSX.utils.book_append_sheet(wb, ws, 'ARF_Attendance_Data');
     const wbout = XLSX.write(wb, {type: 'binary', bookType: 'xlsx'});
-    writeFile(DownloadDirectoryPath + '/arfattendancefile.xlsx', wbout, 'ascii')
+    writeFile(
+      DownloadDirectoryPath +
+        `/arfattendancefile${FormatDate(new Date().toLocaleDateString())}.xlsx`,
+      wbout,
+      'ascii',
+    )
       .then(r => {
         console.log('Successfully downloaded file onto Device!');
       })
