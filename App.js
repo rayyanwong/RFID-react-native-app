@@ -59,58 +59,60 @@ const DatabaseStack = () => {
 
 const App = () => {
   return (
-    <NavigationContainer independent={true}>
-      <Tab.Navigator
-        initialRouteName="HomeStack"
-        screenOptions={{
-          tabBarActiveTintColor: '#000',
-        }}>
-        <Tab.Screen
-          name="HomeStack"
-          component={HomeStack}
-          options={{
-            tabBarLabel: 'Home',
-            headerShown: false,
-            tabBarIcon: ({focused, color, size}) => (
-              <Ionicons
-                name={focused ? 'home' : 'home-outline'}
-                size={24}
-                color="black"
-              />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Scanning"
-          component={ScanningPage}
-          options={{
-            headerShown: false,
-            tabBarIcon: ({focused, color, size}) => (
-              <Ionicons
-                name={focused ? 'scan-circle' : 'scan-circle-outline'}
-                size={24}
-                color="black"
-              />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="DatabaseStack"
-          component={DatabaseStack}
-          options={{
-            tabBarLabel: 'Database',
-            headerShown: false,
-            tabBarIcon: ({focused, color, size}) => (
-              <MaterialCommunityIcons
-                name={focused ? 'database' : 'database-outline'}
-                size={24}
-                color="black"
-              />
-            ),
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <>
+      <NavigationContainer independent={true}>
+        <Tab.Navigator
+          initialRouteName="HomeStack"
+          screenOptions={{
+            tabBarActiveTintColor: '#000',
+          }}>
+          <Tab.Screen
+            name="HomeStack"
+            component={HomeStack}
+            options={{
+              tabBarLabel: 'Home',
+              headerShown: false,
+              tabBarIcon: ({focused, color, size}) => (
+                <Ionicons
+                  name={focused ? 'home' : 'home-outline'}
+                  size={24}
+                  color="black"
+                />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Scanning"
+            component={ScanningPage}
+            options={{
+              headerShown: false,
+              tabBarIcon: ({focused, color, size}) => (
+                <Ionicons
+                  name={focused ? 'scan-circle' : 'scan-circle-outline'}
+                  size={24}
+                  color="black"
+                />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="DatabaseStack"
+            component={DatabaseStack}
+            options={{
+              tabBarLabel: 'Database',
+              headerShown: false,
+              tabBarIcon: ({focused, color, size}) => (
+                <MaterialCommunityIcons
+                  name={focused ? 'database' : 'database-outline'}
+                  size={24}
+                  color="black"
+                />
+              ),
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </>
   );
 };
 

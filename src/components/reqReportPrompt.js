@@ -15,6 +15,7 @@ import DatePicker from 'react-native-date-picker';
 import {FormatDate} from '../utils/FormatDate';
 import XLSX from 'xlsx';
 import {writeFile, readFile, DownloadDirectoryPath} from 'react-native-fs';
+import Toast from 'react-native-simple-toast';
 
 const ReqReportPrompt = (props, ref) => {
   const [promptVisible, setPromptVisible] = useState(false);
@@ -55,9 +56,19 @@ const ReqReportPrompt = (props, ref) => {
     )
       .then(r => {
         console.log('Successfully downloaded file onto Device!');
+        Toast.showWithGravity(
+          'Successfully downloaded file onto device!',
+          Toast.LONG,
+          Toast.CENTER,
+        );
       })
       .catch(e => {
         console.log('Error occured while trying to save file!', e);
+        Toast.showWithGravity(
+          'An error occured while downloading the file. Please try again!',
+          Toast.LONG,
+          Toast.CENTER,
+        );
       });
   }
 
