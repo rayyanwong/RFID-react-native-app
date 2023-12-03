@@ -9,6 +9,8 @@ import ScanningPage from './src/screens/ScanningPage';
 import DatabasePage from './src/screens/DatabasePage';
 import ConductDetails from './src/screens/ConductDetails';
 import EditUserPage from './src/screens/EditUserPage';
+import ParadeStatePage from './src/screens/ParadeStatePage';
+import ParadeDetails from './src/screens/ParadeDetails';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -51,6 +53,28 @@ const DatabaseStack = () => {
           component={EditUserPage}
           name="EditUserPage"
           options={({route}) => ({title: route.params.name})}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+const ParadeStateStack = () => {
+  return (
+    <NavigationContainer independent={true}>
+      <Stack.Navigator
+        initialRouteName="Parade State"
+        screenOptions={{gestureEnabled: true, gestureDirection: 'horizontal'}}
+        animation="fade">
+        <Stack.Screen
+          component={ParadeStatePage}
+          name="Parade State"
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          component={ParadeDetails}
+          name="ParadeDetailsPage"
+          options={{headerShown: false}}
         />
       </Stack.Navigator>
     </NavigationContainer>
@@ -104,6 +128,21 @@ const App = () => {
               tabBarIcon: ({focused, color, size}) => (
                 <MaterialCommunityIcons
                   name={focused ? 'database' : 'database-outline'}
+                  size={24}
+                  color="black"
+                />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="ParadeStateStack"
+            component={ParadeStateStack}
+            options={{
+              tabBarLabel: 'Parade State',
+              headerShown: false,
+              tabBarIcon: ({focused}) => (
+                <Ionicons
+                  name={focused ? 'people-circle' : 'people-circle-outline'}
                   size={24}
                   color="black"
                 />
