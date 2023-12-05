@@ -159,9 +159,29 @@ class ArfAttendanceTable {
     return {data, error};
   }
 }
+
+class DailyAttendanceTable {
+  async insertRecord(user_obj) {
+    let {data, error} = await supabase
+      .from('DailyAttendance')
+      .insert([
+        {
+          present: user_obj.present,
+          userNRIC: user_obj.userNRIC,
+          missing_reason: user_obj.missing_reason,
+          outofcampma: user_obj.outofcampma,
+          others: user_obj.others,
+          first_parade: user_obj.first_parade,
+        },
+      ])
+      .select();
+    return {data, error};
+  }
+}
 export const SupaUser = new UserTable();
 export const SupaUserStatus = new UserStatusTable();
 export const SupaStatus = new StatusTable();
 export const SupaConduct = new ConductTable();
 export const SupaConductStatus = new ConductStatusPairTable();
 export const SupaArfAttendance = new ArfAttendanceTable();
+export const SupaDailyAttendance = new DailyAttendanceTable();
