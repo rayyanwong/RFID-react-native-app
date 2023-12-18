@@ -39,7 +39,6 @@ const Home = ({navigation}) => {
   const newconductDBid = useRef(null);
   const [datePickerVisible, setdatePickerVisible] = useState(false);
   const [newConductDate, setNewConductDate] = useState(new Date());
-
   // NetInfo.addEventListener(networkState => {
   //   console.log('Connection type - ', networkState.type);
   //   console.log('Is connected? - ', networkState.isConnected);
@@ -211,7 +210,12 @@ const Home = ({navigation}) => {
       tx => {
         tx.executeSql(
           `INSERT INTO Conducts(conductName,conductDBid,conducting,conductdate) values (?,?,?,?)`,
-          [input, newconductDBid.current, isConducting, newConductDate],
+          [
+            input,
+            newconductDBid.current,
+            isConducting,
+            newConductDate.toLocaleDateString(),
+          ],
           (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
               console.log(`${input} successfully inserted into conducts table`);

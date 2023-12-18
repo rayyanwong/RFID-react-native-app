@@ -54,6 +54,7 @@ const ConductDetails = props => {
   const offlineConduct =
     conductDBid === 22 || conductDBid === 23 ? true : false;
   const isConducting = props.route.params.data.conducting;
+  const conductdate = props.route.params.data.conductdate;
   const isOffline = useInternetCheck();
 
   useEffect(() => {
@@ -69,7 +70,7 @@ const ConductDetails = props => {
     };
     checkIsSupported();
     console.log(
-      `[ConductDetails] You have selected local Conductid: ${conductid} | DB conductid: ${conductDBid} | ConductName: ${conductname} | Conducting: ${isConducting}`,
+      `[ConductDetails] You have selected local Conductid: ${conductid} | DB conductid: ${conductDBid} | ConductName: ${conductname} | Conducting: ${isConducting} | ConductDate: ${conductdate}`,
     );
     console.log('[offlineConduct]: ', offlineConduct);
     console.log('[isOffline]: ', isOffline);
