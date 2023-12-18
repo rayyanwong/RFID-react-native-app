@@ -26,6 +26,7 @@ import {
 } from '../../supabase/database';
 import NoGoFlatList from '../components/NoGoFlatList';
 import useInternetCheck from '../hooks/useInternetCheck';
+import OfflineErrorView from '../error/OfflineErrorView';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -456,15 +457,7 @@ const ConductDetails = props => {
   }
   {
     if (!offlineConduct && isOffline) {
-      return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <ActivityIndicator size="large" color="#5500dc" />
-          <Text style={{textAlignVertical: 'center'}}>
-            You are currently offline, please check your internet connectivity
-            and try again
-          </Text>
-        </View>
-      );
+      return <OfflineErrorView />;
     }
   }
   return (
