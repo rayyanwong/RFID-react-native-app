@@ -27,6 +27,7 @@ import {
 import NoGoFlatList from '../components/NoGoFlatList';
 import useInternetCheck from '../hooks/useInternetCheck';
 import OfflineErrorView from '../error/OfflineErrorView';
+import ConductingView from './ConductingView';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -458,6 +459,8 @@ const ConductDetails = props => {
   {
     if (!offlineConduct && isOffline) {
       return <OfflineErrorView />;
+    } else if (isConducting) {
+      return <ConductingView props={props} />;
     }
   }
   return (

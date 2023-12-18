@@ -30,7 +30,9 @@ const HomeStack = () => {
         <Stack.Screen
           component={ConductDetails}
           name="ConductDetails"
-          options={({route}) => ({title: route.params.name})}
+          options={({route}) => ({
+            title: route.params.name,
+          })}
         />
       </Stack.Navigator>
     </NavigationContainer>

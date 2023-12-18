@@ -178,6 +178,62 @@ class DailyAttendanceTable {
     return {data, error};
   }
 }
+
+class UserConductTable {
+  async initInsert(user_obj) {
+    let {data, error} = await supabase
+      .from('UserConduct')
+      .insert([
+        {
+          userNRIC: user_obj.userNRIC,
+          conductid: user_obj.conductDBid,
+          conductdate: user_obj.conductdate,
+        },
+      ])
+      .select();
+    return {data, error};
+  }
+  async updateDetail(user_obj) {
+    let {data, error} = await supabase
+      .from('UserConduct')
+      .update({detailnum: user_obj.detailnum})
+      .eq('userNRIC', user_obj.userNRIC)
+      .eq('conductid', user_obj.conductDBid)
+      .eq('conductdate', user_obj.conductdate)
+      .select();
+    return {data, error};
+  }
+  async updatePushupReps(user_obj) {
+    let {data, error} = await supabase
+      .from('UserConduct')
+      .update({pushupReps: user_obj.pushupReps})
+      .eq('userNRIC', user_obj.userNRIC)
+      .eq('conductid', user_obj.conductDBid)
+      .eq('conductdate', user_obj.conductdate)
+      .select();
+    return {data, error};
+  }
+  async updatePushupReps(user_obj) {
+    let {data, error} = await supabase
+      .from('UserConduct')
+      .update({situpReps: user_obj.situpReps})
+      .eq('userNRIC', user_obj.userNRIC)
+      .eq('conductid', user_obj.conductDBid)
+      .eq('conductdate', user_obj.conductdate)
+      .select();
+    return {data, error};
+  }
+  async updateRunChip(user_obj) {
+    let {data, error} = await supabase
+      .from('UserConduct')
+      .update({runChip: user_obj.runChip})
+      .eq('userNRIC', user_obj.userNRIC)
+      .eq('conductid', user_obj.conductDBid)
+      .eq('conductdate', user_obj.conductdate)
+      .select();
+    return {data, error};
+  }
+}
 export const SupaUser = new UserTable();
 export const SupaUserStatus = new UserStatusTable();
 export const SupaStatus = new StatusTable();
