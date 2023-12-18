@@ -20,6 +20,7 @@ import NetworkModal from '../components/NetworkModal';
 import {SupaConduct} from '../../supabase/database';
 import SelectDropdown from 'react-native-select-dropdown';
 import CheckBox from '@react-native-community/checkbox';
+import DatePicker from 'react-native-date-picker';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -36,6 +37,8 @@ const Home = ({navigation}) => {
   const [conductsCreationArr, setConductsCreationArr] = useState([]);
   const [isConducting, setConducting] = useState(false);
   const newconductDBid = useRef(null);
+  const [datePickerVisible, setdatePickerVisible] = useState(false);
+  const [newConductDate, setNewConductDate] = useState(new Date());
 
   // NetInfo.addEventListener(networkState => {
   //   console.log('Connection type - ', networkState.type);
@@ -103,7 +106,7 @@ const Home = ({navigation}) => {
   const createConductTable = () => {
     db.transaction(tx => {
       tx.executeSql(
-        `CREATE TABLE IF NOT EXISTS Conducts (conductid INTEGER PRIMARY KEY AUTOINCREMENT, conductName TEXT, conductDBid integer, conducting boolean)`,
+        `CREATE TABLE IF NOT EXISTS Conducts (conductid INTEGER PRIMARY KEY AUTOINCREMENT, conductName TEXT, conductDBid integer, conducting boolean, conductdate text)`,
         [],
         (txObj, resultSet) => {
           if (resultSet.rowsAffected > 0) {
@@ -207,8 +210,8 @@ const Home = ({navigation}) => {
     db.transaction(
       tx => {
         tx.executeSql(
-          `INSERT INTO Conducts(conductName,conductDBid,conducting) values (?,?,?)`,
-          [input, newconductDBid.current, isConducting],
+          `INSERT INTO Conducts(conductName,conductDBid,conducting,conductdate) values (?,?,?,?)`,
+          [input, newconductDBid.current, isConducting, newConductDate],
           (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
               console.log(`${input} successfully inserted into conducts table`);
@@ -403,6 +406,26 @@ const Home = ({navigation}) => {
               return <FontAwesome name="search" color="#FFF" size={18} />;
             }}
           />
+          <TouchableOpacity
+            style={styles.dropdownBtnStyle}
+            onPress={() => setdatePickerVisible(true)}>
+            <Text style={styles.dropdownBtnTextStyle}>Select Conduct date</Text>
+          </TouchableOpacity>
+          <DatePicker
+            theme="dark"
+            modal
+            mode="date"
+            open={datePickerVisible}
+            date={newConductDate}
+            onConfirm={date => {
+              setdatePickerVisible(false);
+              setNewConductDate(date);
+              console.log(date.toLocaleDateString());
+            }}
+            onCancel={() => {
+              setdatePickerVisible(false);
+            }}
+          />
           <View style={styles.checkBoxContainer}>
             <CheckBox
               value={isConducting}
@@ -524,8 +547,8 @@ const styles = StyleSheet.create({
   },
   conductInput: {
     fontSize: 15,
-    marginLeft: 10,
-    marginRight: 10,
+    width: '80%',
+    alignSelf: 'center',
     marginTop: 30,
     backgroundColor: '#fff',
     padding: 9,
@@ -548,6 +571,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     marginTop: 30,
     alignSelf: 'center',
+    justifyContent: 'center',
   },
   dropdownBtnTextStyle: {
     color: '#FFF',
