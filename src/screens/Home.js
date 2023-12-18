@@ -252,10 +252,17 @@ const Home = ({navigation}) => {
   };
 
   const handleConductDetails = conductObj => {
-    navigation.navigate('ConductDetails', {
-      name: conductObj.conductName,
-      data: conductObj,
-    });
+    if (conductObj.conducting) {
+      navigation.navigate('ConductingView', {
+        name: conductObj.conductName,
+        data: conductObj,
+      });
+    } else {
+      navigation.navigate('ConductDetails', {
+        name: conductObj.conductName,
+        data: conductObj,
+      });
+    }
   };
 
   const insertAttendance = (userid, conductid) => {

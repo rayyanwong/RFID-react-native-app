@@ -11,6 +11,7 @@ import ConductDetails from './src/screens/ConductDetails';
 import EditUserPage from './src/screens/EditUserPage';
 import ParadeStatePage from './src/screens/ParadeStatePage';
 import ParadeDetails from './src/screens/ParadeDetails';
+import ConductingView from './src/screens/ConductingView';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -33,6 +34,11 @@ const HomeStack = () => {
           options={({route}) => ({
             title: route.params.name,
           })}
+        />
+        <Stack.Screen
+          component={ConductingView}
+          name="ConductingView"
+          options={({route}) => ({title: route.params.name})}
         />
       </Stack.Navigator>
     </NavigationContainer>
