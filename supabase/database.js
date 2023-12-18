@@ -233,6 +233,15 @@ class UserConductTable {
       .select();
     return {data, error};
   }
+  async getUserRecord(userNRIC, conductDBid, conductdate) {
+    let {data, error} = await supabase
+      .from('UserConduct')
+      .select('*')
+      .eq('userNRIC', userNRIC)
+      .eq('conductid', conductDBid)
+      .eq('conductdate', conductdate);
+    return {data, error};
+  }
 }
 export const SupaUser = new UserTable();
 export const SupaUserStatus = new UserStatusTable();
@@ -241,3 +250,4 @@ export const SupaConduct = new ConductTable();
 export const SupaConductStatus = new ConductStatusPairTable();
 export const SupaArfAttendance = new ArfAttendanceTable();
 export const SupaDailyAttendance = new DailyAttendanceTable();
+export const SupaUserConduct = new UserConductTable();
