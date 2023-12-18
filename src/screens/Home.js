@@ -19,6 +19,7 @@ import NetInfo from '@react-native-community/netinfo';
 import NetworkModal from '../components/NetworkModal';
 import {SupaConduct} from '../../supabase/database';
 import SelectDropdown from 'react-native-select-dropdown';
+import CheckBox from '@react-native-community/checkbox';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -33,6 +34,7 @@ const Home = ({navigation}) => {
   const [isOffline, setIsOffline] = useState(false);
   const [networkModalVisible, setNetworkModalVisible] = useState(isOffline);
   const [conductsCreationArr, setConductsCreationArr] = useState([]);
+  const [isConducting, setConducting] = useState(false);
   const newconductDBid = useRef(null);
 
   // NetInfo.addEventListener(networkState => {
@@ -63,7 +65,7 @@ const Home = ({navigation}) => {
           setConductsCreationArr(data);
           // [{'conductid','conductName'},...]
           console.log(
-            'Successfully set Conductss Creation Arr with all Database type of conducts',
+            'Successfully set Conducts Creation Arr with all Database type of conducts',
           );
         }
       } else {
@@ -101,7 +103,7 @@ const Home = ({navigation}) => {
   const createConductTable = () => {
     db.transaction(tx => {
       tx.executeSql(
-        `CREATE TABLE IF NOT EXISTS Conducts (conductid INTEGER PRIMARY KEY AUTOINCREMENT, conductName TEXT, conductDBid integer)`,
+        `CREATE TABLE IF NOT EXISTS Conducts (conductid INTEGER PRIMARY KEY AUTOINCREMENT, conductName TEXT, conductDBid integer, conducting boolean)`,
         [],
         (txObj, resultSet) => {
           if (resultSet.rowsAffected > 0) {
@@ -196,7 +198,7 @@ const Home = ({navigation}) => {
   };
 
   const handleAddConduct = () => {
-    if (input === '') {
+    if (input === '' || newconductDBid.current == null) {
       Alert.alert('Input cannot be empty!');
       return;
     }
@@ -205,8 +207,8 @@ const Home = ({navigation}) => {
     db.transaction(
       tx => {
         tx.executeSql(
-          `INSERT INTO Conducts(conductName,conductDBid) values (?,?)`,
-          [input, newconductDBid.current],
+          `INSERT INTO Conducts(conductName,conductDBid,conducting) values (?,?,?)`,
+          [input, newconductDBid.current, isConducting],
           (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
               console.log(`${input} successfully inserted into conducts table`);
@@ -238,6 +240,7 @@ const Home = ({navigation}) => {
               setInput('');
               setmodalVisible(false);
               getAllConducts();
+              setConducting(false);
             }
           },
         );
@@ -393,7 +396,17 @@ const Home = ({navigation}) => {
               return <FontAwesome name="search" color="#FFF" size={18} />;
             }}
           />
-
+          <View style={styles.checkBoxContainer}>
+            <CheckBox
+              value={isConducting}
+              onValueChange={newValue => {
+                setConducting(newValue);
+                console.log(newValue);
+              }}
+              style={styles.checkBoxStyle}
+            />
+            <Text style={styles.checkBoxLabel}>Create as conducting</Text>
+          </View>
           <TouchableOpacity
             style={styles.newConductBtn}
             onPress={handleAddConduct}>
@@ -411,7 +424,7 @@ const Home = ({navigation}) => {
 
       <TouchableOpacity
         style={styles.delConductBtn}
-        onPress={() => delAttendanceTable()}>
+        onPress={() => delConductTable()}>
         <MaterialIcons name="info-outline" size={25} color="white" />
       </TouchableOpacity>
     </SafeAreaView>
@@ -555,6 +568,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#444',
     borderBottomWidth: 1,
     borderBottomColor: '#FFF',
+  },
+  checkBoxContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  checkBoxStyle: {
+    alignSelf: 'center',
+  },
+  checkBoxLabel: {
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
