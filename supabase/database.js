@@ -179,69 +179,95 @@ class DailyAttendanceTable {
   }
 }
 
+//  user_obj: {uuid*, userNRIC, pushupReps, situpReps, chipNum}
 class UserConductTable {
-  async initInsert(user_obj) {
-    let {data, error} = await supabase
-      .from('UserConduct')
-      .insert([
+  async initInsert(user_obj, conductname, conductdate, company) {
+    try {
+      const {error} = await supabase.from('UserConduct').insert([
         {
           userNRIC: user_obj.userNRIC,
-          conductid: user_obj.conductDBid,
-          conductdate: user_obj.conductdate,
+          conductname: conductname,
+          conductdate: conductdate,
+          company: company,
         },
-      ])
-      .select();
-    return {data, error};
+      ]);
+      if (!error) {
+        const {newUUID, retError} = await supabase
+          .from('UserConduct')
+          .select('uuid')
+          .eq('userNRIC', user_obj.userNRIC)
+          .eq('conductname', conductname)
+          .eq('conductdate', conductdate)
+          .eq('company', company);
+        return {newUUID, retError};
+      }
+    } catch (e) {
+      console.log(e);
+    }
   }
-  async updateDetail(user_obj) {
-    let {data, error} = await supabase
-      .from('UserConduct')
-      .update({detailnum: user_obj.detailnum})
-      .eq('userNRIC', user_obj.userNRIC)
-      .eq('conductid', user_obj.conductDBid)
-      .eq('conductdate', user_obj.conductdate)
-      .select();
-    return {data, error};
-  }
-  async updatePushupReps(user_obj) {
-    let {data, error} = await supabase
-      .from('UserConduct')
-      .update({pushupReps: user_obj.pushupReps})
-      .eq('userNRIC', user_obj.userNRIC)
-      .eq('conductid', user_obj.conductDBid)
-      .eq('conductdate', user_obj.conductdate)
-      .select();
-    return {data, error};
-  }
-  async updatePushupReps(user_obj) {
-    let {data, error} = await supabase
-      .from('UserConduct')
-      .update({situpReps: user_obj.situpReps})
-      .eq('userNRIC', user_obj.userNRIC)
-      .eq('conductid', user_obj.conductDBid)
-      .eq('conductdate', user_obj.conductdate)
-      .select();
-    return {data, error};
-  }
-  async updateRunChip(user_obj) {
-    let {data, error} = await supabase
-      .from('UserConduct')
-      .update({runChip: user_obj.runChip})
-      .eq('userNRIC', user_obj.userNRIC)
-      .eq('conductid', user_obj.conductDBid)
-      .eq('conductdate', user_obj.conductdate)
-      .select();
-    return {data, error};
-  }
-  async getUserRecord(userNRIC, conductDBid, conductdate) {
-    let {data, error} = await supabase
-      .from('UserConduct')
-      .select('*')
-      .eq('userNRIC', userNRIC)
-      .eq('conductid', conductDBid)
-      .eq('conductdate', conductdate);
-    return {data, error};
-  }
+
+  // async initInsert(user_obj) {
+  //   let {data, error} = await supabase
+  //     .from('UserConduct')
+  //     .insert([
+  //       {
+  //         userNRIC: user_obj.userNRIC,
+  //         conductid: user_obj.conductDBid,
+  //         conductdate: user_obj.conductdate,
+  //       },
+  //     ])
+  //     .select();
+  //   return {data, error};
+  // }
+  // async updateDetail(user_obj) {
+  //   let {data, error} = await supabase
+  //     .from('UserConduct')
+  //     .update({detailnum: user_obj.detailnum})
+  //     .eq('userNRIC', user_obj.userNRIC)
+  //     .eq('conductid', user_obj.conductDBid)
+  //     .eq('conductdate', user_obj.conductdate)
+  //     .select();
+  //   return {data, error};
+  // }
+  // async updatePushupReps(user_obj) {
+  //   let {data, error} = await supabase
+  //     .from('UserConduct')
+  //     .update({pushupReps: user_obj.pushupReps})
+  //     .eq('userNRIC', user_obj.userNRIC)
+  //     .eq('conductid', user_obj.conductDBid)
+  //     .eq('conductdate', user_obj.conductdate)
+  //     .select();
+  //   return {data, error};
+  // }
+  // async updatePushupReps(user_obj) {
+  //   let {data, error} = await supabase
+  //     .from('UserConduct')
+  //     .update({situpReps: user_obj.situpReps})
+  //     .eq('userNRIC', user_obj.userNRIC)
+  //     .eq('conductid', user_obj.conductDBid)
+  //     .eq('conductdate', user_obj.conductdate)
+  //     .select();
+  //   return {data, error};
+  // }
+  // async updateRunChip(user_obj) {
+  //   let {data, error} = await supabase
+  //     .from('UserConduct')
+  //     .update({runChip: user_obj.runChip})
+  //     .eq('userNRIC', user_obj.userNRIC)
+  //     .eq('conductid', user_obj.conductDBid)
+  //     .eq('conductdate', user_obj.conductdate)
+  //     .select();
+  //   return {data, error};
+  // }
+  // async getUserRecord(userNRIC, conductDBid, conductdate) {
+  //   let {data, error} = await supabase
+  //     .from('UserConduct')
+  //     .select('*')
+  //     .eq('userNRIC', userNRIC)
+  //     .eq('conductid', conductDBid)
+  //     .eq('conductdate', conductdate);
+  //   return {data, error};
+  // }
 }
 export const SupaUser = new UserTable();
 export const SupaUserStatus = new UserStatusTable();

@@ -97,18 +97,27 @@ const App = () => {
           initialRouteName="HomeStack"
           screenOptions={{
             tabBarActiveTintColor: '#000',
+            tabBarShowLabel: false,
+            tabBarStyle: {
+              marginHorizontal: 30,
+              position: 'absolute',
+              borderRadius: 10,
+              marginBottom: 14,
+              justifyContent: 'space-evenly',
+              backgroundColor: '#1AODOA',
+            },
           }}>
           <Tab.Screen
             name="HomeStack"
             component={HomeStack}
             options={{
-              tabBarLabel: 'Home',
+              tabBarShowLabel: false,
               headerShown: false,
               tabBarIcon: ({focused, color, size}) => (
                 <Ionicons
                   name={focused ? 'home' : 'home-outline'}
-                  size={24}
-                  color="black"
+                  size={focused ? 30 : 24}
+                  color={focused ? 'white' : 'grey'}
                 />
               ),
             }}
@@ -121,8 +130,8 @@ const App = () => {
               tabBarIcon: ({focused, color, size}) => (
                 <Ionicons
                   name={focused ? 'scan-circle' : 'scan-circle-outline'}
-                  size={24}
-                  color="black"
+                  size={focused ? 30 : 24}
+                  color={focused ? 'white' : 'grey'}
                 />
               ),
             }}
@@ -136,8 +145,8 @@ const App = () => {
               tabBarIcon: ({focused, color, size}) => (
                 <MaterialCommunityIcons
                   name={focused ? 'database' : 'database-outline'}
-                  size={24}
-                  color="black"
+                  size={focused ? 30 : 24}
+                  color={focused ? 'white' : 'grey'}
                 />
               ),
             }}
@@ -150,9 +159,9 @@ const App = () => {
               headerShown: false,
               tabBarIcon: ({focused}) => (
                 <Ionicons
-                  name={focused ? 'people-circle' : 'people-circle-outline'}
-                  size={24}
-                  color="black"
+                  name={focused ? 'people-circle-outline' : 'people-circle'}
+                  size={focused ? 30 : 24}
+                  color={focused ? 'white' : 'grey'}
                 />
               ),
             }}

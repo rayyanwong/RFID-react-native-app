@@ -1,10 +1,10 @@
 import {StyleSheet} from 'react-native';
 
 const customStyle = StyleSheet.create({
-  text: '#fcfcfd',
-  background: '#040406',
-  primary: '#2b2c4a',
-  secondary: '#131320',
-  accent: '#4a52e3',
+  text: '#07090c',
+  background: '#fbfcfd',
+  primary: '#577dc1',
+  secondary: '#92aee0',
+  accent: '#618ede',
 });
 export default customStyle;

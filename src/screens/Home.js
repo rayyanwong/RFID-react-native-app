@@ -39,6 +39,7 @@ const Home = ({navigation}) => {
   const newconductDBid = useRef(null);
   const [datePickerVisible, setdatePickerVisible] = useState(false);
   const [newConductDate, setNewConductDate] = useState(new Date());
+  const companies = ['ALPHA', 'BRAVO', 'CHARLIE', 'SUPPORT', 'CA', 'HQ'];
   // NetInfo.addEventListener(networkState => {
   //   console.log('Connection type - ', networkState.type);
   //   console.log('Is connected? - ', networkState.isConnected);
@@ -335,7 +336,18 @@ const Home = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topHeader}>
-        <Text style={styles.headerText}>CONDUCTS</Text>
+        <TouchableOpacity
+          disabled={true}
+          style={styles.actionBtn}
+          onPress={() => delConductTable()}>
+          <MaterialIcons name="info-outline" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerText}>Home</Text>
+        <TouchableOpacity
+          style={styles.actionBtn}
+          onPress={() => setmodalVisible(true)}>
+          <MaterialIcons name="add" size={24} color="black" />
+        </TouchableOpacity>
       </View>
       <FlatList
         marginHorizontal={10}
@@ -449,48 +461,40 @@ const Home = ({navigation}) => {
           </TouchableOpacity>
         </SafeAreaView>
       </Modal>
-
-      <TouchableOpacity
-        style={styles.addConductBtn}
-        onPress={() => setmodalVisible(true)}>
-        <MaterialIcons name="library-add" size={25} color="white" />
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.delConductBtn}
-        onPress={() => delConductTable()}>
-        <MaterialIcons name="info-outline" size={25} color="white" />
-      </TouchableOpacity>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#dedbf0',
+    backgroundColor: '#fbfcfd',
     flex: 1,
   },
   topHeader: {
-    backgroundColor: '#bdb7e1',
-    padding: 15,
+    paddingHorizontal: 20,
+    paddingTop: 30,
+    paddingBottom: 40,
     borderRadius: 6,
     alignItems: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   headerText: {
-    fontSize: 24,
-    color: '#000',
+    fontSize: 18,
+    color: 'black',
     fontFamily: 'OpenSans-Bold',
+    fontWeight: '300',
+    textShadowRadius: 1,
+    textShadowColor: 'grey',
   },
-  addConductBtn: {
-    position: 'absolute',
+  actionBtn: {
     alignItems: 'center',
-    width: 60,
-    height: 60,
-    backgroundColor: '#493c90',
+    width: 45,
+    height: 45,
+    backgroundColor: '#e9ecef',
     justifyContent: 'center',
-    borderRadius: 30,
-    bottom: 40,
-    right: 25,
+    borderRadius: 16,
     elevation: 2,
     zIndex: 10,
     shadowColor: '#000',
@@ -501,25 +505,6 @@ const styles = StyleSheet.create({
     },
   },
 
-  delConductBtn: {
-    position: 'absolute',
-    alignItems: 'center',
-    width: 60,
-    height: 60,
-    backgroundColor: '#493c90',
-    justifyContent: 'center',
-    borderRadius: 30,
-    bottom: 120,
-    right: 25,
-    elevation: 2,
-    zIndex: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.4,
-    shadowOffset: {
-      width: 1,
-      height: 3,
-    },
-  },
   modalContainer: {
     backgroundColor: '#dedbf0',
     flex: 1,
