@@ -99,12 +99,13 @@ const App = () => {
             tabBarActiveTintColor: '#000',
             tabBarShowLabel: false,
             tabBarStyle: {
-              marginHorizontal: 30,
+              height: 55,
+              marginHorizontal: 24,
               position: 'absolute',
               borderRadius: 10,
-              marginBottom: 14,
+              marginBottom: 16,
               justifyContent: 'space-evenly',
-              backgroundColor: '#1AODOA',
+              backgroundColor: 'black',
             },
           }}>
           <Tab.Screen
@@ -116,7 +117,7 @@ const App = () => {
               tabBarIcon: ({focused, color, size}) => (
                 <Ionicons
                   name={focused ? 'home' : 'home-outline'}
-                  size={focused ? 30 : 24}
+                  size={focused ? 34 : 22}
                   color={focused ? 'white' : 'grey'}
                 />
               ),
@@ -130,7 +131,7 @@ const App = () => {
               tabBarIcon: ({focused, color, size}) => (
                 <Ionicons
                   name={focused ? 'scan-circle' : 'scan-circle-outline'}
-                  size={focused ? 30 : 24}
+                  size={focused ? 34 : 24}
                   color={focused ? 'white' : 'grey'}
                 />
               ),
@@ -145,7 +146,7 @@ const App = () => {
               tabBarIcon: ({focused, color, size}) => (
                 <MaterialCommunityIcons
                   name={focused ? 'database' : 'database-outline'}
-                  size={focused ? 30 : 24}
+                  size={focused ? 34 : 24}
                   color={focused ? 'white' : 'grey'}
                 />
               ),
@@ -160,7 +161,7 @@ const App = () => {
               tabBarIcon: ({focused}) => (
                 <Ionicons
                   name={focused ? 'people-circle-outline' : 'people-circle'}
-                  size={focused ? 30 : 24}
+                  size={focused ? 34 : 24}
                   color={focused ? 'white' : 'grey'}
                 />
               ),

@@ -485,8 +485,6 @@ const styles = StyleSheet.create({
     color: 'black',
     fontFamily: 'OpenSans-Bold',
     fontWeight: '300',
-    textShadowRadius: 1,
-    textShadowColor: 'grey',
   },
   actionBtn: {
     alignItems: 'center',

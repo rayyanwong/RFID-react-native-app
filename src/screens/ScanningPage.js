@@ -169,38 +169,42 @@ const ScanningPage = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity style={styles.addBtn} onPress={nfcAddUser}>
-        <Text style={styles.btnText}>Add user using NFC</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.addBtn}
-        onPress={() => {
-          setaddModalVisible(true);
-        }}>
-        <Text style={styles.btnText}>Add user manually</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.writeBtn}
-        onPress={() => {
-          setwriteModalVisible(true);
-        }}>
-        <Text style={styles.btnText}>Set write data</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.writeBtn}
-        onPress={() => {
-          nfcWriteUser();
-        }}>
-        <Text style={styles.btnText}>Write data onto NFC tag</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.qrscanBtn} onPress={() => {}}>
-        <Text style={styles.btnText}>Scan Conduct QRCode</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.qrscanBtn}
-        onPress={() => setARFVisible(true)}>
-        <Text style={styles.btnText}>ARF Scanner</Text>
-      </TouchableOpacity>
+      <View style={styles.pageHeader}>
+        <Text style={styles.headerText}>Scanning</Text>
+      </View>
+      <View style={styles.btnContainer}>
+        <TouchableOpacity
+          style={[styles.pageBtn, styles.addBtn]}
+          onPress={nfcAddUser}>
+          <Text style={styles.btnText}>Add user using NFC</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.pageBtn, styles.addBtn]}
+          onPress={() => {
+            setaddModalVisible(true);
+          }}>
+          <Text style={styles.btnText}>Add user manually</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.pageBtn, styles.writeBtn]}
+          onPress={() => {
+            setwriteModalVisible(true);
+          }}>
+          <Text style={styles.btnText}>Set write data</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.pageBtn, styles.writeBtn]}
+          onPress={() => {
+            nfcWriteUser();
+          }}>
+          <Text style={styles.btnText}>Write data onto NFC tag</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.pageBtn, styles.arfBtn]}
+          onPress={() => setARFVisible(true)}>
+          <Text style={styles.btnText}>ARF Scanner</Text>
+        </TouchableOpacity>
+      </View>
       <AndroidPrompt ref={promptRef} />
       <Modal visible={addModalVisible} animationType="fade">
         <SafeAreaView style={styles.addModalContainer}>
@@ -293,34 +297,55 @@ const ScanningPage = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#dedbf0',
+    backgroundColor: '#fbfcfd',
     flex: 1,
+  },
+  btnContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 20,
+  },
+  headerText: {
+    fontSize: 18,
+    color: 'black',
+    fontFamily: 'OpenSans-Bold',
+    fontWeight: '300',
+  },
+  pageHeader: {
+    paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom: 40,
+    borderRadius: 6,
+    alignItems: 'center',
+    alignItems: 'center',
+  },
+  pageBtn: {
+    backgroundColor: '#f8f9fa',
+    marginVertical: 16,
+    borderRadius: 24,
+    borderWidth: 2,
+    borderColor: 'black',
+    width: '70%',
+    alignItems: 'center',
+    elevation: 10,
+    shadowOpacity: 0.6,
+    shadowOffset: {
+      width: 10,
+      height: 30,
+    },
+    shadowRadius: 1,
   },
   btnText: {
-    color: '#fff',
-    fontSize: 16,
+    color: 'black',
+    fontSize: 14,
     padding: 16,
-    fontWeight: 'bold',
+    fontFamily: 'OpenSans-Bold',
   },
   addBtn: {
-    backgroundColor: '#493c90',
-    margin: 10,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#bdb7e1',
-    width: 260,
-    alignItems: 'center',
+    shadowColor: '#800f2f',
   },
   writeBtn: {
-    backgroundColor: '#4cc19c',
-    margin: 10,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#bdb7e1',
-    width: 260,
-    alignItems: 'center',
+    shadowColor: '#1a776f',
   },
   addModalContainer: {
     backgroundColor: '#dedbf0',
@@ -404,14 +429,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFF',
   },
-  qrscanBtn: {
-    margin: 10,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#bdb7e1',
-    width: 260,
-    alignItems: 'center',
-    backgroundColor: '#DA627D',
+  arfBtn: {
+    shadowColor: '#fcca46',
+    shadowOpacity: 0.1,
   },
 });
 
