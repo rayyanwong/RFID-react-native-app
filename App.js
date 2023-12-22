@@ -103,7 +103,7 @@ const App = () => {
               marginHorizontal: 24,
               position: 'absolute',
               borderRadius: 10,
-              marginBottom: 16,
+              marginBottom: 24,
               justifyContent: 'space-evenly',
               backgroundColor: 'black',
             },
