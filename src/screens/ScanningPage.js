@@ -342,10 +342,10 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans-Bold',
   },
   addBtn: {
-    shadowColor: '#800f2f',
+    // shadowColor: '#800f2f',
   },
   writeBtn: {
-    shadowColor: '#1a776f',
+    // shadowColor: '#1a776f',
   },
   addModalContainer: {
     backgroundColor: '#dedbf0',
@@ -430,8 +430,8 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   arfBtn: {
-    shadowColor: '#fcca46',
-    shadowOpacity: 0.1,
+    // shadowColor: '#fcca46',
+    // shadowOpacity: 0.1,
   },
 });
 

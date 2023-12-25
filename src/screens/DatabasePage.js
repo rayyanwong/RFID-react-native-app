@@ -6,6 +6,7 @@ import {
   Alert,
   ActivityIndicator,
   View,
+  Text,
 } from 'react-native';
 import {openDatabase} from 'react-native-sqlite-storage';
 import NamesList from '../components/NamesList';
@@ -102,6 +103,9 @@ const DatabasePage = ({navigation}) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.pageHeader}>
+        <Text style={styles.headerText}>Soldiers</Text>
+      </View>
       <FlatList
         marginHorizontal={10}
         marginTop={30}
@@ -122,8 +126,22 @@ const DatabasePage = ({navigation}) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#dedbf0',
+    backgroundColor: '#fbfcfd',
     flex: 1,
+  },
+  headerText: {
+    fontSize: 18,
+    color: 'black',
+    fontFamily: 'OpenSans-Bold',
+    fontWeight: '300',
+  },
+  pageHeader: {
+    paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom: 40,
+    borderRadius: 6,
+    alignItems: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -42,11 +42,12 @@ const styles = StyleSheet.create({
   },
   cardText: {
     color: '#121212',
-    fontSize: 16,
+    fontSize: 14,
     paddingLeft: 8,
     paddingRight: 20,
     maxWidth: '90%',
     marginLeft: 15,
+    fontFamily: 'OpenSans-Bold',
   },
 });
 
