@@ -60,7 +60,7 @@ const DatabaseStack = () => {
         <Stack.Screen
           component={EditUserPage}
           name="EditUserPage"
-          options={({route}) => ({title: route.params.name})}
+          options={{headerShown: false}}
         />
       </Stack.Navigator>
     </NavigationContainer>

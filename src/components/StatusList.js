@@ -40,11 +40,20 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 10,
     flexDirection: 'column',
-
-    backgroundColor: 'white',
+    borderColor: 'black',
+    borderWidth: 1,
+    backgroundColor: '#f8f9fa',
     borderRadius: 6,
     padding: 10,
     paddingVertical: 20,
+    elevation: 5,
+    shadowColor: 'black',
+    shadowOpacity: 1,
+    shadowOffset: {
+      width: 4,
+      height: 4,
+    },
+    shadowRadius: 10,
   },
   dateContainer: {
     flex: 1,
@@ -55,17 +64,18 @@ const styles = StyleSheet.create({
   },
   statusTitle: {
     color: 'black',
-    fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 14,
     paddingLeft: 10,
     paddingVertical: 5,
+    fontFamily: 'OpenSans-Bold',
   },
   dateText: {
     color: 'black',
     paddingHorizontal: 5,
+    fontFamily: 'OpenSans-Regular',
   },
   statusTitleContainer: {
-    borderRadius: 10,
+    borderRadius: 6,
     borderWidth: 2,
   },
 });

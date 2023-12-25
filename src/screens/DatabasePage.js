@@ -88,7 +88,6 @@ const DatabasePage = ({navigation}) => {
 
   const handleUserDetails = userObj => {
     navigation.navigate('EditUserPage', {
-      name: userObj.userName,
       data: userObj,
     });
   };

@@ -18,7 +18,8 @@ import StatusList from '../components/StatusList';
 import EditStatusPrompt from '../components/EditStatusPrompt';
 import NetInfo from '@react-native-community/netinfo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Soldiercard from '../components/Soldiercard';
 const checkExist = async userNRIC => {
   const {data, error} = await SupaUser.findUser(userNRIC);
   if (error) {
@@ -29,9 +30,9 @@ const checkExist = async userNRIC => {
 };
 
 const EditUserPage = props => {
-  const userNRIC = props.route.params.data.userNRIC;
+  const {navigation} = props;
   const userObj = props.route.params.data;
-  const userHPNo = props.route.params.data.userHPNo.toString();
+  const userNRIC = props.route.params.data.userNRIC;
   // const [statusArr, setStatusArr] = useState([]);
   // const [statusNameArr, setStatusNameArr] = useState([]);
   const statusArr = useRef([]);
@@ -143,28 +144,24 @@ const EditUserPage = props => {
   //console.log('Existing: ', userExistingStatus);
   return (
     <View style={styles.container}>
-      <View style={styles.infoContainer}>
-        <View style={styles.card}>
-          <Text style={styles.infoText}>NRIC: </Text>
-          <TextInput
-            editable={false}
-            placeholder={userNRIC}
-            placeholderTextColor="black"
-            style={styles.textInputStyle}
-          />
-        </View>
-        <View style={styles.card}>
-          <Text style={styles.infoText}>HP Number: </Text>
-          <TextInput
-            editable={false}
-            style={styles.textInputStyle}
-            placeholder={userHPNo}
-            placeholderTextColor="black"
-          />
-        </View>
+      <View style={styles.pageHeader}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <MaterialIcons name="arrow-back-ios" size={24} color="black" />
+        </TouchableOpacity>
+        <Text
+          style={{
+            color: 'black',
+            fontFamily: 'OpenSans-Bold',
+            fontSize: 18,
+            marginLeft: 120,
+          }}>
+          Info
+        </Text>
       </View>
+      <Soldiercard userObj={userObj} />
       {!isOffline && (
         <FlatList
+          style={styles.flatlistStyle}
           marginHorizontal={10}
           data={userExistingStatus}
           keyExtractor={item => String(item.statusUUID)}
@@ -182,6 +179,7 @@ const EditUserPage = props => {
           You are currently offline and unable to retrieve the User's statuses
         </Text>
       )}
+
       <View style={styles.btnContainer}>
         <Button
           title="Find User in Supbase"
@@ -308,10 +306,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: '#dedbf0',
+    backgroundColor: '#fbfcfd',
     alignContent: 'center',
   },
-  infoContainer: {},
+  pageHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    padding: 14,
+    marginVertical: 18,
+  },
   btnContainer: {
     backgroundColor: 'black',
   },
@@ -401,6 +405,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#444',
     borderBottomWidth: 1,
     borderBottomColor: '#FFF',
+  },
+  flatlistStyle: {
+    marginTop: 14,
+    borderWidth: 1,
+    borderRadius: 14,
   },
 });
 

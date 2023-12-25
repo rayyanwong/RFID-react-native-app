@@ -2,13 +2,17 @@ import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Text, Image} from 'react-native';
 
 const HomeAvatar = () => {
-  const [message, setMessage] = useState('');
-  useEffect(() => {
-    const hour = new Date().getHours();
-    setMessage(
-      (hour < 12 && 'Morning') || (hour < 18 && 'Afternoon') || 'Evening',
-    );
-  });
+  //   const [message, setMessage] = useState('');
+  //   useEffect(() => {
+  //     const hour = new Date().getHours();
+  //     setMessage(
+  //       (hour < 12 && 'Morning') || (hour < 18 && 'Afternoon') || 'Evening',
+  //     );
+  //   });
+
+  const hour = new Date().getHours();
+  const message =
+    (hour < 12 && 'Morning') || (hour < 18 && 'Afternoon') || 'Evening';
   return (
     <View style={styles.avatarContainer}>
       <Image
