@@ -367,7 +367,13 @@ const Home = ({navigation}) => {
       <Modal animationType="fade" visible={modalVisible}>
         <SafeAreaView style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setmodalVisible(false)}>
+            <TouchableOpacity
+              onPress={() => {
+                setmodalVisible(false);
+                setInput('');
+                setConducting(false);
+                setNewConductDate(new Date());
+              }}>
               <Ionicons
                 name="arrow-back-circle-outline"
                 size={30}
@@ -378,7 +384,7 @@ const Home = ({navigation}) => {
           </View>
           <TextInput
             multiline={true}
-            placeholder="What conduct would you like to add"
+            placeholder="Name of new conduct"
             style={styles.conductInput}
             value={input}
             onChangeText={text => setInput(text)}
@@ -504,17 +510,19 @@ const styles = StyleSheet.create({
   },
 
   modalContainer: {
-    backgroundColor: '#dedbf0',
+    backgroundColor: '#fbfcfd',
     flex: 1,
   },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
-    backgroundColor: '#bdb7e1',
+    backgroundColor: '#fbfcfd',
+    marginTop: 14,
+    marginHorizontal: 16,
   },
   modalText: {
-    marginLeft: 80,
+    marginLeft: 70,
     fontSize: 18,
     fontWeight: 'bold',
     color: '#000',
@@ -523,17 +531,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#493c90',
-    margin: 30,
+    backgroundColor: 'black',
+    alignSelf: 'center',
     borderRadius: 8,
     shadowOpacity: 0.4,
     shadowOffset: {
       width: 1,
       height: 3,
     },
+    marginTop: 60,
+    width: '80%',
   },
   conductInput: {
-    fontSize: 15,
+    fontSize: 14,
     width: '80%',
     alignSelf: 'center',
     marginTop: 30,
@@ -543,12 +553,16 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     color: '#000',
     borderRadius: 10,
+    borderWidth: 2,
+    textAlign: 'center',
+    fontFamily: 'OpenSans-Regular',
   },
 
   handleAddText: {
     color: 'white',
     padding: 18,
     fontSize: 14,
+    fontFamily: 'OpenSans-Bold',
   },
   dropdownBtnStyle: {
     width: '80%',
@@ -563,8 +577,8 @@ const styles = StyleSheet.create({
   dropdownBtnTextStyle: {
     color: '#FFF',
     textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 14,
+    fontFamily: 'OpenSans-Bold',
   },
   dropdownDropdownStyle: {
     backgroundColor: '#444',
@@ -577,7 +591,7 @@ const styles = StyleSheet.create({
   dropdownRowTextStyle: {
     color: '#FFF',
     textAlign: 'center',
-    fontWeight: 'bold',
+    fontFamily: 'OpenSans-Bold',
   },
   dropdownSelectedRowStyle: {
     backgroundColor: 'rgba(255,255,255,0.2)',
@@ -591,7 +605,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 30,
   },
   checkBoxStyle: {
     alignSelf: 'center',
@@ -599,7 +613,8 @@ const styles = StyleSheet.create({
   checkBoxLabel: {
     marginLeft: 8,
     fontSize: 16,
-    fontWeight: 'bold',
+    color: 'black',
+    fontFamily: 'OpenSans-Bold',
   },
 });
 
