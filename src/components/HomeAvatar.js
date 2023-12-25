@@ -6,8 +6,7 @@ const HomeAvatar = () => {
   useEffect(() => {
     const hour = new Date().getHours();
     setMessage(
-      'Good ' +
-        ((hour < 12 && 'Morning') || (hour < 18 && 'Afternoon') || 'Evening'),
+      (hour < 12 && 'Morning') || (hour < 18 && 'Afternoon') || 'Evening',
     );
   });
   return (
@@ -16,7 +15,9 @@ const HomeAvatar = () => {
         source={require('../assets/images/guardslogo.png')}
         style={styles.avatarImage}
       />
-      <Text style={styles.avatarText}>{message}</Text>
+      <Text style={styles.avatarText}>
+        Good <Text style={{fontSize: 20}}>{message}</Text>
+      </Text>
     </View>
   );
 };
@@ -30,8 +31,8 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontFamily: 'OpenSans-Bold',
-    fontSize: 18,
-    marginLeft: 24,
+    fontSize: 16,
+    marginLeft: 20,
     color: 'black',
   },
 });
