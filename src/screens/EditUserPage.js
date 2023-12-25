@@ -153,16 +153,20 @@ const EditUserPage = props => {
             color: 'black',
             fontFamily: 'OpenSans-Bold',
             fontSize: 18,
-            marginLeft: 120,
           }}>
           Info
         </Text>
+        <TouchableOpacity
+          style={styles.actionBtn}
+          onPress={() => setPromptVisible(true)}>
+          <MaterialIcons name="add" size={24} color="black" />
+        </TouchableOpacity>
       </View>
       <Soldiercard userObj={userObj} />
       {!isOffline && (
         <FlatList
           style={styles.flatlistStyle}
-          marginHorizontal={10}
+          marginHorizontal={12}
           data={userExistingStatus}
           keyExtractor={item => String(item.statusUUID)}
           renderItem={({item}) => (
@@ -180,7 +184,7 @@ const EditUserPage = props => {
         </Text>
       )}
 
-      <View style={styles.btnContainer}>
+      {/* <View style={styles.btnContainer}>
         <Button
           title="Find User in Supbase"
           onPress={async () => await getStatusUser(userIdRef.current)}
@@ -190,7 +194,7 @@ const EditUserPage = props => {
           title="Get all statuses"
           onPress={() => console.log(statusArr.current)}
         />
-      </View>
+      </View> */}
 
       <Modal visible={addPromptVisible} transparent={true}>
         <View style={styles.promptContainer}>
@@ -313,8 +317,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 16,
-    padding: 14,
-    marginVertical: 18,
+    padding: 10,
+    marginVertical: 14,
+    justifyContent: 'space-between',
   },
   btnContainer: {
     backgroundColor: 'black',
@@ -358,6 +363,22 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 15,
     marginTop: 10,
+  },
+  actionBtn: {
+    alignItems: 'center',
+    width: 45,
+    height: 45,
+    backgroundColor: '#e9ecef',
+    justifyContent: 'center',
+    borderRadius: 16,
+    elevation: 2,
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowOffset: {
+      width: 1,
+      height: 1,
+    },
   },
   btn: {
     borderWidth: 1,
@@ -407,7 +428,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#FFF',
   },
   flatlistStyle: {
-    marginTop: 14,
+    marginVertical: 14,
+    marginBottom: 82,
     borderWidth: 1,
     borderRadius: 14,
   },

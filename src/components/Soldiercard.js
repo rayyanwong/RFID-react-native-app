@@ -22,11 +22,19 @@ const Soldiercard = ({userObj}) => {
           {userName}
         </Text>
         <Text
-          style={{fontFamily: 'OpenSans-Bold', color: 'white', fontSize: 14}}>
+          style={{
+            fontFamily: 'OpenSans-Regular',
+            color: 'white',
+            fontSize: 14,
+          }}>
           {userNRIC}
         </Text>
         <Text
-          style={{fontFamily: 'OpenSans-Bold', color: 'white', fontSize: 14}}>
+          style={{
+            fontFamily: 'OpenSans-Regular',
+            color: 'white',
+            fontSize: 14,
+          }}>
           {userHPNo}
         </Text>
       </View>

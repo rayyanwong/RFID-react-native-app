@@ -30,9 +30,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 5,
     padding: 10,
-    elevation: 1.5,
+    elevation: 5,
     shadowColor: '#000',
-    shadowOpacity: 0.2,
+    shadowOpacity: 1,
     shadowOffset: {
       width: 1,
       height: 3,
