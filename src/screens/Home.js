@@ -21,6 +21,7 @@ import {SupaConduct} from '../../supabase/database';
 import SelectDropdown from 'react-native-select-dropdown';
 import CheckBox from '@react-native-community/checkbox';
 import DatePicker from 'react-native-date-picker';
+import HomeAvatar from '../components/HomeAvatar';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -336,13 +337,14 @@ const Home = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topHeader}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           disabled={true}
           style={styles.actionBtn}
           onPress={() => delConductTable()}>
           <MaterialIcons name="info-outline" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Home</Text>
+        </TouchableOpacity> */}
+        <HomeAvatar />
+        {/* <Text style={styles.headerText}>Home</Text> */}
         <TouchableOpacity
           style={styles.actionBtn}
           onPress={() => setmodalVisible(true)}>
@@ -351,7 +353,7 @@ const Home = ({navigation}) => {
       </View>
       <FlatList
         marginHorizontal={10}
-        marginTop={30}
+        marginTop={24}
         showsHorizontalScrollIndicator={false}
         data={allConducts}
         keyExtractor={item => String(item.conductid)}
@@ -483,7 +485,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: 'center',
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
   },
   headerText: {
