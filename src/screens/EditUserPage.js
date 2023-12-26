@@ -20,6 +20,7 @@ import NetInfo from '@react-native-community/netinfo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Soldiercard from '../components/Soldiercard';
+import Entypo from 'react-native-vector-icons/Entypo';
 const checkExist = async userNRIC => {
   const {data, error} = await SupaUser.findUser(userNRIC);
   if (error) {
@@ -184,11 +185,46 @@ const EditUserPage = props => {
         </Text>
       )}
 
-      <Modal visible={addPromptVisible} transparent={true}>
+      <Modal visible={addPromptVisible} transparent={true} animationType="fade">
         <View style={styles.promptContainer}>
           <View style={[styles.backdrop, StyleSheet.absoluteFill]} />
           <View style={styles.prompt}>
+            <View style={styles.promptHeader}>
+              <Text
+                style={{
+                  fontFamily: 'OpenSans-Bold',
+                  fontSize: 18,
+                  maxWidth: '80%',
+                  textAlign: 'center',
+                  alignSelf: 'center',
+                  marginHorizontal: 14,
+                  marginVertical: 16,
+                  color: 'black',
+                }}>
+                New Status
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setPromptVisible(false);
+                  newStatusRef.current = null;
+                }}
+                style={{
+                  backgroundColor: '#e9ecef',
+                  width: 24,
+                  height: 24,
+                  borderRadius: 30,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  right: 30,
+                  top: 0,
+                  position: 'absolute',
+                }}>
+                <Entypo name="cross" size={16} color="black" />
+              </TouchableOpacity>
+            </View>
+
             <SelectDropdown
+              defaultButtonText="Search for status"
               data={statusArr.current}
               onSelect={(selectedItem, index) => {
                 console.log(selectedItem);
@@ -228,12 +264,26 @@ const EditUserPage = props => {
             <TouchableOpacity
               style={styles.btn}
               onPress={() => setSdVisible(true)}>
-              <Text style={{color: 'white'}}>Open start date picker</Text>
+              <Text
+                style={{
+                  color: 'white',
+                  fontFamily: 'OpenSans-Bold',
+                  paddingVertical: 16,
+                }}>
+                Start Date
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.btn}
               onPress={() => setEdVisible(true)}>
-              <Text style={{color: 'white'}}>Open end date picker</Text>
+              <Text
+                style={{
+                  color: 'white',
+                  fontFamily: 'OpenSans-Bold',
+                  paddingVertical: 16,
+                }}>
+                End Date
+              </Text>
             </TouchableOpacity>
             <DatePicker
               theme="dark"
@@ -266,20 +316,27 @@ const EditUserPage = props => {
               }}
             />
             <TouchableOpacity
-              style={styles.promptCancelBtn}
+              style={[
+                styles.btn,
+                {
+                  backgroundColor: 'white',
+                  borderWidth: 1,
+                  marginTop: 30,
+                  elevation: 5,
+                },
+              ]}
               onPress={async () => {
                 setPromptVisible(false);
                 await handleAddNewStatus();
               }}>
-              <Text style={{color: 'black'}}>Add New Status</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.promptCancelBtn}
-              onPress={() => {
-                setPromptVisible(false);
-                newStatusRef.current = null;
-              }}>
-              <Text style={{color: 'black'}}>Cancel</Text>
+              <Text
+                style={{
+                  color: 'black',
+                  fontFamily: 'OpenSans-Bold',
+                  paddingVertical: 16,
+                }}>
+                Add New Status
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -332,25 +389,17 @@ const styles = StyleSheet.create({
   promptContainer: {flex: 1},
   prompt: {
     position: 'absolute',
-    bottom: Dimensions.get('window').height / 3,
-    left: 20,
-    width: Dimensions.get('window').width - 2 * 20,
+    marginTop: (Dimensions.get('window').height / 3) * 0.5,
+    alignSelf: 'center',
+    width: '90%',
+    height: '50%',
     backgroundColor: 'white',
     borderRadius: 8,
-    paddingVertical: 60,
-    paddingHorizontal: 20,
-    alignItems: 'center',
+    flexDirection: 'column',
     justifyContent: 'center',
   },
   backdrop: {
-    backgroundColor: 'rgba(0,0,0,0.3)',
-  },
-  promptCancelBtn: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 15,
-    marginTop: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)',
   },
   actionBtn: {
     alignItems: 'center',
@@ -369,15 +418,14 @@ const styles = StyleSheet.create({
     },
   },
   btn: {
-    borderWidth: 1,
-    borderColor: '#b18feb',
     borderRadius: 8,
-    padding: 15,
-    backgroundColor: '#ab59a7',
+    marginVertical: 10,
+    backgroundColor: 'black',
     marginTop: 10,
-    flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
+    width: '80%',
+    justifyContent: 'center',
+    alignSelf: 'center',
   },
   dropdownBtnStyle: {
     width: '80%',
