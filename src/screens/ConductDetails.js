@@ -56,7 +56,7 @@ const ConductDetails = props => {
   const isConducting = props.route.params.data.conducting;
   const conductdate = props.route.params.data.conductdate;
   const isOffline = useInternetCheck();
-
+  const {navigation} = props;
   useEffect(() => {
     const checkIsSupported = async () => {
       const deviceIsSupported = await NfcManager.isSupported();
@@ -466,6 +466,68 @@ const ConductDetails = props => {
   }
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.pageHeader}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
+          }}>
+          <MaterialIcons name="arrow-back-ios" size={16} color="black" />
+        </TouchableOpacity>
+        <Text
+          style={{
+            fontFamily: 'OpenSans-Bold',
+            fontSize: 16,
+            color: 'black',
+            marginLeft: 14,
+          }}>
+          {conductname}
+        </Text>
+        <View style={styles.btnContainer}>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={async () => {
+              await nfcAccountUser();
+            }}>
+            <MaterialCommunityIcons
+              name="credit-card-scan-outline"
+              size={16}
+              color="black"
+            />
+            {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
+            Scan cadet tag
+          </Text> */}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={() => setaddModalVisible(true)}>
+            <Ionicons name="person-add" size={16} color="black" />
+            {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
+            Add manually
+          </Text> */}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={() => {
+              generateQRCode();
+              setQRmodalvisibility(true);
+            }}>
+            <Ionicons name="qr-code-outline" size={16} color="black" />
+            {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
+            Create QRCode
+          </Text> */}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={async () => {
+              await resetNomRoll();
+            }}>
+            <MaterialCommunityIcons name="restart" size={16} color="black" />
+            {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
+            Unaccount all
+          </Text> */}
+          </TouchableOpacity>
+        </View>
+      </View>
       <View style={styles.headerContainer}>
         <Text style={styles.listHeader}>Not accounted for</Text>
       </View>
@@ -498,51 +560,7 @@ const ConductDetails = props => {
           <NoGoFlatList noGoArr={noGo} forceGoManually={forceGoManually} />
         </View>
       )}
-      <View style={styles.btnContainer}>
-        <TouchableOpacity
-          style={styles.actionBtn}
-          onPress={async () => {
-            await nfcAccountUser();
-          }}>
-          <MaterialCommunityIcons
-            name="credit-card-scan-outline"
-            size={24}
-            color="white"
-          />
-          {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
-            Scan cadet tag
-          </Text> */}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.actionBtn}
-          onPress={() => setaddModalVisible(true)}>
-          <Ionicons name="person-add" size={24} color="white" />
-          {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
-            Add manually
-          </Text> */}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.actionBtn}
-          onPress={() => {
-            generateQRCode();
-            setQRmodalvisibility(true);
-          }}>
-          <Ionicons name="qr-code-outline" size={24} color="white" />
-          {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
-            Create QRCode
-          </Text> */}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.actionBtn}
-          onPress={async () => {
-            await resetNomRoll();
-          }}>
-          <MaterialCommunityIcons name="restart" size={24} color="white" />
-          {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
-            Unaccount all
-          </Text> */}
-        </TouchableOpacity>
-      </View>
+
       <AndroidPrompt ref={promptRef} />
       <Modal visible={addModalVisible} animationType="fade">
         <SafeAreaView style={styles.ModalContainer}>
@@ -594,8 +612,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: '#dedbf0',
-    alignContent: 'center',
+    backgroundColor: '#fbfcfd',
+  },
+  pageHeader: {
+    flexDirection: 'row',
+    marginHorizontal: 16,
+    marginTop: 24,
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
   },
   listHeader: {
     backgroundColor: '#493c90',
@@ -606,41 +630,36 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     borderWidth: 1,
-    marginTop: 15,
+    marginTop: 10,
     marginHorizontal: 15,
   },
   actionBtn: {
     alignItems: 'center',
-    width: 60,
-    height: 60,
-    backgroundColor: '#493c90',
+    width: 45,
+    height: 45,
+    backgroundColor: '#e9ecef',
     justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 14,
     elevation: 2,
     zIndex: 10,
     margin: 5,
     shadowColor: '#000',
-    shadowOpacity: 0.4,
+    shadowOpacity: 1,
     shadowOffset: {
       width: 1,
       height: 3,
     },
-    marginTop: 40,
   },
 
   btnContainer: {
     flex: 1,
     flexDirection: 'row',
-    alignContent: 'space-between',
-    justifyContent: 'center',
-    position: 'absolute',
-    bottom: 5,
-    alignSelf: 'center',
+    alignItems: 'center',
+    marginLeft: 60,
   },
   ModalContainer: {
     backgroundColor: '#dedbf0',
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
   },
   textInput: {

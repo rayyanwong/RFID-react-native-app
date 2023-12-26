@@ -28,6 +28,8 @@ const styles = StyleSheet.create({
     height: Dimensions.get('screen').height / 5,
     backgroundColor: 'white',
     marginHorizontal: 15,
+    borderWidth: 1,
+    borderColor: 'black',
   },
 });
 
