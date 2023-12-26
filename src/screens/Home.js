@@ -391,6 +391,7 @@ const Home = ({navigation}) => {
             value={input}
             onChangeText={text => setInput(text)}
             textAlignVertical="center"
+            maxLength={50}
           />
           <SelectDropdown
             data={conductsCreationArr}

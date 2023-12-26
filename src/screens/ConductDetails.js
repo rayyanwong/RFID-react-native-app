@@ -132,41 +132,48 @@ const ConductDetails = props => {
           } else {
             let filteredNotAcc = [];
             for (let i = 0; i < tempNotAccFor.length; i++) {
-              const {data, error} = await SupaUserStatus.joinUserQuery(
-                tempNotAccFor[i].userNRIC,
-              );
-              const userStatuses = data[0].Statusid;
-              console.log('userstatuses: ', userStatuses);
-              if (userStatuses.length === 0 || tempNotAccFor[i].forcego === 1) {
-                filteredNotAcc.push(tempNotAccFor[i]);
-              } else {
-                var tempArr = [];
-                for (const j of userStatuses) {
-                  const uneligible = checkStatusEligible(j, tempNoGoIDs);
-                  tempArr.push(uneligible);
-                }
-                console.log('tempArr: ', tempArr);
-                if (tempArr.includes(1)) {
-                  db.transaction(tx => {
-                    tx.executeSql(
-                      `UPDATE Attendance set eligible=0
-                    where Attendance.userid = (?) and Attendance.conductid =(?) and forcego=0`,
-                      [tempNotAccFor[i].userid, conductid],
-                      (_, resultSet2) => {
-                        if (resultSet2.rowsAffected > 0) {
-                          console.log('Successfully updated eligible to 0');
-                        }
-                      },
-                      e => {
-                        console.log(e);
-                        //
-                        //
-                      },
-                    );
-                  });
-                } else {
+              try {
+                const {data, error} = await SupaUserStatus.joinUserQuery(
+                  tempNotAccFor[i].userNRIC,
+                );
+                const userStatuses = data[0].Statusid;
+                console.log('userstatuses: ', userStatuses);
+                if (
+                  userStatuses.length === 0 ||
+                  tempNotAccFor[i].forcego === 1
+                ) {
                   filteredNotAcc.push(tempNotAccFor[i]);
+                } else {
+                  var tempArr = [];
+                  for (const j of userStatuses) {
+                    const uneligible = checkStatusEligible(j, tempNoGoIDs);
+                    tempArr.push(uneligible);
+                  }
+                  console.log('tempArr: ', tempArr);
+                  if (tempArr.includes(1)) {
+                    db.transaction(tx => {
+                      tx.executeSql(
+                        `UPDATE Attendance set eligible=0
+                      where Attendance.userid = (?) and Attendance.conductid =(?) and forcego=0`,
+                        [tempNotAccFor[i].userid, conductid],
+                        (_, resultSet2) => {
+                          if (resultSet2.rowsAffected > 0) {
+                            console.log('Successfully updated eligible to 0');
+                          }
+                        },
+                        e => {
+                          console.log(e);
+                          //
+                          //
+                        },
+                      );
+                    });
+                  } else {
+                    filteredNotAcc.push(tempNotAccFor[i]);
+                  }
                 }
+              } catch (e) {
+                filteredNotAcc.push(tempNotAccFor[i]);
               }
               setNotAccFor(filteredNotAcc);
               getNoGoArr();
@@ -478,7 +485,8 @@ const ConductDetails = props => {
             fontFamily: 'OpenSans-Bold',
             fontSize: 16,
             color: 'black',
-            marginLeft: 14,
+            marginLeft: 4,
+            maxWidth: '45%',
           }}>
           {conductname}
         </Text>
@@ -619,7 +627,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 24,
     alignItems: 'center',
-    justifyContent: 'space-evenly',
+    justifyContent: 'flex-start',
   },
   listHeader: {
     backgroundColor: 'black',
@@ -634,11 +642,11 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     alignItems: 'center',
-    width: 45,
-    height: 45,
+    width: 30,
+    height: 30,
     backgroundColor: '#e9ecef',
     justifyContent: 'center',
-    borderRadius: 14,
+    borderRadius: 6,
     elevation: 2,
     zIndex: 10,
     margin: 5,
@@ -651,10 +659,10 @@ const styles = StyleSheet.create({
   },
 
   btnContainer: {
-    flex: 1,
+    position: 'absolute',
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 60,
+    right: 0,
   },
   ModalContainer: {
     backgroundColor: '#dedbf0',
