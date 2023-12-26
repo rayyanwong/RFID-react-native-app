@@ -622,14 +622,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
   },
   listHeader: {
-    backgroundColor: '#493c90',
+    backgroundColor: 'black',
     color: '#FFF',
     fontSize: 14,
     padding: 8,
-    fontWeight: 'bold',
+    fontFamily: 'OpenSans-Bold',
   },
   headerContainer: {
-    borderWidth: 1,
     marginTop: 10,
     marginHorizontal: 15,
   },

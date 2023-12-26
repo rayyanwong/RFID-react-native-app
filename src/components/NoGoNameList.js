@@ -9,7 +9,7 @@ const NoGoNameList = ({data, func}) => {
         <Text style={styles.cardText}>{data.userName}</Text>
       </View>
       <TouchableOpacity onPress={() => func(data.userid)}>
-        <MaterialIcons name="add-moderator" size={24} color="grey" />
+        <MaterialIcons name="add-moderator" size={20} color="grey" />
       </TouchableOpacity>
     </View>
   );
@@ -18,10 +18,11 @@ const NoGoNameList = ({data, func}) => {
 const styles = StyleSheet.create({
   cardContainer: {
     flex: 1,
-    margin: 6,
+    marginVertical: 4,
+    marginHorizontal: 6,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#D5E3F0',
+    backgroundColor: '#e9ecef',
     borderRadius: 5,
     padding: 10,
     elevation: 1.5,

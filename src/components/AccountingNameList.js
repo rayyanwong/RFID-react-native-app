@@ -13,14 +13,14 @@ const AccountingNameList = ({data, func, func2, choice}) => {
         style={styles.manualBtn}>
         <MaterialCommunityIcons
           name={choice === 'notacc' ? 'account-check' : 'account-minus'}
-          size={24}
+          size={20}
           color="grey"
         />
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => func2(data.userid)}
         style={styles.manualBtn2}>
-        <MaterialIcons name="remove-moderator" size={24} color="grey" />
+        <MaterialIcons name="remove-moderator" size={20} color="grey" />
       </TouchableOpacity>
     </View>
   );
@@ -29,15 +29,16 @@ const AccountingNameList = ({data, func, func2, choice}) => {
 const styles = StyleSheet.create({
   cardContainer: {
     flex: 1,
-    margin: 6,
+    marginHorizontal: 6,
+    marginVertical: 4,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#D5E3F0',
+    backgroundColor: '#e9ecef',
     borderRadius: 5,
     padding: 10,
-    elevation: 1.5,
+    elevation: 4,
     shadowColor: '#000',
-    shadowOpacity: 0.2,
+    shadowOpacity: 1,
     shadowOffset: {
       width: 1,
       height: 3,
