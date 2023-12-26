@@ -710,7 +710,7 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   listHeaderRed: {
-    backgroundColor: '#f1807e',
+    backgroundColor: '#be0000',
   },
 });
 
