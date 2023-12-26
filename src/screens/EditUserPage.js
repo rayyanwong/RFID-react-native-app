@@ -11,7 +11,7 @@ import {
   FlatList,
 } from 'react-native';
 import {SupaUser, SupaUserStatus, SupaStatus} from '../../supabase/database';
-import {useEffect, useState, useRef} from 'react';
+import {useEffect, useState, useRef, useMemo} from 'react';
 import SelectDropdown from 'react-native-select-dropdown';
 import DatePicker from 'react-native-date-picker';
 import StatusList from '../components/StatusList';
@@ -137,9 +137,14 @@ const EditUserPage = props => {
     return () => unsubscribe();
   }, [isOffline]);
 
-  useEffect(() => {
-    getStatusUser(userIdRef.current);
-  });
+  // useEffect(() => {
+  //   getStatusUser(userIdRef.current);
+  // });
+  useMemo(() => {
+    if (!isOffline) {
+      getStatusUser(userIdRef.current);
+    }
+  }, [userExistingStatus, isOffline]);
   //console.log('[EditUserPage] ', statusArr);
   //console.log(userObj);
   //console.log('Existing: ', userExistingStatus);
