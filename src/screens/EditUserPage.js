@@ -123,7 +123,11 @@ const EditUserPage = props => {
     const setUserIdRef = async userNRIC => {
       const {data, error} = await SupaUser.findUser(userNRIC);
       if (!error) {
-        userIdRef.current = data[0].userid;
+        try {
+          userIdRef.current = data[0].userid;
+        } catch (e) {
+          userIdRef.current = null;
+        }
       }
       console.log('User supabase id is: ', userIdRef.current);
     };
@@ -131,9 +135,13 @@ const EditUserPage = props => {
       const offline = !state.isConnected;
       setIsOffline(offline);
     });
-    setUserIdRef(userNRIC);
-    getDBStatus();
-    getDBStatusNames();
+    try {
+      setUserIdRef(userNRIC);
+      getDBStatus();
+      getDBStatusNames();
+    } catch (e) {
+      userIdRef.current = null;
+    }
     return () => unsubscribe();
   }, [isOffline]);
 
@@ -141,7 +149,7 @@ const EditUserPage = props => {
   //   getStatusUser(userIdRef.current);
   // });
   useMemo(() => {
-    if (!isOffline) {
+    if (!isOffline && userIdRef.current != null) {
       getStatusUser(userIdRef.current);
     }
   }, [userExistingStatus, isOffline]);
