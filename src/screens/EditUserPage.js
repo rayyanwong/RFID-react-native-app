@@ -184,18 +184,6 @@ const EditUserPage = props => {
         </Text>
       )}
 
-      {/* <View style={styles.btnContainer}>
-        <Button
-          title="Find User in Supbase"
-          onPress={async () => await getStatusUser(userIdRef.current)}
-        />
-        <Button title="Get Add Prompt" onPress={() => setPromptVisible(true)} />
-        <Button
-          title="Get all statuses"
-          onPress={() => console.log(statusArr.current)}
-        />
-      </View> */}
-
       <Modal visible={addPromptVisible} transparent={true}>
         <View style={styles.promptContainer}>
           <View style={[styles.backdrop, StyleSheet.absoluteFill]} />
@@ -318,7 +306,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 16,
     padding: 10,
-    marginVertical: 14,
+    marginVertical: 10,
     justifyContent: 'space-between',
   },
   btnContainer: {
