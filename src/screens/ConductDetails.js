@@ -684,7 +684,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     backgroundColor: '#bdb7e1',
-    position: 'absolute',
     width: Dimensions.get('screen').width,
     zIndex: 10,
     top: 0,
