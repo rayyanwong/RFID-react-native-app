@@ -21,6 +21,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Soldiercard from '../components/Soldiercard';
 import Entypo from 'react-native-vector-icons/Entypo';
+import NotInDB from '../error/NotInDB';
 const checkExist = async userNRIC => {
   const {data, error} = await SupaUser.findUser(userNRIC);
   if (error) {
@@ -172,12 +173,13 @@ const EditUserPage = props => {
         </Text>
         <TouchableOpacity
           style={styles.actionBtn}
-          onPress={() => setPromptVisible(true)}>
+          onPress={() => setPromptVisible(true)}
+          disabled={userIdRef.current === null ? true : false}>
           <MaterialIcons name="add" size={24} color="black" />
         </TouchableOpacity>
       </View>
       <Soldiercard userObj={userObj} />
-      {!isOffline && (
+      {!isOffline && userIdRef.current !== null && (
         <FlatList
           style={styles.flatlistStyle}
           marginHorizontal={12}
@@ -191,6 +193,9 @@ const EditUserPage = props => {
             />
           )}
         />
+      )}
+      {!isOffline && userIdRef.current === null && (
+        <NotInDB userName={userObj.userName} />
       )}
       {isOffline && (
         <Text
@@ -234,8 +239,8 @@ const EditUserPage = props => {
                   borderRadius: 30,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  right: 30,
-                  top: 0,
+                  right: 24,
+                  top: 8,
                   position: 'absolute',
                 }}>
                 <Entypo name="cross" size={16} color="black" />
