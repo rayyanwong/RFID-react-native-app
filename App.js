@@ -36,7 +36,7 @@ const HomeStack = () => {
         <Stack.Screen
           component={ConductingView}
           name="ConductingView"
-          options={({route}) => ({title: route.params.name})}
+          options={{headerShown: false}}
         />
       </Stack.Navigator>
     </NavigationContainer>

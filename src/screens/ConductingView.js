@@ -3,7 +3,6 @@ import {
   View,
   StyleSheet,
   Text,
-  FlatList,
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
@@ -11,7 +10,7 @@ import useInternetCheck from '../hooks/useInternetCheck';
 import OfflineErrorView from '../error/OfflineErrorView';
 import customStyle from '../../styles';
 import DetailFlatList from '../components/DetailFlatList';
-
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const ConductingView = props => {
   const conductid = props.route.params.data.conductid;
   const conductname = props.route.params.name;
@@ -22,7 +21,7 @@ const ConductingView = props => {
   const isOffline = useInternetCheck();
   const [details, setDetails] = useState([]); // array of objects
   // [ {detailnum: _ , users[{obj},{obj}]}, ... ]
-
+  const {navigation} = props;
   useEffect(() => {
     console.log(
       `[ConductDetails] You have selected local Conductid: ${conductid} | DB conductid: ${conductDBid} | ConductName: ${conductname} | Conducting: ${isConducting}`,
@@ -37,6 +36,19 @@ const ConductingView = props => {
     } else {
       return (
         <SafeAreaView style={styles.pageContainer}>
+          <View style={styles.pageHeader}>
+            <TouchableOpacity>
+              <MaterialIcons
+                size={24}
+                name="arrow-back-ios"
+                onPress={() => {
+                  navigation.goBack();
+                }}
+                style={{color: 'black'}}
+              />
+            </TouchableOpacity>
+            <Text style={styles.headerText}>{conductname}</Text>
+          </View>
           {/* FlatList of details */}
           <View style={styles.flatlistHeaderContainer}>
             <Text style={styles.flatlistHeader}>Details</Text>
@@ -44,7 +56,7 @@ const ConductingView = props => {
 
           <DetailFlatList data={details} />
           {/* Buttons to create detail -> Navigate to stacked page.*/}
-          {/* Button to scan strength */}
+          {/* Button to scan strength: modal */}
           <View style={styles.btnContainer}>
             <TouchableOpacity onPress={() => {}} style={styles.btnStyle}>
               <Text style={styles.btnTextStyle}>Add Detail</Text>
@@ -63,9 +75,9 @@ const styles = StyleSheet.create({
   pageContainer: {backgroundColor: customStyle.background, flex: 1},
   btnContainer: {flexDirection: 'column', marginTop: 20},
   btnStyle: {
-    width: '80%',
+    width: '90%',
     height: 50,
-    backgroundColor: customStyle.secondary,
+    backgroundColor: 'black',
     borderRadius: 8,
     marginVertical: 10,
     marginTop: 10,
@@ -73,10 +85,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   btnTextStyle: {
-    color: customStyle.text,
-    fontFamily: 'OpenSans-Regular',
-    fontWeight: '500',
-    fontSize: 16,
+    color: 'white',
+    fontFamily: 'OpenSans-Bold',
+    fontSize: 14,
     alignSelf: 'center',
   },
   flatlistHeader: {
@@ -86,10 +97,21 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   flatlistHeaderContainer: {
-    backgroundColor: customStyle.primary,
     alignItems: 'center',
     marginHorizontal: 20,
-    marginTop: 50,
+    marginTop: 30,
+  },
+  headerText: {
+    color: 'black',
+    fontFamily: 'OpenSans-Bold',
+    fontSize: 16,
+    width: '90%',
+  },
+  pageHeader: {
+    marginHorizontal: 24,
+    marginTop: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

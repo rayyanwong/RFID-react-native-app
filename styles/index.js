@@ -1,10 +1,8 @@
 import {StyleSheet} from 'react-native';
 
 const customStyle = StyleSheet.create({
-  text: '#07090c',
+  text: 'black',
   background: '#fbfcfd',
-  primary: '#577dc1',
-  secondary: '#92aee0',
-  accent: '#618ede',
+  actionBtn: '#e9ecef',
 });
 export default customStyle;
