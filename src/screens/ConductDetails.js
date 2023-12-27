@@ -483,7 +483,7 @@ const ConductDetails = props => {
         <Text
           style={{
             fontFamily: 'OpenSans-Bold',
-            fontSize: 16,
+            fontSize: 14,
             color: 'black',
             marginLeft: 4,
             maxWidth: '45%',
@@ -628,6 +628,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     alignItems: 'center',
     justifyContent: 'flex-start',
+    marginBottom: 8,
   },
   listHeader: {
     backgroundColor: 'black',
