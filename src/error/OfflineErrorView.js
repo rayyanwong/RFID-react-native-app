@@ -13,6 +13,7 @@ const OfflineErrorView = () => {
       <Text style={styles.paragraph}>
         Please connect to the internet to access this page
       </Text>
+      <Text style={styles.paragraph}>Swipe left to return to main screen</Text>
     </View>
   );
 };
