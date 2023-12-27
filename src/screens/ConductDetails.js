@@ -28,6 +28,7 @@ import NoGoFlatList from '../components/NoGoFlatList';
 import useInternetCheck from '../hooks/useInternetCheck';
 import OfflineErrorView from '../error/OfflineErrorView';
 import ConductingView from './ConductingView';
+import Entypo from 'react-native-vector-icons/Entypo';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -570,30 +571,27 @@ const ConductDetails = props => {
       )}
 
       <AndroidPrompt ref={promptRef} />
-      <Modal visible={addModalVisible} animationType="fade">
+      <Modal visible={addModalVisible} animationType="fade" transparent={true}>
+        <View style={[styles.backdrop, StyleSheet.absoluteFill]} />
         <SafeAreaView style={styles.ModalContainer}>
           <View style={styles.ModalHeader}>
-            <TouchableOpacity onPress={() => setaddModalVisible(false)}>
-              <Ionicons
-                name="arrow-back-circle-outline"
-                size={30}
-                color="white"
-              />
-            </TouchableOpacity>
-            {/* <Text style={styles.ModalTitle}>
-              Manually add user from database
-            </Text> */}
+            <Text style={styles.ModalTitle}>Add user to conduct</Text>
           </View>
+          <TouchableOpacity
+            onPress={() => setaddModalVisible(false)}
+            style={{position: 'absolute', right: 14, top: 14}}>
+            <Entypo name="cross" size={24} color="black" />
+          </TouchableOpacity>
           <TextInput
             style={styles.textInput}
-            placeholder="Enter NRIC of new user to search for"
+            placeholder="Enter NRIC of new user"
             placeholderTextColor="grey"
             value={nricinput}
             onChangeText={text => setnricinput(text)}
           />
           <TouchableOpacity style={styles.manualAddbtn} onPress={manualAddUser}>
-            <MaterialIcons name="person-search" size={24} color="white" />
-            <Text style={styles.manualAddbtnText}>Find user in database</Text>
+            <MaterialIcons name="person-search" size={18} color="white" />
+            <Text style={styles.manualAddbtnText}>Search User</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </Modal>
@@ -666,45 +664,47 @@ const styles = StyleSheet.create({
     right: 0,
   },
   ModalContainer: {
-    backgroundColor: '#dedbf0',
-    flex: 1,
+    backgroundColor: 'white',
+    borderRadius: 8,
     alignItems: 'center',
+    width: '90%',
+    height: Dimensions.get('window').height / 3,
+    alignSelf: 'center',
+    marginTop: 120,
   },
   textInput: {
-    fontSize: 15,
-    marginHorizontal: 20,
+    fontSize: 14,
+
     marginTop: 30,
     backgroundColor: '#fff',
-    padding: 9,
+    width: '80%',
     height: 50,
-    textAlignVertical: 'center',
+    textAlign: 'center',
     color: '#000',
     borderRadius: 10,
+    borderWidth: 1,
+    fontFamily: 'OpenSans-Regular',
   },
 
   ModalTitle: {
-    color: '#FFF',
-    fontSize: 20,
-    marginLeft: 15,
-    fontWeight: '500',
+    color: 'black',
+    fontSize: 16,
+    fontFamily: 'OpenSans-Bold',
   },
   ModalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#bdb7e1',
-    width: Dimensions.get('screen').width,
-    zIndex: 10,
-    top: 0,
+    marginTop: 24,
+  },
+  backdrop: {
+    backgroundColor: 'rgba(0,0,0,0.6)',
   },
   manualAddbtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-evenly',
-    backgroundColor: '#493c90',
+    justifyContent: 'center',
+    backgroundColor: 'black',
     margin: 30,
-    width: Dimensions.get('screen').width / 2,
-    marginTop: 50,
+    width: '80%',
+    marginTop: 30,
     borderRadius: 8,
     shadowOpacity: 0.4,
     shadowOffset: {
@@ -716,6 +716,7 @@ const styles = StyleSheet.create({
     padding: 18,
     fontSize: 14,
     color: '#FFF',
+    fontFamily: 'OpenSans-Bold',
   },
   listHeaderRed: {
     backgroundColor: '#be0000',
