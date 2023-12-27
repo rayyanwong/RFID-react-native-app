@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans-Bold',
     fontSize: 14,
     color: 'black',
+    textAlign: 'center',
   },
 });
 
