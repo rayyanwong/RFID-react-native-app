@@ -193,7 +193,13 @@ const EditUserPage = props => {
         />
       )}
       {isOffline && (
-        <Text>
+        <Text
+          style={{
+            color: 'black',
+            marginHorizontal: 16,
+            marginTop: '40%',
+            alignSelf: 'center',
+          }}>
           You are currently offline and unable to retrieve the User's statuses
         </Text>
       )}
