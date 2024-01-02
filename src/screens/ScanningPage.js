@@ -9,6 +9,7 @@ import {
   View,
   Alert,
   Platform,
+  Dimensions,
 } from 'react-native';
 import {openDatabase} from 'react-native-sqlite-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -17,6 +18,7 @@ import NfcManager, {NfcEvents, NfcTech, Ndef} from 'react-native-nfc-manager';
 import AndroidPrompt from '../components/AndroidPrompt';
 import {validInputData} from '../utils/validInputData';
 import ArfModal from '../components/arfModal';
+import Entypo from 'react-native-vector-icons/Entypo';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -200,6 +202,7 @@ const ScanningPage = () => {
           <Text style={styles.btnText}>Write data onto NFC tag</Text>
         </TouchableOpacity>
         <TouchableOpacity
+          disabled={true}
           style={[styles.pageBtn, styles.arfBtn]}
           onPress={() => setARFVisible(true)}>
           <Text style={styles.btnText}>ARF Scanner</Text>
@@ -207,16 +210,16 @@ const ScanningPage = () => {
       </View>
       <AndroidPrompt ref={promptRef} />
       <Modal visible={addModalVisible} animationType="fade">
-        <SafeAreaView style={styles.addModalContainer}>
-          <View style={styles.addModalHeader}>
+        <SafeAreaView style={styles.manualModalContainer}>
+          <View style={styles.manualModalHeader}>
             <TouchableOpacity onPress={() => setaddModalVisible(false)}>
-              <Ionicons
-                name="arrow-back-circle-outline"
-                size={30}
-                color="white"
+              <MaterialIcons
+                size={24}
+                name="arrow-back-ios"
+                style={{color: 'black'}}
               />
             </TouchableOpacity>
-            <Text style={styles.addModalTitle}>Manually add user</Text>
+            <Text style={styles.manualModalTitle}>Manually add user</Text>
           </View>
           <TextInput
             style={styles.textInput}
@@ -240,26 +243,26 @@ const ScanningPage = () => {
             onChangeText={text => sethpinput(text)}
           />
           <TouchableOpacity
-            style={styles.manualAddbtn}
+            style={styles.manualBtn}
             onPress={() => manualAddUser()}>
             <MaterialIcons name="person-add" size={24} color="white" />
-            <Text style={styles.manualAddbtnText}>
-              Add new user to database
-            </Text>
+            <Text style={styles.manualBtnText}>Add new user to database</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </Modal>
       <Modal visible={writeModalVisible} animationType="fade">
-        <SafeAreaView style={styles.writeModalContainer}>
-          <View style={styles.writeModalHeader}>
+        <SafeAreaView style={styles.manualModalContainer}>
+          <View style={styles.manualModalHeader}>
             <TouchableOpacity onPress={() => setwriteModalVisible(false)}>
-              <Ionicons
-                name="arrow-back-circle-outline"
-                size={30}
-                color="white"
+              <MaterialIcons
+                size={24}
+                name="arrow-back-ios"
+                style={{color: 'black'}}
               />
             </TouchableOpacity>
-            <Text style={styles.writeModalTitle}>Set data to write to NFC</Text>
+            <Text style={[styles.manualModalTitle, {marginLeft: 100}]}>
+              Set data to write
+            </Text>
           </View>
           <TextInput
             style={styles.textInput}
@@ -283,10 +286,10 @@ const ScanningPage = () => {
             onChangeText={text => settoWriteHP(text)}
           />
           <TouchableOpacity
-            style={styles.manualWritebtn}
+            style={styles.manualBtn}
             onPress={() => setWriteData()}>
             <MaterialIcons name="person-add" size={24} color="white" />
-            <Text style={styles.manualWritebtnText}>Set write data</Text>
+            <Text style={styles.manualBtnText}>Set write data</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </Modal>
@@ -341,94 +344,54 @@ const styles = StyleSheet.create({
     padding: 16,
     fontFamily: 'OpenSans-Bold',
   },
-  addBtn: {
-    // shadowColor: '#800f2f',
-  },
-  writeBtn: {
-    // shadowColor: '#1a776f',
-  },
-  addModalContainer: {
-    backgroundColor: '#dedbf0',
+  manualModalContainer: {
+    backgroundColor: 'white',
     flex: 1,
   },
   textInput: {
-    fontSize: 15,
-    marginHorizontal: 20,
+    fontSize: 12,
     marginTop: 30,
     backgroundColor: '#fff',
     padding: 9,
     height: 50,
-    textAlignVertical: 'center',
+    borderWidth: 1,
     color: '#000',
     borderRadius: 10,
+    width: '80%',
+    alignSelf: 'center',
+    textAlign: 'center',
   },
 
-  addModalTitle: {
-    color: '#FFF',
-    fontSize: 20,
-    marginLeft: 75,
-    fontWeight: '500',
+  manualModalTitle: {
+    color: 'black',
+    fontSize: 16,
+    marginLeft: 90,
+    fontFamily: 'OpenSans-Bold',
   },
-  addModalHeader: {
+  manualModalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
-    backgroundColor: '#bdb7e1',
   },
-  manualAddbtn: {
+  manualBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#493c90',
-    margin: 30,
+    backgroundColor: 'black',
+
     marginTop: 50,
     borderRadius: 8,
-    shadowOpacity: 0.4,
-    shadowOffset: {
-      width: 1,
-      height: 3,
-    },
+    height: 50,
+    width: '80%',
+    alignSelf: 'center',
   },
-  manualAddbtnText: {
-    padding: 18,
-    fontSize: 14,
-    color: '#FFF',
+  manualBtnText: {
+    fontSize: 12,
+    marginLeft: 16,
+    color: 'white',
+    fontFamily: 'OpenSans-Bold',
   },
-  writeModalContainer: {
-    backgroundColor: '#dedbf0',
-    flex: 1,
-  },
-  writeModalTitle: {
-    color: '#FFF',
-    fontSize: 20,
-    marginLeft: 55,
-    fontWeight: '500',
-  },
-  writeModalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#4cc19c',
-  },
-  manualWritebtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#4cc19c',
-    margin: 30,
-    marginTop: 50,
-    borderRadius: 8,
-    shadowOpacity: 0.4,
-    shadowOffset: {
-      width: 1,
-      height: 3,
-    },
-  },
-  manualWritebtnText: {
-    padding: 18,
-    fontSize: 14,
-    color: '#FFF',
-  },
+
   arfBtn: {
     // shadowColor: '#fcca46',
     // shadowOpacity: 0.1,
