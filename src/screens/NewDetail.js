@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import NewDetailFlatList from '../components/ConductingView/NewDetail/NewDetail-FlatList';
+import FindUserModal from '../components/ConductingView/NewDetail/FindUser-Modal';
 
 const NewDetail = props => {
   const [detailName, setDetailName] = useState('');
@@ -16,6 +17,10 @@ const NewDetail = props => {
     {userName: 'Rayyan'},
     {userName: 'Desmond'},
   ]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const setVisible = e => {
+    setModalVisible(e);
+  };
 
   //  {detailName: "",detail}
   return (
@@ -32,7 +37,9 @@ const NewDetail = props => {
       <NewDetailFlatList data={detail} />
       {/* Search */}
       <View style={styles.btnContainer}>
-        <TouchableOpacity style={styles.btn}>
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => setModalVisible(true)}>
           <Text style={styles.btnText}>Search User</Text>
         </TouchableOpacity>
         {/* Create -> Uploads to backend & inserts in local db*/}
@@ -48,6 +55,7 @@ const NewDetail = props => {
           <Text style={styles.btnText}>Cancel</Text>
         </TouchableOpacity>
       </View>
+      <FindUserModal visible={modalVisible} setVisible={setVisible} />
     </SafeAreaView>
   );
 };
