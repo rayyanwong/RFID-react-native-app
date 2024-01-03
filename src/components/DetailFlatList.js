@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import customStyle from '../../styles';
+import FlatlistCard from './ConductingView/components/Flatlist-card';
 
 const {height, width} = Dimensions.get('window');
 
@@ -38,7 +39,17 @@ const DetailFlatList = ({data, handleClick}) => {
       <FlatList
         style={styles.flatlistStyle}
         data={data}
-        keyExtractor={obj => String(obj.detailnum)}
+        keyExtractor={obj => String(obj.detailName)}
+        renderItem={({item}) => (
+          <FlatlistCard
+            data={item}
+            onPress={() => {}}
+            handleDelete={() => {
+              console.log('Item deleted');
+            }}
+            field="detailName"
+          />
+        )}
       />
     </View>
   );

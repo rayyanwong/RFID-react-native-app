@@ -12,6 +12,8 @@ import EditUserPage from './src/screens/EditUserPage';
 import ParadeStatePage from './src/screens/ParadeStatePage';
 import ParadeDetails from './src/screens/ParadeDetails';
 import ConductingView from './src/screens/ConductingView';
+import ConductingQrScanner from './src/screens/ConductingQrScanner';
+import NewDetail from './src/screens/NewDetail';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -36,6 +38,16 @@ const HomeStack = () => {
         <Stack.Screen
           component={ConductingView}
           name="ConductingView"
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          component={ConductingQrScanner}
+          name="ConductingQrScanner"
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          component={NewDetail}
+          name="NewDetail"
           options={{headerShown: false}}
         />
       </Stack.Navigator>

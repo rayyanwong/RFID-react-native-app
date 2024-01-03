@@ -19,7 +19,18 @@ const ConductingView = props => {
     conductDBid === 22 || conductDBid === 23 ? true : false;
   const isConducting = props.route.params.data.conducting;
   const isOffline = useInternetCheck();
-  const [details, setDetails] = useState([]); // array of objects
+  const [details, setDetails] = useState([
+    {detailName: 'Detail 1'},
+    {detailName: 'Detail 2'},
+    {detailName: 'Detail 3'},
+    {detailName: 'Detail 4'},
+    {detailName: 'Detail 5'},
+    {detailName: 'Detail 6'},
+    {detailName: 'Detail 7'},
+    {detailName: 'Detail 8'},
+    {detailName: 'Detail 9'},
+    {detailName: 'Detail 10'},
+  ]); // array of objects
   // [ {detailnum: _ , users[{obj},{obj}]}, ... ]
   const {navigation} = props;
   useEffect(() => {
@@ -58,10 +69,18 @@ const ConductingView = props => {
           {/* Buttons to create detail -> Navigate to stacked page.*/}
           {/* Button to scan strength: modal */}
           <View style={styles.btnContainer}>
-            <TouchableOpacity onPress={() => {}} style={styles.btnStyle}>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('NewDetail');
+              }}
+              style={styles.btnStyle}>
               <Text style={styles.btnTextStyle}>Add Detail</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => {}} style={styles.btnStyle}>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('ConductingQrScanner');
+              }}
+              style={styles.btnStyle}>
               <Text style={styles.btnTextStyle}>Scan QR Code</Text>
             </TouchableOpacity>
           </View>
