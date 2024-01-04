@@ -13,15 +13,24 @@ import FindUserModal from '../components/ConductingView/NewDetail/FindUser-Modal
 const NewDetail = props => {
   const [detailName, setDetailName] = useState('');
   const {navigation} = props;
+
   const [detail, setDetail] = useState([
     {userName: 'Rayyan'},
     {userName: 'Desmond'},
   ]);
+
   const [modalVisible, setModalVisible] = useState(false);
+
   const setVisible = e => {
     setModalVisible(e);
   };
 
+  const handleAddUser = userObj => {
+    let temp = [...detail];
+    console.log(temp);
+    temp.push(userObj);
+    setDetail(temp);
+  };
   //  {detailName: "",detail}
   return (
     <SafeAreaView style={styles.container}>
@@ -55,7 +64,11 @@ const NewDetail = props => {
           <Text style={styles.btnText}>Cancel</Text>
         </TouchableOpacity>
       </View>
-      <FindUserModal visible={modalVisible} setVisible={setVisible} />
+      <FindUserModal
+        visible={modalVisible}
+        setVisible={setVisible}
+        handleAddUser={handleAddUser}
+      />
     </SafeAreaView>
   );
 };

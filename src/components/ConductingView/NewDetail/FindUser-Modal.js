@@ -9,10 +9,9 @@ import {
   Dimensions,
 } from 'react-native';
 import {useDebounce} from '../../../hooks/useDebounce';
-import Feather from 'react-native-vector-icons/Feather';
 import {SupaUser} from '../../../../supabase/database';
 
-const FindUserModal = ({visible, setVisible}) => {
+const FindUserModal = ({visible, setVisible, handleAddUser}) => {
   const [result, setResult] = useState([]);
   const [value, setValue] = useState('');
   const debouncedValue = useDebounce(value, 500);
@@ -32,6 +31,12 @@ const FindUserModal = ({visible, setVisible}) => {
     fetchData();
   }, [debouncedValue]);
 
+  const componentUnmount = () => {
+    setValue('');
+    setResult([]);
+    setVisible(false);
+  };
+
   return (
     <Modal
       visible={visible}
@@ -50,12 +55,6 @@ const FindUserModal = ({visible, setVisible}) => {
             style={styles.textInput}
             value={value}
           />
-          {/* <Feather
-            name="search"
-            size={16}
-            style={styles.searchIcon}
-            color="black"
-          /> */}
         </View>
         <View style={styles.textPrompt}>
           {result.length === 0 && value !== '' && (
@@ -84,7 +83,12 @@ const FindUserModal = ({visible, setVisible}) => {
           )}
         </View>
         <View style={styles.btnContainer}>
-          <TouchableOpacity style={styles.btn}>
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={() => {
+              handleAddUser(result[0]);
+              componentUnmount();
+            }}>
             <Text style={styles.btnText}>Add to detail</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -104,7 +108,7 @@ const FindUserModal = ({visible, setVisible}) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: Dimensions.get('window').height / 3,
+    height: Dimensions.get('window').height / 3 + 24,
     width: '90%',
     backgroundColor: 'white',
     alignSelf: 'center',

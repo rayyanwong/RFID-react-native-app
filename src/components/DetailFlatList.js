@@ -59,8 +59,8 @@ const styles = StyleSheet.create({
   flatlistStyle: {
     height: height / 2.5,
     backgroundColor: 'white',
-    width: '90%',
     alignSelf: 'center',
+    width: '90%',
     borderWidth: 1,
   },
 });
