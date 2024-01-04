@@ -41,6 +41,7 @@ const Home = ({navigation}) => {
   const [datePickerVisible, setdatePickerVisible] = useState(false);
   const [newConductDate, setNewConductDate] = useState(new Date());
   const companies = ['ALPHA', 'BRAVO', 'CHARLIE', 'SUPPORT', 'CA', 'HQ'];
+  const [company, setCompany] = useState('');
   // NetInfo.addEventListener(networkState => {
   //   console.log('Connection type - ', networkState.type);
   //   console.log('Is connected? - ', networkState.isConnected);
@@ -107,7 +108,7 @@ const Home = ({navigation}) => {
   const createConductTable = () => {
     db.transaction(tx => {
       tx.executeSql(
-        `CREATE TABLE IF NOT EXISTS Conducts (conductid INTEGER PRIMARY KEY AUTOINCREMENT, conductName TEXT, conductDBid integer, conducting boolean, conductdate text)`,
+        `CREATE TABLE IF NOT EXISTS Conducts (conductid INTEGER PRIMARY KEY AUTOINCREMENT, conductName TEXT, conductDBid integer, conducting boolean, conductdate text,company TEXT)`,
         [],
         (txObj, resultSet) => {
           if (resultSet.rowsAffected > 0) {
@@ -211,12 +212,13 @@ const Home = ({navigation}) => {
     db.transaction(
       tx => {
         tx.executeSql(
-          `INSERT INTO Conducts(conductName,conductDBid,conducting,conductdate) values (?,?,?,?)`,
+          `INSERT INTO Conducts(conductName,conductDBid,conducting,conductdate,company) values (?,?,?,?,?)`,
           [
             input,
             newconductDBid.current,
             isConducting,
             newConductDate.toLocaleDateString(),
+            company,
           ],
           (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
@@ -250,6 +252,7 @@ const Home = ({navigation}) => {
               setmodalVisible(false);
               getAllConducts();
               setConducting(false);
+              setCompany('');
             }
           },
         );
@@ -338,7 +341,7 @@ const Home = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.topHeader}>
         {/* <TouchableOpacity
-          disabled={true}
+          disabled={false}
           style={styles.actionBtn}
           onPress={() => delConductTable()}>
           <MaterialIcons name="info-outline" size={24} color="black" />
@@ -426,6 +429,43 @@ const Home = ({navigation}) => {
             search
             searchInputStyle={styles.dropdownSearhInputStyle}
             searchPlaceHolder="Search for conduct"
+            searchPlaceHolderColor="#F8F8F8"
+            renderSearchInputLeftIcon={() => {
+              return <FontAwesome name="search" color="#FFF" size={18} />;
+            }}
+          />
+          <SelectDropdown
+            data={companies}
+            onSelect={(selectedItem, index) => {
+              //console.log(selectedItem, index);
+              setCompany(selectedItem);
+            }}
+            defaultButtonText={'Select Company'}
+            buttonTextAfterSelection={(selectedItem, index) => {
+              return selectedItem;
+            }}
+            rowTextForSelection={(item, index) => {
+              return item;
+            }}
+            buttonStyle={styles.dropdownBtnStyle}
+            buttonTextStyle={styles.dropdownBtnTextStyle}
+            renderDropdownIcon={isOpened => {
+              return (
+                <FontAwesome
+                  name={isOpened ? 'chevron-up' : 'chevron-down'}
+                  color={'#FFF'}
+                  size={18}
+                />
+              );
+            }}
+            dropdownIconPosition="right"
+            dropdownStyle={styles.dropdownDropdownStyle}
+            rowStyle={styles.dropdownRowStyle}
+            rowTextStyle={styles.dropdownRowTextStyle}
+            selectedRowStyle={styles.dropdownSelectedRowStyle}
+            search
+            searchInputStyle={styles.dropdownSearhInputStyle}
+            searchPlaceHolder="Search company"
             searchPlaceHolderColor="#F8F8F8"
             renderSearchInputLeftIcon={() => {
               return <FontAwesome name="search" color="#FFF" size={18} />;
