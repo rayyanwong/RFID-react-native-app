@@ -3,7 +3,7 @@ import {View, StyleSheet} from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 
 const useInternetCheck = () => {
-  const [isOffline, setIsOffline] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {

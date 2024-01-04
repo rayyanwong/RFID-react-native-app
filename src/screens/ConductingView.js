@@ -11,6 +11,7 @@ import OfflineErrorView from '../error/OfflineErrorView';
 import customStyle from '../../styles';
 import DetailFlatList from '../components/DetailFlatList';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 const ConductingView = props => {
   const conductid = props.route.params.data.conductid;
   const conductname = props.route.params.name;
@@ -19,6 +20,7 @@ const ConductingView = props => {
     conductDBid === 22 || conductDBid === 23 ? true : false;
   const isConducting = props.route.params.data.conducting;
   const isOffline = useInternetCheck();
+
   const [details, setDetails] = useState([
     {detailName: 'Detail 1'},
     {detailName: 'Detail 2'},
@@ -32,6 +34,7 @@ const ConductingView = props => {
     {detailName: 'Detail 10'},
   ]); // array of objects
   // [ {detailnum: _ , users[{obj},{obj}]}, ... ]
+
   const {navigation} = props;
   useEffect(() => {
     console.log(
