@@ -28,7 +28,9 @@ const FindUserModal = ({visible, setVisible, handleAddUser}) => {
         console.log(`Error while searching for user in db: ${error}`);
       }
     };
-    fetchData();
+    if (value !== '') {
+      fetchData();
+    }
   }, [debouncedValue]);
 
   const componentUnmount = () => {
