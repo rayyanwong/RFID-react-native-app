@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   View,
@@ -6,30 +6,30 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import NewDetailFlatList from '../components/ConductingView/NewDetail/NewDetail-FlatList';
 import FindUserModal from '../components/ConductingView/NewDetail/FindUser-Modal';
+import {useDebounce} from '../hooks/useDebounce';
 
 const NewDetail = props => {
   const [detailName, setDetailName] = useState('');
   const {navigation} = props;
 
-  const [detail, setDetail] = useState([
-    {
-      userHPNo: 93636364,
-      userNRIC: 'T0431742J',
-      userName: 'Rayyan Wong',
-      userid: 1,
-    },
-    {
-      userHPNo: 94773582,
-      userNRIC: 'T0004466G',
-      userName: 'Desmond Kwa',
-      userid: 4,
-    },
-  ]);
+  const handleAddDetail = props.route.params.handleAddDetail;
+  const checkDuplicate = props.route.params.checkDuplicate;
+
+  const [detail, setDetail] = useState([]);
 
   const [modalVisible, setModalVisible] = useState(false);
+
+  const [error, setError] = useState(false);
+
+  const componentUnmount = () => {
+    setDetail([]);
+    setDetailName('');
+    navigation.goBack();
+  };
 
   const setVisible = e => {
     setModalVisible(e);
@@ -47,6 +47,20 @@ const NewDetail = props => {
     setDetail(updatedDetail);
   };
   //  {detailName: "",detail}
+
+  const debouncedValue = useDebounce(detailName, 500);
+
+  useEffect(() => {
+    // check if detail name already exists in detail, function will be passed as props and defined in parent component - conductingView
+    // display message if it is already taken, set state to error and prevent user from creating,
+    const duplicate = checkDuplicate(detailName);
+    if (duplicate) {
+      setError(true);
+    } else {
+      setError(false);
+    }
+  }, [debouncedValue]);
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Input for new detail name */}
@@ -57,6 +71,13 @@ const NewDetail = props => {
         value={detailName}
         onChangeText={text => setDetailName(text)}
       />
+      <View style={{alignSelf: 'center', height: 18}}>
+        {error && (
+          <Text style={{color: 'red', fontFamily: 'OpenSans-Regular'}}>
+            Error! Detail name already exists
+          </Text>
+        )}
+      </View>
       {/* Flatlist of people in detail -> Dynamically render whoever is added*/}
       <NewDetailFlatList data={detail} handleDelete={handleDelete} />
       {/* Search */}
@@ -67,7 +88,17 @@ const NewDetail = props => {
           <Text style={styles.btnText}>Search User</Text>
         </TouchableOpacity>
         {/* Create -> Uploads to backend & inserts in local db*/}
-        <TouchableOpacity style={styles.btn}>
+        <TouchableOpacity
+          disabled={error ? true : fals3}
+          style={styles.btn}
+          onPress={() => {
+            if ((detailName !== '') & (detail.length !== 0)) {
+              handleAddDetail({detailName, detail});
+              componentUnmount();
+            } else {
+              Alert.alert('Detail name / Detail cannot be empty!');
+            }
+          }}>
           <Text style={styles.btnText}>Create Detail</Text>
         </TouchableOpacity>
         {/* Cancel */}
@@ -75,7 +106,7 @@ const NewDetail = props => {
           onPress={() => {
             navigation.goBack();
           }}
-          style={[styles.btn, {backgroundColor: '#827373', marginTop: 30}]}>
+          style={[styles.btn, {backgroundColor: '#827373'}]}>
           <Text style={styles.btnText}>Cancel</Text>
         </TouchableOpacity>
       </View>
@@ -98,7 +129,7 @@ const styles = StyleSheet.create({
     width: '80%',
     alignSelf: 'center',
     marginTop: 16,
-    marginBottom: 24,
+    marginBottom: 16,
     height: 40,
   },
   btnContainer: {

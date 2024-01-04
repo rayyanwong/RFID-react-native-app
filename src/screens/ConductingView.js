@@ -21,18 +21,8 @@ const ConductingView = props => {
   const isConducting = props.route.params.data.conducting;
   const isOffline = useInternetCheck();
 
-  const [details, setDetails] = useState([
-    {detailName: 'Detail 1'},
-    {detailName: 'Detail 2'},
-    {detailName: 'Detail 3'},
-    {detailName: 'Detail 4'},
-    {detailName: 'Detail 5'},
-    {detailName: 'Detail 6'},
-    {detailName: 'Detail 7'},
-    {detailName: 'Detail 8'},
-    {detailName: 'Detail 9'},
-    {detailName: 'Detail 10'},
-  ]); // array of objects
+  const [details, setDetails] = useState([]); // array of objects
+  console.log(details);
   // [ {detailnum: _ , users[{obj},{obj}]}, ... ]
 
   const {navigation} = props;
@@ -49,6 +39,21 @@ const ConductingView = props => {
       detail => detail.detailName !== detailName,
     );
     setDetails(updatedDetails);
+  };
+
+  const handleAddDetail = detailObj => {
+    const temp = [...details];
+    temp.push(detailObj);
+    setDetails(temp);
+  };
+
+  const checkDuplicate = detailName => {
+    for (const detail of details) {
+      if (detail.detailName.toUpperCase() === detailName.toUpperCase()) {
+        return true;
+      }
+    }
+    return false;
   };
 
   {
@@ -81,7 +86,10 @@ const ConductingView = props => {
           <View style={styles.btnContainer}>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('NewDetail');
+                navigation.navigate('NewDetail', {
+                  handleAddDetail,
+                  checkDuplicate,
+                });
               }}
               style={styles.btnStyle}>
               <Text style={styles.btnTextStyle}>Add Detail</Text>
