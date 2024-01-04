@@ -89,7 +89,7 @@ const NewDetail = props => {
         </TouchableOpacity>
         {/* Create -> Uploads to backend & inserts in local db*/}
         <TouchableOpacity
-          disabled={error ? true : fals3}
+          disabled={error ? true : false}
           style={styles.btn}
           onPress={() => {
             if ((detailName !== '') & (detail.length !== 0)) {
