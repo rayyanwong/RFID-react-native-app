@@ -12,7 +12,7 @@ import FlatlistCard from './ConductingView/components/Flatlist-card';
 
 const {height, width} = Dimensions.get('window');
 
-const DetailFlatList = ({data, handleClick}) => {
+const DetailFlatList = ({data, handleClick, handleDelete}) => {
   if (data.length === 0) {
     return (
       <View
@@ -44,9 +44,7 @@ const DetailFlatList = ({data, handleClick}) => {
           <FlatlistCard
             data={item}
             onPress={() => {}}
-            handleDelete={() => {
-              console.log('Item deleted');
-            }}
+            handleDelete={() => handleDelete(item.detailName)}
             field="detailName"
           />
         )}

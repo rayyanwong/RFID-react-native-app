@@ -44,6 +44,13 @@ const ConductingView = props => {
     console.log('[isOffline]: ', isOffline);
   }, []);
 
+  const handleDelete = detailName => {
+    const updatedDetails = details.filter(
+      detail => detail.detailName !== detailName,
+    );
+    setDetails(updatedDetails);
+  };
+
   {
     if (isOffline) {
       return <OfflineErrorView />;
@@ -68,7 +75,7 @@ const ConductingView = props => {
             <Text style={styles.flatlistHeader}>Details</Text>
           </View>
 
-          <DetailFlatList data={details} />
+          <DetailFlatList data={details} handleDelete={handleDelete} />
           {/* Buttons to create detail -> Navigate to stacked page.*/}
           {/* Button to scan strength: modal */}
           <View style={styles.btnContainer}>
