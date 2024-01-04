@@ -15,8 +15,18 @@ const NewDetail = props => {
   const {navigation} = props;
 
   const [detail, setDetail] = useState([
-    {userName: 'Rayyan'},
-    {userName: 'Desmond'},
+    {
+      userHPNo: 93636364,
+      userNRIC: 'T0431742J',
+      userName: 'Rayyan Wong',
+      userid: 1,
+    },
+    {
+      userHPNo: 94773582,
+      userNRIC: 'T0004466G',
+      userName: 'Desmond Kwa',
+      userid: 4,
+    },
   ]);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -31,6 +41,11 @@ const NewDetail = props => {
     temp.push(userObj);
     setDetail(temp);
   };
+
+  const handleDelete = userid => {
+    const updatedDetail = detail.filter(user => user.userid !== userid);
+    setDetail(updatedDetail);
+  };
   //  {detailName: "",detail}
   return (
     <SafeAreaView style={styles.container}>
@@ -43,7 +58,7 @@ const NewDetail = props => {
         onChangeText={text => setDetailName(text)}
       />
       {/* Flatlist of people in detail -> Dynamically render whoever is added*/}
-      <NewDetailFlatList data={detail} />
+      <NewDetailFlatList data={detail} handleDelete={handleDelete} />
       {/* Search */}
       <View style={styles.btnContainer}>
         <TouchableOpacity

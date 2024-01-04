@@ -2,17 +2,17 @@ import React from 'react';
 import {View, StyleSheet, Text, FlatList} from 'react-native';
 import FlatlistCard from '../components/Flatlist-card';
 
-const NewDetailFlatList = ({data}) => {
+const NewDetailFlatList = ({data, handleDelete}) => {
   return (
     <FlatList
       style={styles.flatlist}
       data={data}
-      keyExtractor={item => String(item.userName)}
+      keyExtractor={item => String(item.userid)}
       renderItem={({item}) => (
         <FlatlistCard
           data={item}
           handleDelete={() => {
-            console.log('User deleted');
+            handleDelete(item.userid);
           }}
           onPress={() => {}}
           field="userName"
