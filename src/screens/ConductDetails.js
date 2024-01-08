@@ -57,6 +57,7 @@ const ConductDetails = props => {
   const isConducting = props.route.params.data.conducting;
   const conductdate = props.route.params.data.conductdate;
   const company = props.route.params.data.company;
+  const conductdbuuid = props.route.params.data.conductdbuuid;
 
   const isOffline = useInternetCheck();
   const {navigation} = props;
@@ -73,7 +74,7 @@ const ConductDetails = props => {
     };
     checkIsSupported();
     console.log(
-      `[ConductDetails] You have selected local Conductid: ${conductid} | DB conductid: ${conductDBid} | ConductName: ${conductname} | Conducting: ${isConducting} | ConductDate: ${conductdate} | Company: ${company}`,
+      `[ConductDetails] You have selected local Conductid: ${conductid} | DB conductid: ${conductDBid} | ConductName: ${conductname} | Conducting: ${isConducting} | ConductDate: ${conductdate} | Company: ${company} | Conduct DB UUID: ${conductdbuuid}`,
     );
     console.log('[offlineConduct]: ', offlineConduct);
     console.log('[isOffline]: ', isOffline);

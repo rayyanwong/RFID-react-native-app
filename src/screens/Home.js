@@ -9,6 +9,7 @@ import {
   Modal,
   TextInput,
   Alert,
+  Keyboard,
 } from 'react-native';
 import {openDatabase} from 'react-native-sqlite-storage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -42,10 +43,7 @@ const Home = ({navigation}) => {
   const [newConductDate, setNewConductDate] = useState(new Date());
   const companies = ['ALPHA', 'BRAVO', 'CHARLIE', 'SUPPORT', 'CA', 'HQ'];
   const [company, setCompany] = useState('');
-  // NetInfo.addEventListener(networkState => {
-  //   console.log('Connection type - ', networkState.type);
-  //   console.log('Is connected? - ', networkState.isConnected);
-  // });
+  const [ipptUUID, setIpptUUID] = useState('');
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
@@ -108,7 +106,7 @@ const Home = ({navigation}) => {
   const createConductTable = () => {
     db.transaction(tx => {
       tx.executeSql(
-        `CREATE TABLE IF NOT EXISTS Conducts (conductid INTEGER PRIMARY KEY AUTOINCREMENT, conductName TEXT, conductDBid integer, conducting boolean, conductdate text,company TEXT)`,
+        `CREATE TABLE IF NOT EXISTS Conducts (conductid INTEGER PRIMARY KEY AUTOINCREMENT, conductName TEXT, conductDBid integer, conducting boolean, conductdate text,company TEXT, conductdbuuid TEXT)`,
         [],
         (txObj, resultSet) => {
           if (resultSet.rowsAffected > 0) {
@@ -212,13 +210,14 @@ const Home = ({navigation}) => {
     db.transaction(
       tx => {
         tx.executeSql(
-          `INSERT INTO Conducts(conductName,conductDBid,conducting,conductdate,company) values (?,?,?,?,?)`,
+          `INSERT INTO Conducts(conductName,conductDBid,conducting,conductdate,company, conductdbuuid) values (?,?,?,?,?,?)`,
           [
             input,
             newconductDBid.current,
             isConducting,
             newConductDate.toLocaleDateString(),
             company,
+            ipptUUID,
           ],
           (txObj, resultSet) => {
             if (resultSet.rowsAffected > 0) {
@@ -340,12 +339,12 @@ const Home = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topHeader}>
-        {/* <TouchableOpacity
+        <TouchableOpacity
           disabled={false}
           style={styles.actionBtn}
           onPress={() => delConductTable()}>
           <MaterialIcons name="info-outline" size={24} color="black" />
-        </TouchableOpacity> */}
+        </TouchableOpacity>
         <HomeAvatar />
         {/* <Text style={styles.headerText}>Home</Text> */}
         <TouchableOpacity
@@ -378,6 +377,8 @@ const Home = ({navigation}) => {
                 setInput('');
                 setConducting(false);
                 setNewConductDate(new Date());
+                newconductDBid.current = null;
+                setIpptUUID('');
               }}>
               <Ionicons
                 name="arrow-back-circle-outline"
@@ -390,12 +391,28 @@ const Home = ({navigation}) => {
           <TextInput
             multiline={true}
             placeholder="Name of new conduct"
-            style={styles.conductInput}
+            style={styles.inputField}
             value={input}
             onChangeText={text => setInput(text)}
             textAlignVertical="center"
             maxLength={50}
+            onKeyPress={e => {
+              if (e.nativeEvent.key == 'Enter') {
+                Keyboard.dismiss();
+              }
+            }}
           />
+          <View style={styles.checkBoxContainer}>
+            <CheckBox
+              value={isConducting}
+              onValueChange={newValue => {
+                setConducting(newValue);
+                console.log(newValue);
+              }}
+              style={styles.checkBoxStyle}
+            />
+            <Text style={styles.checkBoxLabel}>Create as conducting</Text>
+          </View>
           <SelectDropdown
             data={conductsCreationArr}
             onSelect={(selectedItem, index) => {
@@ -491,17 +508,24 @@ const Home = ({navigation}) => {
               setdatePickerVisible(false);
             }}
           />
-          <View style={styles.checkBoxContainer}>
-            <CheckBox
-              value={isConducting}
-              onValueChange={newValue => {
-                setConducting(newValue);
-                console.log(newValue);
-              }}
-              style={styles.checkBoxStyle}
-            />
-            <Text style={styles.checkBoxLabel}>Create as conducting</Text>
-          </View>
+          {newconductDBid.current === 15 && isConducting === false && (
+            <View>
+              <TextInput
+                multiline={true}
+                placeholder="UUID of IPPT conduct"
+                style={styles.inputField}
+                value={ipptUUID}
+                onChangeText={text => setIpptUUID(text)}
+                textAlignVertical="center"
+                maxLength={100}
+                onKeyPress={e => {
+                  if (e.nativeEvent.key == 'Enter') {
+                    Keyboard.dismiss();
+                  }
+                }}
+              />
+            </View>
+          )}
           <TouchableOpacity
             style={styles.newConductBtn}
             onPress={handleAddConduct}>
@@ -585,11 +609,11 @@ const styles = StyleSheet.create({
     marginTop: 60,
     width: '80%',
   },
-  conductInput: {
+  inputField: {
     fontSize: 14,
     width: '80%',
     alignSelf: 'center',
-    marginTop: 30,
+    marginTop: 16,
     backgroundColor: '#fff',
     padding: 9,
     height: 55,
@@ -613,7 +637,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#444',
     borderRadius: 8,
     marginVertical: 10,
-    marginTop: 30,
+    marginTop: 24,
     alignSelf: 'center',
     justifyContent: 'center',
   },

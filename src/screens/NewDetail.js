@@ -7,10 +7,15 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  LogBox,
 } from 'react-native';
 import NewDetailFlatList from '../components/ConductingView/NewDetail/NewDetail-FlatList';
 import FindUserModal from '../components/ConductingView/NewDetail/FindUser-Modal';
 import {useDebounce} from '../hooks/useDebounce';
+
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+]);
 
 const NewDetail = props => {
   const [detailName, setDetailName] = useState('');
