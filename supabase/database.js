@@ -179,96 +179,104 @@ class DailyAttendanceTable {
   }
 }
 
-//  user_obj: {uuid*, userNRIC, pushupReps, situpReps, chipNum}
-class UserConductTable {
-  async initInsert(user_obj, conductname, conductdate, company) {
-    try {
-      const {error} = await supabase.from('UserConduct').insert([
+class IpptConductTable {
+  async insertRecord(new_company, new_conductDate, new_conductName) {
+    let {data, error} = await supabase
+      .from('IpptConduct')
+      .insert([
         {
-          userNRIC: user_obj.userNRIC,
-          conductname: conductname,
-          conductdate: conductdate,
-          company: company,
+          company: new_company,
+          conductDate: new_conductDate,
+          conductName: new_conductName,
         },
-      ]);
-      if (!error) {
-        const {newUUID, retError} = await supabase
-          .from('UserConduct')
-          .select('uuid')
-          .eq('userNRIC', user_obj.userNRIC)
-          .eq('conductname', conductname)
-          .eq('conductdate', conductdate)
-          .eq('company', company);
-        return {newUUID, retError};
-      }
-    } catch (e) {
-      console.log(e);
-    }
+      ])
+      .select();
+    return {data, error};
   }
 
-  // async initInsert(user_obj) {
-  //   let {data, error} = await supabase
-  //     .from('UserConduct')
-  //     .insert([
-  //       {
-  //         userNRIC: user_obj.userNRIC,
-  //         conductid: user_obj.conductDBid,
-  //         conductdate: user_obj.conductdate,
-  //       },
-  //     ])
-  //     .select();
-  //   return {data, error};
-  // }
-  // async updateDetail(user_obj) {
-  //   let {data, error} = await supabase
-  //     .from('UserConduct')
-  //     .update({detailnum: user_obj.detailnum})
-  //     .eq('userNRIC', user_obj.userNRIC)
-  //     .eq('conductid', user_obj.conductDBid)
-  //     .eq('conductdate', user_obj.conductdate)
-  //     .select();
-  //   return {data, error};
-  // }
-  // async updatePushupReps(user_obj) {
-  //   let {data, error} = await supabase
-  //     .from('UserConduct')
-  //     .update({pushupReps: user_obj.pushupReps})
-  //     .eq('userNRIC', user_obj.userNRIC)
-  //     .eq('conductid', user_obj.conductDBid)
-  //     .eq('conductdate', user_obj.conductdate)
-  //     .select();
-  //   return {data, error};
-  // }
-  // async updatePushupReps(user_obj) {
-  //   let {data, error} = await supabase
-  //     .from('UserConduct')
-  //     .update({situpReps: user_obj.situpReps})
-  //     .eq('userNRIC', user_obj.userNRIC)
-  //     .eq('conductid', user_obj.conductDBid)
-  //     .eq('conductdate', user_obj.conductdate)
-  //     .select();
-  //   return {data, error};
-  // }
-  // async updateRunChip(user_obj) {
-  //   let {data, error} = await supabase
-  //     .from('UserConduct')
-  //     .update({runChip: user_obj.runChip})
-  //     .eq('userNRIC', user_obj.userNRIC)
-  //     .eq('conductid', user_obj.conductDBid)
-  //     .eq('conductdate', user_obj.conductdate)
-  //     .select();
-  //   return {data, error};
-  // }
-  // async getUserRecord(userNRIC, conductDBid, conductdate) {
-  //   let {data, error} = await supabase
-  //     .from('UserConduct')
-  //     .select('*')
-  //     .eq('userNRIC', userNRIC)
-  //     .eq('conductid', conductDBid)
-  //     .eq('conductdate', conductdate);
-  //   return {data, error};
-  // }
+  async getconductUUID(company, conductDate, conductName) {
+    let {data, error} = await supabase
+      .from('IpptConduct')
+      .select('conductUUID')
+      .eq('company', company)
+      .eq('conductDate', conductDate)
+      .eq('conductName', conductName);
+    return {data, error};
+  }
 }
+
+class IpptResultTable {
+  async insertRecord(conductUUID, userid, detail) {
+    let {data, error} = await supabase
+      .from('IpptResult')
+      .insert([
+        {
+          conductUUID: conductUUID,
+          userid: userid,
+          detail: detail,
+        },
+      ])
+      .select();
+    return {data, error};
+  }
+
+  async updatePushup(conductUUID, userid, pu_score) {
+    let {data, error} = await supabase
+      .from('IpptResult')
+      .update([
+        {
+          pushup: pu_score,
+        },
+      ])
+      .eq('conductUUID', conductUUID)
+      .eq('userid', userid)
+      .select();
+    return {data, error};
+  }
+
+  async updateSitup(conductUUID, userid, su_score) {
+    let {data, error} = await supabase
+      .from('IpptResult')
+      .update([
+        {
+          situp: su_score,
+        },
+      ])
+      .eq('conductUUID', conductUUID)
+      .eq('userid', userid)
+      .select();
+    return {data, error};
+  }
+
+  async updateDetail(conductUUID, userid, new_detail) {
+    let {data, error} = await supabase
+      .from('IpptResult')
+      .update([
+        {
+          detail: new_detail,
+        },
+      ])
+      .eq('conductUUID', conductUUID)
+      .eq('userid', userid)
+      .select();
+    return {data, error};
+  }
+
+  async updateAttendance(conductUUID, userid, bool) {
+    let {data, error} = await supabase
+      .from('IpptResult')
+      .update([
+        {
+          attendance: bool,
+        },
+      ])
+      .eq('conductUUID', conductUUID)
+      .eq('userid', userid)
+      .select();
+    return {data, error};
+  }
+}
+
 export const SupaUser = new UserTable();
 export const SupaUserStatus = new UserStatusTable();
 export const SupaStatus = new StatusTable();
@@ -276,4 +284,3 @@ export const SupaConduct = new ConductTable();
 export const SupaConductStatus = new ConductStatusPairTable();
 export const SupaArfAttendance = new ArfAttendanceTable();
 export const SupaDailyAttendance = new DailyAttendanceTable();
-export const SupaUserConduct = new UserConductTable();
