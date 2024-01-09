@@ -43,7 +43,7 @@ const DetailFlatList = ({data, handleClick, handleDelete}) => {
         renderItem={({item}) => (
           <FlatlistCard
             data={item}
-            onPress={() => {}}
+            onPress={() => handleClick(item)}
             handleDelete={() => handleDelete(item.detailName)}
             field="detailName"
           />

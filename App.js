@@ -14,6 +14,7 @@ import ParadeDetails from './src/screens/ParadeDetails';
 import ConductingView from './src/screens/ConductingView';
 import ConductingQrScanner from './src/screens/ConductingQrScanner';
 import NewDetail from './src/screens/NewDetail';
+import EditDetail from './src/screens/EditDetail';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -48,6 +49,11 @@ const HomeStack = () => {
         <Stack.Screen
           component={NewDetail}
           name="NewDetail"
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          component={EditDetail}
+          name="EditDetail"
           options={{headerShown: false}}
         />
       </Stack.Navigator>

@@ -48,6 +48,10 @@ const ConductingView = props => {
     setDetails(temp);
   };
 
+  const handleClick = detailObj => {
+    navigation.navigate('EditDetail', {detailObj});
+  };
+
   const checkDuplicate = detailName => {
     for (const detail of details) {
       if (detail.detailName.toUpperCase() === detailName.toUpperCase()) {
@@ -81,7 +85,11 @@ const ConductingView = props => {
             <Text style={styles.flatlistHeader}>Details</Text>
           </View>
 
-          <DetailFlatList data={details} handleDelete={handleDelete} />
+          <DetailFlatList
+            data={details}
+            handleDelete={handleDelete}
+            handleClick={handleClick}
+          />
           {/* Buttons to create detail -> Navigate to stacked page.*/}
           {/* Button to scan strength: modal */}
           <View style={styles.btnContainer}>

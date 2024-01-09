@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, StyleSheet, Text, FlatList} from 'react-native';
-import FlatlistCard from '../components/Flatlist-card';
+import FlatlistCard from './Flatlist-card';
 
 const NewDetailFlatList = ({data, handleDelete}) => {
   return (

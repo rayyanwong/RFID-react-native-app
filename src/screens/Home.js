@@ -339,12 +339,12 @@ const Home = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topHeader}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           disabled={false}
           style={styles.actionBtn}
           onPress={() => delConductTable()}>
           <MaterialIcons name="info-outline" size={24} color="black" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <HomeAvatar />
         {/* <Text style={styles.headerText}>Home</Text> */}
         <TouchableOpacity

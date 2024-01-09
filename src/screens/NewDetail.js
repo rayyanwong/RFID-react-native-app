@@ -9,8 +9,8 @@ import {
   Alert,
   LogBox,
 } from 'react-native';
-import NewDetailFlatList from '../components/ConductingView/NewDetail/NewDetail-FlatList';
-import FindUserModal from '../components/ConductingView/NewDetail/FindUser-Modal';
+import NewDetailFlatList from '../components/ConductingView/components/NewDetail-FlatList';
+import FindUserModal from '../components/ConductingView/components/FindUser-Modal';
 import {useDebounce} from '../hooks/useDebounce';
 
 LogBox.ignoreLogs([
