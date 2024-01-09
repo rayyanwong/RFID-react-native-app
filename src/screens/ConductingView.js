@@ -46,6 +46,17 @@ const ConductingView = props => {
     console.log('[isOffline]: ', isOffline);
   }, []);
 
+  useEffect(() => {
+    const getInitDetails = async () => {
+      const curData = await AsyncStorage.getItem(conductdbuuid);
+      const parsedData = JSON.parse(curData);
+      setDetails(parsedData);
+    };
+    if (conductdbuuid !== '') {
+      getInitDetails();
+    }
+  }, []);
+
   const handleDelete = detailName => {
     const updatedDetails = details.filter(
       detail => detail.detailName !== detailName,

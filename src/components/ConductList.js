@@ -12,7 +12,7 @@ export default function ConductList({
       <TouchableOpacity
         style={styles.container}
         onPress={() => handleConductDetails(data)}>
-        <TouchableOpacity onPress={() => handleDelete(data.conductid)}>
+        <TouchableOpacity onPress={() => handleDelete(data)}>
           <Ionicons name="trash" size={20} color="#212121" />
         </TouchableOpacity>
         <View>

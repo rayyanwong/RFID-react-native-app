@@ -24,6 +24,7 @@ import CheckBox from '@react-native-community/checkbox';
 import DatePicker from 'react-native-date-picker';
 import HomeAvatar from '../components/HomeAvatar';
 import {useIsFocused} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -298,23 +299,26 @@ const Home = ({navigation}) => {
     });
   };
 
-  const handleDelete = conductid => {
+  const handleDelete = async conductObj => {
+    await AsyncStorage.removeItem(conductObj.conductdbuuid);
     db.transaction(tx => {
       tx.executeSql(
         `DELETE FROM ATTENDANCE where conductid = (?)`,
-        [conductid],
+        [conductObj.conductid],
         (txObj, resultSet) => {
           console.log('Deleted from attendance');
           db.transaction(tx => {
             tx.executeSql(
               `DELETE FROM Conducts where conductid = (?)`,
-              [conductid],
+              [conductObj.conductid],
               (txObj, resultSet) => {
                 if (resultSet.rowsAffected > 0) {
-                  console.log(`Removed ${conductid} from Conducts table`);
+                  console.log(
+                    `Removed ${conductObj.conductid} from Conducts table`,
+                  );
                   Alert.alert(`Delete successful`);
                   let existingConducts = [...allConducts].filter(
-                    conduct => conduct.conductid !== conductid,
+                    conduct => conduct.conductid !== conductObj.conductid,
                   );
                   setallConducts(existingConducts);
                 }
@@ -336,6 +340,7 @@ const Home = ({navigation}) => {
     createUserTable();
     createConductTable();
     createAttendanceTable();
+    getAllConducts();
   }, []);
   useEffect(() => {
     getAllConducts();
