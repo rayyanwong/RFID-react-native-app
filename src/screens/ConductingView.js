@@ -14,6 +14,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {SupaIpptConduct} from '../../supabase/database';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {openDatabase} from 'react-native-sqlite-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ConductingView = props => {
   const conductid = props.route.params.data.conductid;
@@ -55,10 +56,20 @@ const ConductingView = props => {
     //  if "confirmed" and generated UUID, then can delete from backend
   };
 
-  const handleAddDetail = detailObj => {
+  const handleAddDetail = async detailObj => {
     const temp = [...details];
     temp.push(detailObj);
     setDetails(temp);
+
+    // store into MMKV
+    try {
+      const jsonValue = JSON.stringify(temp);
+      await AsyncStorage.setItem(conductdbuuid, jsonValue);
+      const curData = await AsyncStorage.getItem(conductdbuuid);
+      console.log('curData: ', curData);
+    } catch (e) {
+      console.log('AsyncStorage error when setting item key pair: ', e);
+    }
   };
 
   const handleClick = detailObj => {
@@ -208,8 +219,14 @@ const ConductingView = props => {
               <Text style={styles.btnTextStyle}>Retrieve conduct UUID</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => {
-                console.log(conductdbuuid);
+              onPress={async () => {
+                const curData = await AsyncStorage.getItem(conductdbuuid);
+                if (curData !== null) {
+                  const parsedJSON = JSON.parse(curData);
+                  console.log(parsedJSON);
+                } else {
+                  console.log('Storage is empty');
+                }
               }}
               style={styles.btnStyle}>
               <Text style={styles.btnTextStyle}>Push details</Text>

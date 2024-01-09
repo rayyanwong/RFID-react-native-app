@@ -192,7 +192,7 @@ const Home = ({navigation}) => {
             for (let i = 0; i < curConducts.length; i++) {
               tempConducts.push(curConducts.item(i));
             }
-            console.log(tempConducts);
+            // console.log(tempConducts);
             setallConducts(tempConducts);
           }
         },
