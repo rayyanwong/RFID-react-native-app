@@ -49,8 +49,10 @@ const ConductingView = props => {
   useEffect(() => {
     const getInitDetails = async () => {
       const curData = await AsyncStorage.getItem(conductdbuuid);
-      const parsedData = JSON.parse(curData);
-      setDetails(parsedData);
+      if ((curData !== '') & (curData !== null)) {
+        const parsedData = JSON.parse(curData);
+        setDetails(parsedData);
+      }
     };
     if (conductdbuuid !== '') {
       getInitDetails();

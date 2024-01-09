@@ -13,6 +13,7 @@ import FlatlistCard from './ConductingView/components/Flatlist-card';
 const {height, width} = Dimensions.get('window');
 
 const DetailFlatList = ({data, handleClick, handleDelete}) => {
+  console.log(data);
   if (data.length === 0) {
     return (
       <View
