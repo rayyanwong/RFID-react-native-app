@@ -86,7 +86,7 @@ const ConductingView = props => {
   };
 
   const handleClick = detailObj => {
-    navigation.navigate('EditDetail', {detailObj});
+    navigation.navigate('EditDetail', {detailObj, handleSaveChanges});
   };
 
   const checkDuplicate = detailName => {
@@ -172,6 +172,22 @@ const ConductingView = props => {
       }
     } catch (e) {
       console.log(`Error while handling save`);
+    }
+  };
+
+  const handleSaveChanges = async (detailName, new_detailArr) => {
+    details.forEach(detailObj => {
+      if (detailObj.detailName === detailName) {
+        detailObj.detail = new_detailArr;
+        console.log('Updated: ', detailObj.detail);
+      }
+    });
+    try {
+      await AsyncStorage.setItem(conductdbuuid, JSON.stringify(details));
+      const newData = await AsyncStorage.getItem(conductdbuuid);
+      console.log('New data is: ', newData);
+    } catch (e) {
+      console.log('Error occured while handling Savechanges: ', e);
     }
   };
 
@@ -279,7 +295,7 @@ const styles = StyleSheet.create({
   flatlistHeaderContainer: {
     alignItems: 'center',
     marginHorizontal: 20,
-    marginTop: 30,
+    marginTop: 16,
   },
   headerText: {
     color: 'black',
