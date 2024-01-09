@@ -11,6 +11,9 @@ import OfflineErrorView from '../error/OfflineErrorView';
 import customStyle from '../../styles';
 import DetailFlatList from '../components/DetailFlatList';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {SupaIpptConduct} from '../../supabase/database';
+import Clipboard from '@react-native-clipboard/clipboard';
+import {openDatabase} from 'react-native-sqlite-storage';
 
 const ConductingView = props => {
   const conductid = props.route.params.data.conductid;
@@ -22,14 +25,21 @@ const ConductingView = props => {
   const isOffline = useInternetCheck();
   const conductdate = props.route.params.data.conductdate;
   const company = props.route.params.data.company;
+  const conductdbuuid = props.route.params.data.conductdbuuid;
   const [details, setDetails] = useState([]); // array of objects
-  console.log(details);
+
+  const db = openDatabase({
+    name: 'appDatabase',
+  });
+
   // [ {detailnum: _ , users[{obj},{obj}]}, ... ]
 
   const {navigation} = props;
+  console.log(props.route.params.data);
+
   useEffect(() => {
     console.log(
-      `[ConductDetails] You have selected local Conductid: ${conductid} | DB conductid: ${conductDBid} | ConductName: ${conductname} | Conducting: ${isConducting} | ConductDate: ${conductdate} | Company: ${company}`,
+      `[ConductDetails] You have selected local Conductid: ${conductid} | DB conductid: ${conductDBid} | ConductName: ${conductname} | Conducting: ${isConducting} | ConductDate: ${conductdate} | Company: ${company} | ConductDBuuid: ${conductdbuuid}`,
     );
     console.log('[offlineConduct]: ', offlineConduct);
     console.log('[isOffline]: ', isOffline);
@@ -40,6 +50,9 @@ const ConductingView = props => {
       detail => detail.detailName !== detailName,
     );
     setDetails(updatedDetails);
+    // DB handle delete for all records with this detail name
+
+    //  if "confirmed" and generated UUID, then can delete from backend
   };
 
   const handleAddDetail = detailObj => {
@@ -59,6 +72,83 @@ const ConductingView = props => {
       }
     }
     return false;
+  };
+
+  const handleInsert = async () => {
+    try {
+      let {data, error} = await SupaIpptConduct.insertRecord(
+        company,
+        conductdate,
+        conductname,
+      );
+      if (error) {
+        console.log(
+          `Error has occured while trying to insert record into db:`,
+          error,
+        );
+      } else {
+        console.log(`Data from insertingRecord:`, data[0]);
+      }
+    } catch (e) {
+      console.log(`Error has occured while using handleInsert:`, error);
+    }
+  };
+
+  const getConductUUID = async () => {
+    try {
+      let {data, error} = await SupaIpptConduct.getconductUUID(
+        company,
+        conductdate,
+        conductname,
+      );
+      if (error) {
+        console.log(
+          `Error has occured while trying to retrieve uuid from db `,
+          error,
+        );
+        return null;
+      } else {
+        console.log(`Data from getConductUUID:`, data[0].conductUUID);
+        return data[0].conductUUID;
+      }
+    } catch (e) {
+      console.log(`Error has occured while using getConductUUID:`, e);
+      return null;
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const t_conductUUID = await getConductUUID();
+      if (t_conductUUID === null) {
+        // need to handle first insert
+        await handleInsert();
+        // handle local object's
+      }
+      const t2_conductUUID = await getConductUUID();
+      console.log(t2_conductUUID);
+      Clipboard.setString(t2_conductUUID);
+      console.log('ConductUUID has been copied to clipboard');
+      if (t_conductUUID === null) {
+        db.transaction(tx => {
+          tx.executeSql(
+            `UPDATE Conducts SET conductdbuuid = (?) WHERE conductid = (?)`,
+            [t2_conductUUID, conductid],
+            (txObj, resultSet) => {
+              if (resultSet.rowsAffected > 0) {
+                console.log('Successfully updated conductdbuuid');
+                conductdbuuid = t_conductUUID;
+              }
+            },
+            error => {
+              console.log('Error while updating conductDBuuid', error);
+            },
+          );
+        });
+      }
+    } catch (e) {
+      console.log(`Error while handling save`);
+    }
   };
 
   {
@@ -109,6 +199,20 @@ const ConductingView = props => {
               }}
               style={styles.btnStyle}>
               <Text style={styles.btnTextStyle}>Scan QR Code</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.btnStyle}
+              onPress={async () => {
+                await handleSave();
+              }}>
+              <Text style={styles.btnTextStyle}>Retrieve conduct UUID</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                console.log(conductdbuuid);
+              }}
+              style={styles.btnStyle}>
+              <Text style={styles.btnTextStyle}>Push details</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>

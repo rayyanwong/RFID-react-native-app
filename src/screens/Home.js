@@ -23,6 +23,7 @@ import SelectDropdown from 'react-native-select-dropdown';
 import CheckBox from '@react-native-community/checkbox';
 import DatePicker from 'react-native-date-picker';
 import HomeAvatar from '../components/HomeAvatar';
+import {useIsFocused} from '@react-navigation/native';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -44,6 +45,8 @@ const Home = ({navigation}) => {
   const companies = ['ALPHA', 'BRAVO', 'CHARLIE', 'SUPPORT', 'CA', 'HQ'];
   const [company, setCompany] = useState('');
   const [ipptUUID, setIpptUUID] = useState('');
+
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
@@ -333,8 +336,10 @@ const Home = ({navigation}) => {
     createUserTable();
     createConductTable();
     createAttendanceTable();
-    getAllConducts();
   }, []);
+  useEffect(() => {
+    getAllConducts();
+  }, [isFocused]);
 
   return (
     <SafeAreaView style={styles.container}>

@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-clipboard/clipboard": "^1.13.2",
     "@react-native-community/checkbox": "^0.5.16",
     "@react-native-community/netinfo": "^9.4.1",
     "@react-navigation/bottom-tabs": "^6.5.8",
@@ -22,6 +23,7 @@
     "react-native-date-picker": "^4.3.3",
     "react-native-dotenv": "^3.4.9",
     "react-native-fs": "^2.20.0",
+    "react-native-mmkv-storage": "^0.9.1",
     "react-native-nfc-manager": "^3.14.6",
     "react-native-permissions": "^3.10.0",
     "react-native-polyfill": "^1.2.1",

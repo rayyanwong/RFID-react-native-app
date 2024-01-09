@@ -284,3 +284,5 @@ export const SupaConduct = new ConductTable();
 export const SupaConductStatus = new ConductStatusPairTable();
 export const SupaArfAttendance = new ArfAttendanceTable();
 export const SupaDailyAttendance = new DailyAttendanceTable();
+export const SupaIpptConduct = new IpptConductTable();
+export const SupaIpptResult = new IpptResultTable();
