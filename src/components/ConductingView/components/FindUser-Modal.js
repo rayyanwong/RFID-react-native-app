@@ -11,13 +11,28 @@ import {
 import {useDebounce} from '../../../hooks/useDebounce';
 import {SupaUser} from '../../../../supabase/database';
 
-const FindUserModal = ({visible, setVisible, handleAddUser}) => {
+const FindUserModal = ({visible, setVisible, handleAddUser, details}) => {
+  // console.log('Details are: ', details);
   const [result, setResult] = useState([]);
   const [value, setValue] = useState('');
   const debouncedValue = useDebounce(value, 500);
   const onChangeText = text => {
     setValue(text);
   };
+
+  function userInDetail(userid, details) {
+    var flag = false;
+    details.forEach(detail => {
+      const detailArr = detail.detail;
+      detailArr.forEach(userObj => {
+        if (userObj.userid === userid) {
+          flag = true;
+        }
+      });
+    });
+    return flag;
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       let {data, error} = await SupaUser.findUser(value.toUpperCase());
@@ -71,7 +86,19 @@ const FindUserModal = ({visible, setVisible, handleAddUser}) => {
               </Text>
             </View>
           )}
-          {result.length !== 0 && (
+          {result.length !== 0 && userInDetail(result[0].userid, details) && (
+            <View>
+              <Text
+                style={{
+                  fontFamily: 'OpenSans-Regular',
+                  fontSize: 14,
+                  color: 'red',
+                }}>
+                User {result[0].userName} is already in a detail
+              </Text>
+            </View>
+          )}
+          {result.length !== 0 && !userInDetail(result[0].userid, details) && (
             <View>
               <Text
                 style={{

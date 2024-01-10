@@ -35,6 +35,8 @@ const ConductingView = props => {
 
   // [ {detailnum: _ , users[{obj},{obj}]}, ... ]
 
+  console.log(details);
+
   const {navigation} = props;
   console.log(props.route.params.data);
 
@@ -59,11 +61,15 @@ const ConductingView = props => {
     }
   }, []);
 
-  const handleDelete = detailName => {
+  const handleDelete = async detailName => {
     const updatedDetails = details.filter(
       detail => detail.detailName !== detailName,
     );
     setDetails(updatedDetails);
+
+    // to update AsyncStorage
+
+    await AsyncStorage.setItem(conductdbuuid, JSON.stringify(updatedDetails));
     // DB handle delete for all records with this detail name
 
     //  if "confirmed" and generated UUID, then can delete from backend
@@ -228,6 +234,7 @@ const ConductingView = props => {
                 navigation.navigate('NewDetail', {
                   handleAddDetail,
                   checkDuplicate,
+                  details,
                 });
               }}
               style={styles.btnStyle}>

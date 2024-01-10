@@ -20,7 +20,7 @@ LogBox.ignoreLogs([
 const NewDetail = props => {
   const [detailName, setDetailName] = useState('');
   const {navigation} = props;
-
+  const details = props.route.params.details;
   const handleAddDetail = props.route.params.handleAddDetail;
   const checkDuplicate = props.route.params.checkDuplicate;
 
@@ -119,6 +119,7 @@ const NewDetail = props => {
         visible={modalVisible}
         setVisible={setVisible}
         handleAddUser={handleAddUser}
+        details={details}
       />
     </SafeAreaView>
   );
