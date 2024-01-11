@@ -366,6 +366,7 @@ const Home = ({navigation}) => {
       <FlatList
         marginHorizontal={10}
         marginTop={24}
+        marginBottom={86}
         showsHorizontalScrollIndicator={false}
         data={allConducts}
         keyExtractor={item => String(item.conductid)}
