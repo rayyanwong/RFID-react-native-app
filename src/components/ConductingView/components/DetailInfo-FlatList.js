@@ -11,7 +11,7 @@ const DetailInfoFlatList = ({data, handleDelete}) => {
         style={styles.flatlistStyle}
         data={data}
         keyExtractor={obj => {
-          obj.userid;
+          String(obj.userid);
         }}
         renderItem={({item}) => (
           <FlatlistCard
