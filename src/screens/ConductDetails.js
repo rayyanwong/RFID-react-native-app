@@ -46,8 +46,7 @@ const ConductDetails = props => {
   const [qrModalVisibility, setQRmodalvisibility] = useState(false);
   const qrData = useRef([]);
   const [noGoIdArr, setNoGoIdArr] = useState([]);
-  //console.log(props);
-  //variable init
+
   const promptRef = useRef();
   const conductid = props.route.params.data.conductid;
   const conductname = props.route.params.name;
@@ -61,6 +60,7 @@ const ConductDetails = props => {
 
   const isOffline = useInternetCheck();
   const {navigation} = props;
+
   useEffect(() => {
     const checkIsSupported = async () => {
       const deviceIsSupported = await NfcManager.isSupported();
@@ -505,38 +505,41 @@ const ConductDetails = props => {
               size={16}
               color="black"
             />
-            {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
-            Scan cadet tag
-          </Text> */}
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => setaddModalVisible(true)}>
             <Ionicons name="person-add" size={16} color="black" />
-            {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
-            Add manually
-          </Text> */}
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => {
               generateQRCode();
               setQRmodalvisibility(true);
             }}>
             <Ionicons name="qr-code-outline" size={16} color="black" />
-            {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
-            Create QRCode
-          </Text> */}
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={async () => {
               await resetNomRoll();
             }}>
             <MaterialCommunityIcons name="restart" size={16} color="black" />
-            {/* <Text style={{color: 'white', marginTop: 10, fontSize: 10}}>
-            Unaccount all
-          </Text> */}
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => {}}>
+            <MaterialCommunityIcons name="cloud-sync" size={16} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={conductDBid === 15 ? styles.actionBtn : {opacity: 0}}
+            onPress={() => {
+              navigation.navigate('StationMasterView', {conductdbuuid});
+            }}
+            disabled={conductDBid === 15 ? false : true}>
+            <MaterialCommunityIcons
+              name="eye-outline"
+              size={16}
+              color="black"
+            />
           </TouchableOpacity>
         </View>
       </View>

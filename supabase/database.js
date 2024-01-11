@@ -283,6 +283,14 @@ class IpptResultTable {
       .eq('conductUUID', conductUUID);
     return {data, error};
   }
+
+  async getJoinDetail(conductUUID) {
+    let {data, error} = await supabase
+      .from('IpptResult')
+      .select(`*,User!inner(*)`)
+      .eq('conductUUID', conductUUID);
+    return {data, error};
+  }
 }
 
 export const SupaUser = new UserTable();
