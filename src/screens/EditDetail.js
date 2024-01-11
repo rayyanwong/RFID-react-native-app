@@ -10,14 +10,26 @@ import {
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import DetailInfoFlatList from '../components/ConductingView/components/DetailInfo-FlatList';
+import FindUserModal from '../components/ConductingView/components/FindUser-Modal';
 
 const EditDetail = props => {
   const {navigation} = props;
-  const detailObj = props.route.params.detailObj;
-  console.log('DetailObj is: ', detailObj);
-  const [cdetailArr, setcDetailArr] = useState(detailObj.detail);
+  const detailObj = props.route.params.detailObj; // detailObj containing {detailName, detail<userObj>}
+  const details = props.route.params.details; // details containing detailObj
+  const [cdetailArr, setcDetailArr] = useState(detailObj.detail); // duplicate copy of detailArr to amend
+  const [modalVisible, setModalVisible] = useState(false); // visibility of add user modal
 
   const handleSaveChanges = props.route.params.handleSaveChanges;
+
+  const setVisible = e => {
+    setModalVisible(e);
+  };
+
+  const handleAddUser = userObj => {
+    const temp = cdetailArr;
+    temp.push(userObj);
+    setcDetailArr(temp);
+  };
 
   const handleDelete = userObj => {
     const updatedDetail = cdetailArr.filter(
@@ -42,7 +54,9 @@ const EditDetail = props => {
         {/* Flatlist */}
         <DetailInfoFlatList data={cdetailArr} handleDelete={handleDelete} />
         {/* touchable opacity to open Find user modal */}
-        <TouchableOpacity onPress={() => {}} style={styles.addBtn}>
+        <TouchableOpacity
+          onPress={() => setModalVisible(true)}
+          style={styles.addBtn}>
           <FontAwesome name="plus-square-o" size={40} color="black" />
         </TouchableOpacity>
       </View>
@@ -56,6 +70,12 @@ const EditDetail = props => {
           <Text style={styles.btnTextStyle}>Save changes</Text>
         </TouchableOpacity>
       </View>
+      <FindUserModal
+        visible={modalVisible}
+        handleAddUser={handleAddUser}
+        details={details}
+        setVisible={setVisible}
+      />
     </SafeAreaView>
   );
 };

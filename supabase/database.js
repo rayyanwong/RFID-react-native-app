@@ -275,6 +275,14 @@ class IpptResultTable {
       .select();
     return {data, error};
   }
+
+  async deleteAllRecords(conductUUID) {
+    let {data, error} = await supabase
+      .from('IpptResult')
+      .delete()
+      .eq('conductUUID', conductUUID);
+    return {data, error};
+  }
 }
 
 export const SupaUser = new UserTable();

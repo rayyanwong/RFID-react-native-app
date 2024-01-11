@@ -12,6 +12,7 @@ import customStyle from '../../styles';
 import DetailFlatList from '../components/DetailFlatList';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {SupaIpptConduct} from '../../supabase/database';
+import {SupaIpptResult} from '../../supabase/database';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {openDatabase} from 'react-native-sqlite-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -35,10 +36,10 @@ const ConductingView = props => {
 
   // [ {detailnum: _ , users[{obj},{obj}]}, ... ]
 
-  console.log(details);
+  // console.log(details);
 
   const {navigation} = props;
-  console.log(props.route.params.data);
+  // console.log(props.route.params.data);
 
   useEffect(() => {
     console.log(
@@ -92,7 +93,7 @@ const ConductingView = props => {
   };
 
   const handleClick = detailObj => {
-    navigation.navigate('EditDetail', {detailObj, handleSaveChanges});
+    navigation.navigate('EditDetail', {detailObj, details, handleSaveChanges});
   };
 
   const checkDuplicate = detailName => {
@@ -197,6 +198,33 @@ const ConductingView = props => {
     }
   };
 
+  const handleSync = async () => {
+    // delete all records first
+    // reinsert all records
+
+    const {error} = await SupaIpptResult.deleteAllRecords(conductdbuuid);
+    // if (error) {
+    //   console.log(`Error deleting all records:`, error);
+    // }
+    details.forEach(async detail => {
+      // {detailName, detail: <userObj>[]}
+      // userObj: {userName, userid,...}
+      const detailArr = detail.detail;
+      detailArr.forEach(async userObj => {
+        const {data, error} = await SupaIpptResult.insertRecord(
+          conductdbuuid,
+          userObj.userid,
+          detail.detailName,
+        );
+        if (error) {
+          console.log('Error while inserting userObj into db: ', error);
+        } else {
+          console.log('Successfully inserted user into db:', data);
+        }
+      });
+    });
+  };
+
   {
     if (isOffline) {
       return <OfflineErrorView />;
@@ -256,13 +284,7 @@ const ConductingView = props => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={async () => {
-                const curData = await AsyncStorage.getItem(conductdbuuid);
-                if (curData !== null) {
-                  const parsedJSON = JSON.parse(curData);
-                  console.log(parsedJSON);
-                } else {
-                  console.log('Storage is empty');
-                }
+                await handleSync();
               }}
               style={styles.btnStyle}>
               <Text style={styles.btnTextStyle}>Push details</Text>
