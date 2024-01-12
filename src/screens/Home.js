@@ -71,9 +71,9 @@ const Home = ({navigation}) => {
         } else {
           setConductsCreationArr(data);
           // [{'conductid','conductName'},...]
-          console.log(
-            'Successfully set Conducts Creation Arr with all Database type of conducts',
-          );
+          // console.log(
+          //   'Successfully set Conducts Creation Arr with all Database type of conducts',
+          // );
         }
       } else {
         setConductsCreationArr([
