@@ -3,14 +3,19 @@ import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
-const SMFlatlistCard = ({data, handleClick, field}) => {
-  // {detailName: , participants}
+const SMFlatlistCard = ({data, handleEdit, field, handleUserToEdit}) => {
   const text = data[field];
+
   return (
     <View>
       <TouchableOpacity style={styles.card}>
         <Text style={styles.cardText}>{text}</Text>
-        <TouchableOpacity onPress={handleClick} style={styles.icon}>
+        <TouchableOpacity
+          onPress={() => {
+            handleEdit(true);
+            handleUserToEdit(data);
+          }}
+          style={styles.icon}>
           <FontAwesome5 name="edit" size={18} color="black" />
         </TouchableOpacity>
       </TouchableOpacity>

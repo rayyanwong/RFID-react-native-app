@@ -11,6 +11,7 @@ import {useIsFocused} from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Dropdown from '../components/StationMasterView/Dropdown';
 import StationMasterFlatlist from '../components/StationMasterView/StationMaster-Flatlist';
+import ResultModal from '../components/StationMasterView/ResultModal';
 
 const StationMasterView = props => {
   const {navigation} = props;
@@ -21,6 +22,8 @@ const StationMasterView = props => {
   const [flatlistData, setFlatlistData] = useState([]);
   const [details, setDetails] = useState({});
   const [detailNames, setDetailNames] = useState();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [userToEdit, setUserToEdit] = useState();
 
   function groupBy(xs, f) {
     return xs.reduce(
@@ -28,6 +31,10 @@ const StationMasterView = props => {
       {},
     );
   }
+
+  const handleModalVisible = e => {
+    setModalVisible(e);
+  };
 
   const handleSelectStation = station => {
     if (station === 'Pushup') {
@@ -43,6 +50,10 @@ const StationMasterView = props => {
     if (Object.keys(details).length !== 0) {
       setFlatlistData(details[detailName]);
     }
+  };
+
+  const handleUserToEdit = userObj => {
+    setUserToEdit(userObj);
   };
 
   useEffect(() => {
@@ -64,7 +75,7 @@ const StationMasterView = props => {
         var grouped = groupBy(collatedList, obj => obj.detail);
         setDetails(grouped);
         const detailNamesArr = Object.keys(grouped);
-        console.log('Detail names are: ', detailNamesArr);
+        // console.log('Detail names are: ', detailNamesArr);
         setDetailNames(detailNamesArr);
       }
     };
@@ -107,9 +118,28 @@ const StationMasterView = props => {
           width={360}
           btnColor="black"
         />
-        <StationMasterFlatlist data={flatlistData} />
+        <StationMasterFlatlist
+          data={flatlistData}
+          handleEdit={handleModalVisible}
+          handleUserToEdit={handleUserToEdit}
+        />
       </View>
-      <View style={styles.btnContainer}>{/* Save changes btn */}</View>
+      <View style={styles.btnContainer}>
+        {/* Save changes btn */}
+        <TouchableOpacity style={styles.btn} onPress={() => {}}>
+          <Text
+            style={{color: 'white', fontFamily: 'OpenSans-Bold', fontSize: 14}}>
+            Confirm results
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <ResultModal
+        visible={modalVisible}
+        setVisible={handleModalVisible}
+        stationType={station}
+        handleConfirm={() => {}}
+        userObj={userToEdit}
+      />
     </SafeAreaView>
   );
 };
@@ -127,6 +157,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'black',
     marginRight: 24,
+  },
+  btn: {
+    width: '85%',
+    backgroundColor: 'black',
+    borderRadius: 8,
+    alignItems: 'center',
+    height: '26%',
+    justifyContent: 'center',
+    marginVertical: 6,
+    alignSelf: 'center',
+  },
+  btnContainer: {
+    marginTop: 100,
   },
 });
 
