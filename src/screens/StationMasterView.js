@@ -5,6 +5,7 @@ import {
   Text,
   SafeAreaView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {SupaIpptResult} from '../../supabase/database';
 import {useIsFocused} from '@react-navigation/native';
@@ -24,6 +25,7 @@ const StationMasterView = props => {
   const [detailNames, setDetailNames] = useState();
   const [modalVisible, setModalVisible] = useState(false);
   const [userToEdit, setUserToEdit] = useState();
+  const [tDetail, setTDetail] = useState();
 
   function groupBy(xs, f) {
     return xs.reduce(
@@ -49,11 +51,87 @@ const StationMasterView = props => {
   const handleSelectDetail = detailName => {
     if (Object.keys(details).length !== 0) {
       setFlatlistData(details[detailName]);
+      setTDetail(details[detailName]);
+      console.log('TDetail is: ', details[detailName]);
     }
   };
 
   const handleUserToEdit = userObj => {
     setUserToEdit(userObj);
+  };
+
+  const handleConfirmResult = async (tDetail, station) => {
+    // use Update method to push score into backend
+    // station master will need to push score every detail
+    // only need to focus on iterating through the updated tDetail and update value of field state;
+    if (station === 1) {
+      // update using pushup method
+      tDetail.forEach(async userObj => {
+        const {data, error} = await SupaIpptResult.updatePushup(
+          conductdbuuid,
+          userObj.userid,
+          parseInt(userObj.pushup),
+        );
+        if (error) {
+          Alert.alert(
+            `Error while updating ${userObj.userName}'s pushup score`,
+          );
+          console.warn(
+            `Error while updating ${userObj.userName}'s pushup score:`,
+            error,
+          );
+        }
+      });
+    } else if (station === 2) {
+      // update using situp method
+      tDetail.forEach(async userObj => {
+        const {data, error} = await SupaIpptResult.updateSitup(
+          conductdbuuid,
+          userObj.userid,
+          parseInt(userObj.situp),
+        );
+        if (error) {
+          Alert.alert(`Error while updating ${userObj.userName}'s situp score`);
+          console.warn(
+            `Error while updating ${userObj.userName}'s situp score:`,
+            error,
+          );
+        }
+      });
+    } else if (station === 3) {
+      // update using chipNo method
+      tDetail.forEach(async userObj => {
+        const {data, error} = await SupaIpptResult.updateChipNo(
+          conductdbuuid,
+          userObj.userid,
+          userObj.chipNo,
+        );
+        if (error) {
+          Alert.alert(`Error while updating ${userObj.userName}'s chip number`);
+          console.warn(
+            `Error while updating ${userObj.userName}'s chip number:`,
+            error,
+          );
+        }
+      });
+    }
+  };
+
+  const handleRecordResult = (userid, score, field) => {
+    // for (const [key,value] of Object.entries(tDetails)){
+    //     if (key===)
+    // }
+    // console.log(tDetails);
+    const temp = tDetail;
+    temp.forEach(userObj => {
+      // console.log('Userobj: ', userObj);
+      if (userObj.userid === userid) {
+        // update field score
+        userObj[field] = score;
+      }
+    });
+    setTDetail(temp);
+    console.log('Updated: ', temp);
   };
 
   useEffect(() => {
@@ -126,7 +204,11 @@ const StationMasterView = props => {
       </View>
       <View style={styles.btnContainer}>
         {/* Save changes btn */}
-        <TouchableOpacity style={styles.btn} onPress={() => {}}>
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={async () => {
+            await handleConfirmResult(tDetail, station);
+          }}>
           <Text
             style={{color: 'white', fontFamily: 'OpenSans-Bold', fontSize: 14}}>
             Confirm results
@@ -137,7 +219,7 @@ const StationMasterView = props => {
         visible={modalVisible}
         setVisible={handleModalVisible}
         stationType={station}
-        handleConfirm={() => {}}
+        handleRecord={handleRecordResult}
         userObj={userToEdit}
       />
     </SafeAreaView>

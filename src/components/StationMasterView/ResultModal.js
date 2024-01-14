@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -14,14 +14,30 @@ const ResultModal = ({
   stationType,
   visible,
   setVisible,
-  handleConfirm,
+  handleRecord,
   userObj,
 }) => {
   const [value, setValue] = useState();
 
+  const [field, setField] = useState();
+
   const onChangeText = text => {
     setValue(text);
   };
+
+  const handleSetField = stationType => {
+    if (stationType === 1) {
+      setField('pushup');
+    } else if (stationType === 2) {
+      setField('situp');
+    } else if (stationType === 3) {
+      setField('chipNo');
+    }
+  };
+
+  useEffect(() => {
+    handleSetField(stationType);
+  }, [visible]);
 
   return (
     <Modal
@@ -65,7 +81,14 @@ const ResultModal = ({
         </TouchableOpacity>
         {/* <TextInput /> */}
         <View style={styles.btnContainer}>
-          <TouchableOpacity style={styles.btn}>
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={() => {
+              handleRecord(userObj.userid, value, field);
+              setField();
+              setValue();
+              setVisible(false);
+            }}>
             <Text
               style={{
                 color: 'white',

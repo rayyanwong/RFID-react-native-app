@@ -248,6 +248,20 @@ class IpptResultTable {
     return {data, error};
   }
 
+  async updateChipNo(conductUUID, userid, chipNo) {
+    let {data, error} = await supabase
+      .from('IpptResult')
+      .update([
+        {
+          chipNo: chipNo,
+        },
+      ])
+      .eq('conductUUID', conductUUID)
+      .eq('userid', userid)
+      .select();
+    return {data, error};
+  }
+
   async updateDetail(conductUUID, userid, new_detail) {
     let {data, error} = await supabase
       .from('IpptResult')
