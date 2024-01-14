@@ -26,6 +26,7 @@ const StationMasterView = props => {
   const [modalVisible, setModalVisible] = useState(false);
   const [userToEdit, setUserToEdit] = useState();
   const [tDetail, setTDetail] = useState();
+  const [madeChanges, setMadeChanges] = useState(false);
 
   function groupBy(xs, f) {
     return xs.reduce(
@@ -115,6 +116,8 @@ const StationMasterView = props => {
         }
       });
     }
+    setMadeChanges(false);
+    Alert.alert('Successfully updated detail scores into database');
   };
 
   const handleRecordResult = (userid, score, field) => {
@@ -132,6 +135,7 @@ const StationMasterView = props => {
     });
     setTDetail(temp);
     console.log('Updated: ', temp);
+    setMadeChanges(true);
   };
 
   useEffect(() => {
@@ -171,7 +175,18 @@ const StationMasterView = props => {
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => {
-            navigation.goBack();
+            if (madeChanges) {
+              Alert.alert(
+                'Unsaved changes',
+                'You have made changes and not confirmed it. Are you sure you would like to exit?',
+                [
+                  {text: 'Yes', onPress: () => navigation.goBack()},
+                  {text: 'No', style: 'cancel', onPress: () => {}},
+                ],
+              );
+            } else {
+              navigation.goBack();
+            }
           }}>
           <MaterialIcons name="arrow-back-ios" size={20} color="black" />
         </TouchableOpacity>
@@ -205,7 +220,11 @@ const StationMasterView = props => {
       <View style={styles.btnContainer}>
         {/* Save changes btn */}
         <TouchableOpacity
-          style={styles.btn}
+          disabled={madeChanges ? false : true}
+          style={[
+            styles.btn,
+            {backgroundColor: madeChanges ? '#52e50d' : 'black'},
+          ]}
           onPress={async () => {
             await handleConfirmResult(tDetail, station);
           }}>
