@@ -174,7 +174,7 @@ const App = () => {
               ),
             }}
           />
-          <Tab.Screen
+          {/* <Tab.Screen
             name="ParadeStateStack"
             component={ParadeStateStack}
             options={{
@@ -188,7 +188,7 @@ const App = () => {
                 />
               ),
             }}
-          />
+          /> */}
         </Tab.Navigator>
       </NavigationContainer>
     </>
