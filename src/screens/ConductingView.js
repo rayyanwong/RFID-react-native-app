@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   PermissionsAndroid,
+  Alert,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -168,6 +169,7 @@ const ConductingView = props => {
       console.log(t2_conductUUID);
       Clipboard.setString(t2_conductUUID);
       console.log('ConductUUID has been copied to clipboard');
+      Alert.alert('Conduct UUID has been copied to clipboard!');
       if (t_conductUUID === null) {
         db.transaction(tx => {
           tx.executeSql(
@@ -380,7 +382,10 @@ const ConductingView = props => {
               <Text style={styles.btnTextStyle}>Scan QR Code</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.btnStyle}
+              style={[
+                styles.btnStyle,
+                {backgroundColor: conductdbuuid === '' ? 'red' : 'black'},
+              ]}
               onPress={async () => {
                 await handleSave();
               }}>
@@ -421,7 +426,7 @@ const styles = StyleSheet.create({
   btnContainer: {flexDirection: 'column', marginTop: 14},
   btnStyle: {
     width: '80%',
-    height: 50,
+    height: 40,
     backgroundColor: 'black',
     borderRadius: 8,
     marginVertical: 10,

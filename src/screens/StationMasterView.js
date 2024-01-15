@@ -224,13 +224,17 @@ const StationMasterView = props => {
           disabled={madeChanges ? false : true}
           style={[
             styles.btn,
-            {backgroundColor: madeChanges ? '#52e50d' : 'black'},
+            {backgroundColor: madeChanges ? '#C1F2B0' : 'black'},
           ]}
           onPress={async () => {
             await handleConfirmResult(tDetail, station);
           }}>
           <Text
-            style={{color: 'white', fontFamily: 'OpenSans-Bold', fontSize: 14}}>
+            style={{
+              color: 'white',
+              fontFamily: 'OpenSans-Bold',
+              fontSize: 14,
+            }}>
             Confirm results
           </Text>
         </TouchableOpacity>

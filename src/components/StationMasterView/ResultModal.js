@@ -68,6 +68,7 @@ const ResultModal = ({
         <TextInput
           onChangeText={text => onChangeText(text)}
           placeholder="Enter result"
+          placeholderTextColor="black"
           style={styles.textInput}
           value={value}
         />
@@ -158,6 +159,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     borderWidth: 1,
     alignSelf: 'center',
+    color: 'black',
   },
 });
 

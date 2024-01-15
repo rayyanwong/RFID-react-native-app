@@ -71,6 +71,7 @@ const NewDetail = props => {
       {/* Input for new detail name */}
       <TextInput
         placeholder="Enter detail name. Eg. Detail 1"
+        placeholderTextColor="black"
         textAlign="center"
         style={styles.textInput}
         value={detailName}
@@ -140,13 +141,13 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   btnContainer: {
-    marginTop: 28,
+    marginTop: 14,
     justifyContent: 'center',
     alignItems: 'center',
   },
   btn: {
     backgroundColor: 'black',
-    width: '80%',
+    width: '70%',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: 'white',
-    paddingVertical: 14,
+    paddingVertical: 12,
     fontFamily: 'OpenSans-Bold',
     fontSize: 12,
   },

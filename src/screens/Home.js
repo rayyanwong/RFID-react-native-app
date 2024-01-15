@@ -418,6 +418,7 @@ const Home = ({navigation}) => {
           </View>
           <TextInput
             multiline={true}
+            placeholderTextColor="black"
             placeholder="Name of new conduct"
             style={styles.inputField}
             value={input}
@@ -541,6 +542,7 @@ const Home = ({navigation}) => {
               <TextInput
                 multiline={false}
                 placeholder="UUID of IPPT conduct"
+                placeholderTextColor="black"
                 style={styles.inputField}
                 value={ipptUUID}
                 onChangeText={text => setIpptUUID(text)}

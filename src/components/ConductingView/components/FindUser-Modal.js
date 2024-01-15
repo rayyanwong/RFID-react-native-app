@@ -71,6 +71,7 @@ const FindUserModal = ({visible, setVisible, handleAddUser, details}) => {
             placeholder="Enter User NRIC"
             style={styles.textInput}
             value={value}
+            placeholderTextColor="black"
           />
         </View>
         <View style={styles.textPrompt}>
@@ -175,6 +176,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     borderWidth: 1,
     alignSelf: 'center',
+    fontFamily: 'OpenSans-Regular',
+    fontSize: 12,
+    color: 'black',
   },
   searchIcon: {},
   textPrompt: {
