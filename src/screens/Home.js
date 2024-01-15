@@ -10,6 +10,7 @@ import {
   TextInput,
   Alert,
   Keyboard,
+  Image,
 } from 'react-native';
 import {openDatabase} from 'react-native-sqlite-storage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -363,21 +364,37 @@ const Home = ({navigation}) => {
           <MaterialIcons name="add" size={24} color="black" />
         </TouchableOpacity>
       </View>
-      <FlatList
-        marginHorizontal={10}
-        marginTop={24}
-        marginBottom={86}
-        showsHorizontalScrollIndicator={false}
-        data={allConducts}
-        keyExtractor={item => String(item.conductid)}
-        renderItem={({item}) => (
-          <ConductList
-            data={item}
-            handleConductDetails={handleConductDetails}
-            handleDelete={handleDelete}
-          />
-        )}
-      />
+
+      {allConducts.length !== 0 && (
+        <FlatList
+          marginHorizontal={10}
+          marginTop={16}
+          marginBottom={86}
+          showsHorizontalScrollIndicator={false}
+          data={allConducts}
+          keyExtractor={item => String(item.conductid)}
+          renderItem={({item}) => (
+            <ConductList
+              data={item}
+              handleConductDetails={handleConductDetails}
+              handleDelete={handleDelete}
+            />
+          )}
+        />
+      )}
+
+      {allConducts.length === 0 && (
+        <View style={styles.emptyContainer}>
+          <Image source={require('../assets/images/not_in_db.png')} />
+          <Text style={styles.emptyText}>
+            You currently do not have any conducts
+          </Text>
+          <Text style={styles.emptyText}>
+            Click the '+' icon to create your first conduct!
+          </Text>
+        </View>
+      )}
+
       <NetworkModal show={networkModalVisible} onDismiss={onDismiss} />
       <Modal animationType="fade" visible={modalVisible}>
         <SafeAreaView style={styles.modalContainer}>
@@ -552,7 +569,7 @@ const styles = StyleSheet.create({
   topHeader: {
     paddingHorizontal: 20,
     paddingTop: 30,
-    paddingBottom: 40,
+    paddingBottom: 24,
     borderRadius: 6,
     alignItems: 'center',
     flexDirection: 'row',
@@ -688,6 +705,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'black',
     fontFamily: 'OpenSans-Bold',
+  },
+  emptyText: {
+    fontFamily: 'OpenSans-Bold',
+    fontSize: 14,
+    color: 'black',
+    textAlign: 'center',
+  },
+  emptyContainer: {
+    paddingTop: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
