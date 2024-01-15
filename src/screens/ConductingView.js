@@ -418,7 +418,7 @@ const ConductingView = props => {
 
 const styles = StyleSheet.create({
   pageContainer: {backgroundColor: customStyle.background, flex: 1},
-  btnContainer: {flexDirection: 'column', marginTop: 20},
+  btnContainer: {flexDirection: 'column', marginTop: 14},
   btnStyle: {
     width: '80%',
     height: 50,

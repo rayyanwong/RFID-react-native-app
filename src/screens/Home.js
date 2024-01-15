@@ -522,18 +522,13 @@ const Home = ({navigation}) => {
           {newconductDBid.current === 15 && isConducting === false && (
             <View>
               <TextInput
-                multiline={true}
+                multiline={false}
                 placeholder="UUID of IPPT conduct"
                 style={styles.inputField}
                 value={ipptUUID}
                 onChangeText={text => setIpptUUID(text)}
                 textAlignVertical="center"
                 maxLength={100}
-                onKeyPress={e => {
-                  if (e.nativeEvent.key == 'Enter') {
-                    Keyboard.dismiss();
-                  }
-                }}
               />
             </View>
           )}

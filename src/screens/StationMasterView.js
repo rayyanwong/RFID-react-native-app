@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Alert,
+  Dimensions,
 } from 'react-native';
 import {SupaIpptResult} from '../../supabase/database';
 import {useIsFocused} from '@react-navigation/native';
@@ -197,7 +198,7 @@ const StationMasterView = props => {
           searchPlaceholderText="Search station"
           defaultText="Select station type"
           data={['Pushup', 'Situp', '2.4 KM']}
-          width={190}
+          width={Dimensions.get('window').width / 2}
           btnColor="#827373"
         />
       </View>
@@ -257,7 +258,7 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans-Bold',
     fontSize: 14,
     color: 'black',
-    marginRight: 24,
+    marginRight: 'auto',
   },
   btn: {
     width: '85%',
@@ -270,7 +271,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   btnContainer: {
-    marginTop: 100,
+    marginTop: 60,
   },
 });
 
