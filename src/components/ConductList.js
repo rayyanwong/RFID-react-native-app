@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingLeft: 8,
     paddingRight: 0,
-    maxWidth: '90%',
+    // maxWidth: '90%',
     marginLeft: 15,
     fontFamily: 'OpenSans-Bold',
   },

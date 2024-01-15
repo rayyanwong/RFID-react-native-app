@@ -181,7 +181,7 @@ const StationMasterView = props => {
                 'Unsaved changes',
                 'You have made changes and not confirmed it. Are you sure you would like to exit?',
                 [
-                  {text: 'Yes', onPress: () => navigation.goBack()},
+                  {text: 'Yes', onPress: () => navigation.navigate('Home')},
                   {text: 'No', style: 'cancel', onPress: () => {}},
                 ],
               );

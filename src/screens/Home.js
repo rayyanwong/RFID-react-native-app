@@ -210,65 +210,78 @@ const Home = ({navigation}) => {
   };
 
   const handleAddConduct = () => {
-    if (input === '' || newconductDBid.current == null) {
+    if (dNewConductDbId === 15 && isConducting === false && ipptUUID !== '') {
+      setInput('');
+      setmodalVisible(false);
+      getAllConducts();
+      setConducting(false);
+      setCompany('');
+      setIpptUUID('');
+      navigation.navigate('StationMasterView', {conductdbuuid: ipptUUID});
+    } else if (input === '' || newconductDBid.current == null) {
       Alert.alert('Input cannot be empty!');
       return;
     }
 
     // If not, insert the conduct into db
-    db.transaction(
-      tx => {
-        tx.executeSql(
-          `INSERT INTO Conducts(conductName,conductDBid,conducting,conductdate,company, conductdbuuid) values (?,?,?,?,?,?)`,
-          [
-            input,
-            newconductDBid.current,
-            isConducting,
-            newConductDate.toLocaleDateString(),
-            company,
-            ipptUUID,
-          ],
-          (txObj, resultSet) => {
-            if (resultSet.rowsAffected > 0) {
-              console.log(`${input} successfully inserted into conducts table`);
-              // insert into Attendance table
-              console.log('Insert id: ', resultSet.insertId);
-              var curConductid = resultSet.insertId;
-              console.log('Current conduct id: ', curConductid);
-              console.log(
-                'ConductDBid of newly created conduct: ',
-                newconductDBid.current,
-              );
-              db.transaction(tx => {
-                tx.executeSql(
-                  `SELECT userid FROM USERS where userid > 0`,
-                  [],
-                  (txObj, res) => {
-                    var curUsers = res.rows;
-                    for (let i = 0; i < curUsers.length; i++) {
-                      let curUserid = curUsers.item(i).userid;
-                      insertAttendance(curUserid, curConductid);
-                    }
-                  },
-                  error => {
-                    console.log(error);
-                  },
+    else {
+      db.transaction(
+        tx => {
+          tx.executeSql(
+            `INSERT INTO Conducts(conductName,conductDBid,conducting,conductdate,company, conductdbuuid) values (?,?,?,?,?,?)`,
+            [
+              input,
+              newconductDBid.current,
+              isConducting,
+              newConductDate.toLocaleDateString(),
+              company,
+              ipptUUID,
+            ],
+            (txObj, resultSet) => {
+              if (resultSet.rowsAffected > 0) {
+                console.log(
+                  `${input} successfully inserted into conducts table`,
                 );
-              });
+                // insert into Attendance table
+                console.log('Insert id: ', resultSet.insertId);
+                var curConductid = resultSet.insertId;
+                console.log('Current conduct id: ', curConductid);
+                console.log(
+                  'ConductDBid of newly created conduct: ',
+                  newconductDBid.current,
+                );
+                db.transaction(tx => {
+                  tx.executeSql(
+                    `SELECT userid FROM USERS where userid > 0`,
+                    [],
+                    (txObj, res) => {
+                      var curUsers = res.rows;
+                      for (let i = 0; i < curUsers.length; i++) {
+                        let curUserid = curUsers.item(i).userid;
+                        insertAttendance(curUserid, curConductid);
+                      }
+                    },
+                    error => {
+                      console.log(error);
+                    },
+                  );
+                });
 
-              setInput('');
-              setmodalVisible(false);
-              getAllConducts();
-              setConducting(false);
-              setCompany('');
-            }
-          },
-        );
-      },
-      error => {
-        console.log(error);
-      },
-    );
+                setInput('');
+                setmodalVisible(false);
+                getAllConducts();
+                setConducting(false);
+                setCompany('');
+                setIpptUUID('');
+              }
+            },
+          );
+        },
+        error => {
+          console.log(error);
+        },
+      );
+    }
   };
 
   const handleConductDetails = conductObj => {
