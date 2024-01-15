@@ -23,6 +23,8 @@ import {
   SupaUserStatus,
   SupaConductStatus,
   SupaStatus,
+  SupaIpptResult,
+  SupaUser,
 } from '../../supabase/database';
 import NoGoFlatList from '../components/NoGoFlatList';
 import useInternetCheck from '../hooks/useInternetCheck';
@@ -461,6 +463,28 @@ const ConductDetails = props => {
     console.log(qrData.current);
   };
 
+  const handleSync = async () => {
+    console.log('Accounted for array: ', accFor);
+    if ((accFor.length !== 0) & (conductdbuuid !== null)) {
+      accFor.forEach(async userObj => {
+        let {data, error} = await SupaUser.findUser(userObj.userNRIC);
+        if (error) {
+          throw error;
+        }
+        if (data.length !== 0) {
+          let {data2, error2} = await SupaIpptResult.updateAttendance(
+            conductdbuuid,
+            data[0].userid,
+            true,
+          );
+          if (error2) {
+            throw error2;
+          }
+        }
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -526,7 +550,11 @@ const ConductDetails = props => {
             }}>
             <MaterialCommunityIcons name="restart" size={16} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => {}}>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={() => {
+              handleSync();
+            }}>
             <MaterialCommunityIcons name="cloud-sync" size={16} color="black" />
           </TouchableOpacity>
           <TouchableOpacity

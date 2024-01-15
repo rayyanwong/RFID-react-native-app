@@ -5,17 +5,24 @@ import {
   Text,
   SafeAreaView,
   TouchableOpacity,
+  PermissionsAndroid,
 } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Clipboard from '@react-native-clipboard/clipboard';
+import {openDatabase} from 'react-native-sqlite-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import XLSX from 'xlsx';
+import {writeFile, readFile, DownloadDirectoryPath} from 'react-native-fs';
+import Toast from 'react-native-simple-toast';
+
 import useInternetCheck from '../hooks/useInternetCheck';
 import OfflineErrorView from '../error/OfflineErrorView';
 import customStyle from '../../styles';
 import DetailFlatList from '../components/DetailFlatList';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {SupaIpptConduct} from '../../supabase/database';
 import {SupaIpptResult} from '../../supabase/database';
-import Clipboard from '@react-native-clipboard/clipboard';
-import {openDatabase} from 'react-native-sqlite-storage';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {FormatDate} from '../utils/FormatDate';
 
 const ConductingView = props => {
   const conductid = props.route.params.data.conductid;
@@ -29,6 +36,7 @@ const ConductingView = props => {
   const company = props.route.params.data.company;
   const conductdbuuid = props.route.params.data.conductdbuuid;
   const [details, setDetails] = useState([]); // array of objects
+  var RNFS = require('react-native-fs');
 
   const db = openDatabase({
     name: 'appDatabase',
@@ -225,6 +233,102 @@ const ConductingView = props => {
     });
   };
 
+  function groupBy(xs, f) {
+    return xs.reduce(
+      (r, v, i, a, k = f(v)) => ((r[k] || (r[k] = [])).push(v), r),
+      {},
+    );
+  }
+
+  const exportDownload = async () => {
+    const {data, error} = await SupaIpptResult.getJoinDetail(conductdbuuid);
+    if (error) {
+      throw error;
+    } else if (data) {
+      var collatedList = [];
+      data.forEach(record => {
+        const UserObj = record.User;
+        const temp = {...UserObj};
+        for (const [key, val] of Object.entries(record)) {
+          if (key !== 'User') {
+            temp[key] = val;
+          }
+        }
+        collatedList.push(temp);
+      });
+      // console.log(collatedList);
+    }
+    const aoa = [['NRIC', 'Name', 'Company', 'Pushup', 'Situp', 'Chip Number']]; // array of arrays for each record required to be written into the excel
+    collatedList.forEach(userObj => {
+      const temp = [];
+      temp.push(userObj.userNRIC);
+      temp.push(userObj.userName);
+      temp.push(userObj.Company);
+      temp.push(userObj.pushup);
+      temp.push(userObj.situp);
+      temp.push(userObj.chipNo);
+      aoa.push(temp);
+    });
+    let wb = XLSX.utils.book_new();
+    let ws = XLSX.utils.aoa_to_sheet(aoa);
+    XLSX.utils.book_append_sheet(wb, ws, 'Ippt Results');
+    const wbout = XLSX.write(wb, {type: 'binary', bookType: 'xlsx'});
+    writeFile(
+      DownloadDirectoryPath +
+        `/${conductname.replace(' ', '_')}${FormatDate(
+          new Date().toLocaleDateString(),
+        )}.xlsx`,
+      wbout,
+      'ascii',
+    )
+      .then(r => {
+        console.log('Successfully downloaded results onto device!');
+        Toast.showWithGravity(
+          'Successfully downloaded file onto device!',
+          Toast.LONG,
+          Toast.CENTER,
+        );
+      })
+      .catch(e => {
+        console.log('Error occured while trying to save file!', e);
+        Toast.showWithGravity(
+          'An error occured while downloading the file. Please try again!',
+          Toast.LONG,
+          Toast.CENTER,
+        );
+      });
+  };
+
+  async function handleGenerate() {
+    try {
+      let isPermittedExternalStorage = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      );
+      if (!isPermittedExternalStorage) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage permissions are required to download file.',
+            buttonPositive: 'Allow',
+            buttonNegative: 'Deny',
+            buttonNeutral: 'Ask again later',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          await exportDownload();
+          console.log('Permission granted to download file.');
+        } else {
+          console.log('Permission Denied');
+        }
+      } else {
+        await exportDownload();
+      }
+    } catch (e) {
+      console.log('Error while trying to get permission to download file: ', e);
+      return;
+    }
+  }
+
   {
     if (isOffline) {
       return <OfflineErrorView />;
@@ -289,7 +393,23 @@ const ConductingView = props => {
               style={styles.btnStyle}>
               <Text style={styles.btnTextStyle}>Push details</Text>
             </TouchableOpacity>
+            {/* <TouchableOpacity onPress={() => {}} style={styles.btnStyle}>
+              <Text style={styles.btnTextStyle}>Generate report</Text>
+            </TouchableOpacity> */}
           </View>
+
+          <TouchableOpacity
+            style={styles.downloadBtn}
+            onPress={async () => {
+              await handleGenerate();
+            }}
+            disabled={conductdbuuid === '' ? true : false}>
+            <MaterialCommunityIcons
+              name="cloud-download-outline"
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
         </SafeAreaView>
       );
     }
@@ -300,7 +420,7 @@ const styles = StyleSheet.create({
   pageContainer: {backgroundColor: customStyle.background, flex: 1},
   btnContainer: {flexDirection: 'column', marginTop: 20},
   btnStyle: {
-    width: '90%',
+    width: '80%',
     height: 50,
     backgroundColor: 'black',
     borderRadius: 8,
@@ -337,6 +457,26 @@ const styles = StyleSheet.create({
     marginTop: 16,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  downloadBtn: {
+    alignItems: 'center',
+    width: 40,
+    height: 40,
+    backgroundColor: '#e9ecef',
+    justifyContent: 'center',
+    borderRadius: 6,
+    elevation: 5,
+    zIndex: 10,
+    margin: 5,
+    shadowColor: '#000',
+    shadowOpacity: 1,
+    shadowOffset: {
+      width: 1,
+      height: 3,
+    },
+    position: 'absolute',
+    right: 20,
+    top: 10,
   },
 });
 
