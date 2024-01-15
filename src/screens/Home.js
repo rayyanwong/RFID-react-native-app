@@ -47,6 +47,7 @@ const Home = ({navigation}) => {
   const companies = ['ALPHA', 'BRAVO', 'CHARLIE', 'SUPPORT', 'CA', 'HQ'];
   const [company, setCompany] = useState('');
   const [ipptUUID, setIpptUUID] = useState('');
+  const [dNewConductDbId, setDNewConductDbId] = useState(null);
 
   const isFocused = useIsFocused();
 
@@ -109,6 +110,9 @@ const Home = ({navigation}) => {
   };
 
   const createConductTable = () => {
+    // if conduct created is not conducting and it is ippt
+    // straight away navigate to the stationMaster view ->  Do not need to create a seperate conduct card for station Master
+
     db.transaction(tx => {
       tx.executeSql(
         `CREATE TABLE IF NOT EXISTS Conducts (conductid INTEGER PRIMARY KEY AUTOINCREMENT, conductName TEXT, conductDBid integer, conducting boolean, conductdate text,company TEXT, conductdbuuid TEXT)`,
@@ -187,7 +191,7 @@ const Home = ({navigation}) => {
         [],
         (txObj, resultSet) => {
           if (resultSet.rows.length == 0) {
-            Alert.alert('Conducts table is empty');
+            console.log('Conducts table empty');
           } else {
             var curConducts = resultSet.rows;
             var tempConducts = [];
@@ -407,6 +411,7 @@ const Home = ({navigation}) => {
                 setNewConductDate(new Date());
                 newconductDBid.current = null;
                 setIpptUUID('');
+                setDNewConductDbId(null);
               }}>
               <Ionicons
                 name="arrow-back-circle-outline"
@@ -416,38 +421,14 @@ const Home = ({navigation}) => {
             </TouchableOpacity>
             <Text style={styles.modalText}>Create new conduct</Text>
           </View>
-          <TextInput
-            multiline={true}
-            placeholderTextColor="black"
-            placeholder="Name of new conduct"
-            style={styles.inputField}
-            value={input}
-            onChangeText={text => setInput(text)}
-            textAlignVertical="center"
-            maxLength={50}
-            onKeyPress={e => {
-              if (e.nativeEvent.key == 'Enter') {
-                Keyboard.dismiss();
-              }
-            }}
-          />
-          <View style={styles.checkBoxContainer}>
-            <CheckBox
-              value={isConducting}
-              onValueChange={newValue => {
-                setConducting(newValue);
-                console.log(newValue);
-              }}
-              style={styles.checkBoxStyle}
-            />
-            <Text style={styles.checkBoxLabel}>Create as conducting</Text>
-          </View>
+
           <SelectDropdown
             data={conductsCreationArr}
             onSelect={(selectedItem, index) => {
               //console.log(selectedItem, index);
               newconductDBid.current = selectedItem.conductid;
               console.log('Current conductdbid is: ', newconductDBid.current);
+              setDNewConductDbId(selectedItem.conductid);
             }}
             defaultButtonText={'Select Conduct Type'}
             buttonTextAfterSelection={(selectedItem, index) => {
@@ -480,64 +461,20 @@ const Home = ({navigation}) => {
               return <FontAwesome name="search" color="#FFF" size={18} />;
             }}
           />
-          <SelectDropdown
-            data={companies}
-            onSelect={(selectedItem, index) => {
-              //console.log(selectedItem, index);
-              setCompany(selectedItem);
-            }}
-            defaultButtonText={'Select Company'}
-            buttonTextAfterSelection={(selectedItem, index) => {
-              return selectedItem;
-            }}
-            rowTextForSelection={(item, index) => {
-              return item;
-            }}
-            buttonStyle={styles.dropdownBtnStyle}
-            buttonTextStyle={styles.dropdownBtnTextStyle}
-            renderDropdownIcon={isOpened => {
-              return (
-                <FontAwesome
-                  name={isOpened ? 'chevron-up' : 'chevron-down'}
-                  color={'#FFF'}
-                  size={18}
-                />
-              );
-            }}
-            dropdownIconPosition="right"
-            dropdownStyle={styles.dropdownDropdownStyle}
-            rowStyle={styles.dropdownRowStyle}
-            rowTextStyle={styles.dropdownRowTextStyle}
-            selectedRowStyle={styles.dropdownSelectedRowStyle}
-            search
-            searchInputStyle={styles.dropdownSearhInputStyle}
-            searchPlaceHolder="Search company"
-            searchPlaceHolderColor="#F8F8F8"
-            renderSearchInputLeftIcon={() => {
-              return <FontAwesome name="search" color="#FFF" size={18} />;
-            }}
-          />
-          <TouchableOpacity
-            style={styles.dropdownBtnStyle}
-            onPress={() => setdatePickerVisible(true)}>
-            <Text style={styles.dropdownBtnTextStyle}>Select Conduct date</Text>
-          </TouchableOpacity>
-          <DatePicker
-            theme="dark"
-            modal
-            mode="date"
-            open={datePickerVisible}
-            date={newConductDate}
-            onConfirm={date => {
-              setdatePickerVisible(false);
-              setNewConductDate(date);
-              console.log(date.toLocaleDateString());
-            }}
-            onCancel={() => {
-              setdatePickerVisible(false);
-            }}
-          />
-          {newconductDBid.current === 15 && isConducting === false && (
+          <View style={styles.checkBoxContainer}>
+            <CheckBox
+              value={isConducting}
+              onValueChange={newValue => {
+                setConducting(newValue);
+                console.log(newValue);
+              }}
+              style={styles.checkBoxStyle}
+            />
+            <Text style={styles.checkBoxLabel}>Create as conducting</Text>
+          </View>
+          {dNewConductDbId === 15 &&
+          isConducting === false &&
+          dNewConductDbId !== null ? (
             <View>
               <TextInput
                 multiline={false}
@@ -550,7 +487,85 @@ const Home = ({navigation}) => {
                 maxLength={100}
               />
             </View>
+          ) : (
+            <>
+              <TextInput
+                multiline={true}
+                placeholderTextColor="black"
+                placeholder="Name of new conduct"
+                style={styles.inputField}
+                value={input}
+                onChangeText={text => setInput(text)}
+                textAlignVertical="center"
+                maxLength={50}
+                onKeyPress={e => {
+                  if (e.nativeEvent.key == 'Enter') {
+                    Keyboard.dismiss();
+                  }
+                }}
+              />
+              <SelectDropdown
+                data={companies}
+                onSelect={(selectedItem, index) => {
+                  //console.log(selectedItem, index);
+                  setCompany(selectedItem);
+                }}
+                defaultButtonText={'Select Company'}
+                buttonTextAfterSelection={(selectedItem, index) => {
+                  return selectedItem;
+                }}
+                rowTextForSelection={(item, index) => {
+                  return item;
+                }}
+                buttonStyle={styles.dropdownBtnStyle}
+                buttonTextStyle={styles.dropdownBtnTextStyle}
+                renderDropdownIcon={isOpened => {
+                  return (
+                    <FontAwesome
+                      name={isOpened ? 'chevron-up' : 'chevron-down'}
+                      color={'#FFF'}
+                      size={18}
+                    />
+                  );
+                }}
+                dropdownIconPosition="right"
+                dropdownStyle={styles.dropdownDropdownStyle}
+                rowStyle={styles.dropdownRowStyle}
+                rowTextStyle={styles.dropdownRowTextStyle}
+                selectedRowStyle={styles.dropdownSelectedRowStyle}
+                search
+                searchInputStyle={styles.dropdownSearhInputStyle}
+                searchPlaceHolder="Search company"
+                searchPlaceHolderColor="#F8F8F8"
+                renderSearchInputLeftIcon={() => {
+                  return <FontAwesome name="search" color="#FFF" size={18} />;
+                }}
+              />
+              <TouchableOpacity
+                style={styles.dropdownBtnStyle}
+                onPress={() => setdatePickerVisible(true)}>
+                <Text style={styles.dropdownBtnTextStyle}>
+                  Select Conduct date
+                </Text>
+              </TouchableOpacity>
+              <DatePicker
+                theme="dark"
+                modal
+                mode="date"
+                open={datePickerVisible}
+                date={newConductDate}
+                onConfirm={date => {
+                  setdatePickerVisible(false);
+                  setNewConductDate(date);
+                  console.log(date.toLocaleDateString());
+                }}
+                onCancel={() => {
+                  setdatePickerVisible(false);
+                }}
+              />
+            </>
           )}
+
           <TouchableOpacity
             style={styles.newConductBtn}
             onPress={handleAddConduct}>
@@ -638,7 +653,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     width: '80%',
     alignSelf: 'center',
-    marginTop: 16,
+    marginVertical: 16,
     backgroundColor: '#fff',
     padding: 9,
     height: 55,
@@ -661,7 +676,7 @@ const styles = StyleSheet.create({
     height: 50,
     backgroundColor: '#444',
     borderRadius: 8,
-    marginVertical: 10,
+    // marginVertical: 10,
     marginTop: 24,
     alignSelf: 'center',
     justifyContent: 'center',
@@ -697,7 +712,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 30,
+    marginVertical: 30,
   },
   checkBoxStyle: {
     alignSelf: 'center',
