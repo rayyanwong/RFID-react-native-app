@@ -263,7 +263,17 @@ const ConductingView = props => {
       });
       // console.log(collatedList);
     }
-    const aoa = [['NRIC', 'Name', 'Company', 'Pushup', 'Situp', 'Chip Number']]; // array of arrays for each record required to be written into the excel
+    const aoa = [
+      [
+        'NRIC',
+        'Name',
+        'Company',
+        'Attendance',
+        'Pushup',
+        'Situp',
+        'Chip Number',
+      ],
+    ]; // array of arrays for each record required to be written into the excel
     collatedList.forEach(userObj => {
       const temp = [];
       temp.push(userObj.userNRIC);
