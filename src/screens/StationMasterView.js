@@ -128,6 +128,41 @@ const StationMasterView = props => {
     Alert.alert('Successfully updated detail scores into database');
   };
 
+  const handleCheckMissing = async (tDetail, station) => {
+    let field = '';
+    if (station === 1) {
+      field = 'pushup';
+    } else if (station === 2) {
+      field = 'situp';
+    } else {
+      field = 'chipNo';
+    }
+    let missing = false;
+    tDetail.forEach(userObj => {
+      if (userObj[field] === null) {
+        missing = true;
+      }
+    });
+
+    if (missing) {
+      Alert.alert(
+        'Missing values',
+        'There are unrecorded scores. Are you sure you would like to continue?',
+        [
+          {
+            text: 'Yes',
+            onPress: async () => {
+              await handleConfirmResult(tDetail, station);
+            },
+          },
+          {text: 'No', style: 'cancel'},
+        ],
+      );
+    } else {
+      await handleConfirmResult(tDetail, station);
+    }
+  };
+
   const handleRecordResult = (userid, score, field) => {
     // for (const [key,value] of Object.entries(tDetails)){
     //     if (key===)
@@ -278,7 +313,7 @@ const StationMasterView = props => {
             {backgroundColor: madeChanges ? '#65a765' : 'black'},
           ]}
           onPress={async () => {
-            await handleConfirmResult(tDetail, station);
+            await handleCheckMissing(tDetail, station);
           }}>
           <Text
             style={{

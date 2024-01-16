@@ -397,6 +397,7 @@ const ConductingView = props => {
             <TouchableOpacity
               onPress={async () => {
                 await handleSync();
+                Alert.alert('Successfully pushed details into backend');
               }}
               style={styles.btnStyle}>
               <Text style={styles.btnTextStyle}>Push details</Text>
