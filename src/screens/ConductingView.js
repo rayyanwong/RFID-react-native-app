@@ -269,6 +269,7 @@ const ConductingView = props => {
       temp.push(userObj.userNRIC);
       temp.push(userObj.userName);
       temp.push(userObj.Company);
+      temp.push(userObj.attendance);
       temp.push(userObj.pushup);
       temp.push(userObj.situp);
       temp.push(userObj.chipNo);
