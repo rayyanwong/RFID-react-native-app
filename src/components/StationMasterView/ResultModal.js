@@ -15,11 +15,13 @@ const ResultModal = ({
   visible,
   setVisible,
   handleRecord,
+  handleAbsent,
   userObj,
 }) => {
   const [value, setValue] = useState();
-
   const [field, setField] = useState();
+  const [phText, setPhText] = useState('');
+  const [attendanceText, setAttendanceText] = useState('Record as absent');
 
   const onChangeText = text => {
     setValue(text);
@@ -28,15 +30,31 @@ const ResultModal = ({
   const handleSetField = stationType => {
     if (stationType === 1) {
       setField('pushup');
+      setPhText(userObj.pushup);
     } else if (stationType === 2) {
       setField('situp');
+      setPhText(userObj.situp);
     } else if (stationType === 3) {
       setField('chipNo');
+      setPhText(userObj.chipNo);
+    }
+  };
+
+  const handleAttendanceText = userObj => {
+    if (userObj.attendance === true) {
+      setAttendanceText('Record as absent');
+    } else if (userObj.attendance === false) {
+      setAttendanceText('Record as present');
     }
   };
 
   useEffect(() => {
     handleSetField(stationType);
+    try {
+      handleAttendanceText(userObj);
+    } catch (e) {
+      console.log(e);
+    }
   }, [visible]);
 
   return (
@@ -67,7 +85,7 @@ const ResultModal = ({
         </View>
         <TextInput
           onChangeText={text => onChangeText(text)}
-          placeholder="Enter result"
+          placeholder={phText || 'Enter result'}
           placeholderTextColor="black"
           style={styles.textInput}
           value={value}
@@ -99,6 +117,23 @@ const ResultModal = ({
               Record score
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={() => {
+              handleAbsent(userObj.userid);
+              setField();
+              setValue();
+              setVisible(false);
+            }}>
+            <Text
+              style={{
+                color: 'white',
+                fontFamily: 'OpenSans-Bold',
+                fontSize: 14,
+              }}>
+              {attendanceText}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -121,7 +156,7 @@ const styles = StyleSheet.create({
   btnContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 6,
+    marginTop: 18,
   },
   btn: {
     width: '80%',
@@ -130,7 +165,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 40,
     justifyContent: 'center',
-    marginTop: 24,
+    marginTop: 10,
   },
   icon: {
     position: 'absolute',

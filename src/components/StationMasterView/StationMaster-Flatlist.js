@@ -4,7 +4,13 @@ import SMFlatlistCard from './SMFlatlistcard';
 
 const height = Dimensions.get('window').height;
 
-const StationMasterFlatlist = ({data, handleEdit, handleUserToEdit}) => {
+const StationMasterFlatlist = ({
+  data,
+  handleEdit,
+  handleUserToEdit,
+  station,
+  disabled,
+}) => {
   return (
     <View>
       <FlatList
@@ -19,6 +25,8 @@ const StationMasterFlatlist = ({data, handleEdit, handleUserToEdit}) => {
             handleEdit={handleEdit}
             handleUserToEdit={handleUserToEdit}
             field="userName"
+            station={station}
+            disabled={disabled}
           />
         )}
       />

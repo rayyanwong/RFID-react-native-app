@@ -21,6 +21,7 @@ const StationMasterView = props => {
   const isFocused = useIsFocused();
 
   const [station, setStation] = useState(null);
+  const [stationName, setStationName] = useState(null);
   const [flatlistData, setFlatlistData] = useState([]);
   const [details, setDetails] = useState({});
   const [detailNames, setDetailNames] = useState();
@@ -28,6 +29,7 @@ const StationMasterView = props => {
   const [userToEdit, setUserToEdit] = useState();
   const [tDetail, setTDetail] = useState();
   const [madeChanges, setMadeChanges] = useState(false);
+  const [disabled, setDisabled] = useState(true);
 
   function groupBy(xs, f) {
     return xs.reduce(
@@ -43,11 +45,15 @@ const StationMasterView = props => {
   const handleSelectStation = station => {
     if (station === 'Pushup') {
       setStation(1);
+      setStationName('pushup');
     } else if (station === 'Situp') {
       setStation(2);
+      setStationName('situp');
     } else if (station === '2.4 KM') {
       setStation(3);
+      setStationName('chipNo');
     }
+    setDisabled(false);
   };
 
   const handleSelectDetail = detailName => {
@@ -72,7 +78,7 @@ const StationMasterView = props => {
         const {data, error} = await SupaIpptResult.updatePushup(
           conductdbuuid,
           userObj.userid,
-          parseInt(userObj.pushup),
+          userObj.pushup,
         );
         if (error) {
           Alert.alert(
@@ -90,7 +96,7 @@ const StationMasterView = props => {
         const {data, error} = await SupaIpptResult.updateSitup(
           conductdbuuid,
           userObj.userid,
-          parseInt(userObj.situp),
+          userObj.situp,
         );
         if (error) {
           Alert.alert(`Error while updating ${userObj.userName}'s situp score`);
@@ -117,6 +123,7 @@ const StationMasterView = props => {
         }
       });
     }
+    await handleBackendAbsent(tDetail);
     setMadeChanges(false);
     Alert.alert('Successfully updated detail scores into database');
   };
@@ -137,6 +144,47 @@ const StationMasterView = props => {
     setTDetail(temp);
     console.log('Updated: ', temp);
     setMadeChanges(true);
+  };
+
+  const handleAbsent = userid => {
+    const temp = tDetail;
+    temp.forEach(userObj => {
+      if (userObj.userid === userid) {
+        userObj.attendance = !userObj.attendance;
+      }
+    });
+    setTDetail(temp);
+    setMadeChanges(true);
+  };
+
+  const handleBackendAbsent = async tDetail => {
+    tDetail.forEach(async userObj => {
+      if (userObj.attendance === false) {
+        let {data, error} = await SupaIpptResult.updateAttendance(
+          conductdbuuid,
+          userObj.userid,
+          false,
+        );
+        if (error) {
+          Alert.alert(
+            `Error occured while updating ${userObj.userName}'s attendance into the backend`,
+          );
+          console.warn(error);
+        }
+      } else if (userObj.attendance === true) {
+        let {data, error} = await SupaIpptResult.updateAttendance(
+          conductdbuuid,
+          userObj.userid,
+          true,
+        );
+        if (error) {
+          Alert.alert(
+            `Error occured while updating ${userObj.userName}'s attendance into the backend`,
+          );
+          console.warn(error);
+        }
+      }
+    });
   };
 
   useEffect(() => {
@@ -163,6 +211,7 @@ const StationMasterView = props => {
       }
     };
     getDetails();
+    console.log('useEffect pass');
   }, [isFocused]);
 
   //   After getting result from backend, need to filter it for result in:
@@ -216,6 +265,8 @@ const StationMasterView = props => {
           data={flatlistData}
           handleEdit={handleModalVisible}
           handleUserToEdit={handleUserToEdit}
+          station={stationName}
+          disabled={disabled}
         />
       </View>
       <View style={styles.btnContainer}>
@@ -224,7 +275,7 @@ const StationMasterView = props => {
           disabled={madeChanges ? false : true}
           style={[
             styles.btn,
-            {backgroundColor: madeChanges ? '#C1F2B0' : 'black'},
+            {backgroundColor: madeChanges ? '#65a765' : 'black'},
           ]}
           onPress={async () => {
             await handleConfirmResult(tDetail, station);
@@ -245,6 +296,7 @@ const StationMasterView = props => {
         stationType={station}
         handleRecord={handleRecordResult}
         userObj={userToEdit}
+        handleAbsent={handleAbsent}
       />
     </SafeAreaView>
   );

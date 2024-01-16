@@ -214,6 +214,7 @@ class IpptResultTable {
           conductUUID: conductUUID,
           userid: userid,
           detail: detail,
+          attendance: true,
         },
       ])
       .select();
