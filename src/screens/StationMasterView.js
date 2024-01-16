@@ -139,7 +139,7 @@ const StationMasterView = props => {
     }
     let missing = false;
     tDetail.forEach(userObj => {
-      if (userObj[field] === null) {
+      if (userObj[field] === null && userObj.attendance === true) {
         missing = true;
       }
     });
