@@ -35,7 +35,10 @@ const ConductingView = props => {
   const isOffline = useInternetCheck();
   const conductdate = props.route.params.data.conductdate;
   const company = props.route.params.data.company;
-  const conductdbuuid = props.route.params.data.conductdbuuid;
+  const [conductdbuuid, setConductDBuuid] = useState(
+    props.route.params.data.conductdbuuid,
+  );
+  // const [tConductDBuuid, setTConductDBuuid] = useState(conductdbuuid);
   const [details, setDetails] = useState([]); // array of objects
   var RNFS = require('react-native-fs');
 
@@ -69,7 +72,7 @@ const ConductingView = props => {
     if (conductdbuuid !== '') {
       getInitDetails();
     }
-  }, []);
+  }, [conductdbuuid]);
 
   const handleDelete = async detailName => {
     const updatedDetails = details.filter(
@@ -178,7 +181,7 @@ const ConductingView = props => {
             (txObj, resultSet) => {
               if (resultSet.rowsAffected > 0) {
                 console.log('Successfully updated conductdbuuid');
-                conductdbuuid = t_conductUUID;
+                setConductDBuuid(t2_conductUUID);
               }
             },
             error => {
