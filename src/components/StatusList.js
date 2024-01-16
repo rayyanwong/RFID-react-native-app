@@ -1,7 +1,8 @@
 import React, {useEffect, useRef, useMemo, useState} from 'react';
-import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {View, StyleSheet, Text, TouchableOpacity, Alert} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {SupaStatus} from '../../supabase/database';
+
 const StatusList = ({data, handleEditStatus, handleRemoveStatus}) => {
   const statusIdx = data.statusId;
   // const statusName = useRef('');
@@ -28,7 +29,22 @@ const StatusList = ({data, handleEditStatus, handleRemoveStatus}) => {
         <TouchableOpacity onPress={() => handleEditStatus(data, statusName)}>
           <MaterialIcons name="edit-note" size={30} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleRemoveStatus(statusUUID)}>
+        <TouchableOpacity
+          onPress={async () => {
+            Alert.alert(
+              'Delete status',
+              'Are you sure you would like to delete this status?',
+              [
+                {
+                  text: 'Yes',
+                  onPress: async () => {
+                    await handleRemoveStatus(statusUUID);
+                  },
+                },
+                {text: 'No', style: 'cancel'},
+              ],
+            );
+          }}>
           <MaterialIcons name="delete-sweep" size={30} color="red" />
         </TouchableOpacity>
       </View>
