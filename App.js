@@ -16,6 +16,7 @@ import ConductingQrScanner from './src/screens/ConductingQrScanner';
 import NewDetail from './src/screens/NewDetail';
 import EditDetail from './src/screens/EditDetail';
 import StationMasterView from './src/screens/StationMasterView';
+import ConductingAttendanceView from './src/screens/ConductingAttendanceView';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -60,6 +61,11 @@ const HomeStack = () => {
         <Stack.Screen
           component={StationMasterView}
           name="StationMasterView"
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          component={ConductingAttendanceView}
+          name="ConductingAttendanceView"
           options={{headerShown: false}}
         />
       </Stack.Navigator>
