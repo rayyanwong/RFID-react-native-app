@@ -412,7 +412,7 @@ const ConductingView = props => {
           </View>
 
           <TouchableOpacity
-            style={styles.downloadBtn}
+            style={[styles.headerBtn, {right: 20, top: 10}]}
             onPress={async () => {
               await handleGenerate();
             }}
@@ -422,6 +422,19 @@ const ConductingView = props => {
               size={24}
               color="black"
             />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.headerBtn, {right: 70, top: 10}]}
+            onPress={() => {
+              navigation.navigate('ConductingAttendanceView', {
+                details: details,
+                conductdbuuid: conductdbuuid,
+              });
+            }}
+            disabled={
+              conductdbuuid === '' ? true : false && details.length === 0
+            }>
+            <MaterialIcons name="people-outline" size={24} color="black" />
           </TouchableOpacity>
         </SafeAreaView>
       );
@@ -471,7 +484,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  downloadBtn: {
+  headerBtn: {
     alignItems: 'center',
     width: 40,
     height: 40,
@@ -488,8 +501,6 @@ const styles = StyleSheet.create({
       height: 3,
     },
     position: 'absolute',
-    right: 20,
-    top: 10,
   },
 });
 

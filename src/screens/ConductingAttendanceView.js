@@ -1,10 +1,365 @@
-import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, {useEffect, useState, useCallback} from 'react';
+import {
+  View,
+  StyleSheet,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  Alert,
+} from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {useIsFocused} from '@react-navigation/native';
+import AttendanceFlatlist from '../components/ConductingAttendanceView/AttendanceFlatlist';
+import Dropdown from '../components/StationMasterView/Dropdown';
+import {
+  SupaConductStatus,
+  SupaIpptResult,
+  SupaUserStatus,
+} from '../../supabase/database';
 
-const ConductingAttendanceView = () => {
-  return <View></View>;
+const ConductingAttendanceView = props => {
+  const {navigation} = props;
+  const isFocused = useIsFocused();
+  const conductdbuuid = props.route.params.conductdbuuid;
+  const [details, setDetails] = useState([]);
+  const [nominalRoll, setNominalRoll] = useState([]); // Arr of objects
+  const [tnominalRoll, setTNominalRoll] = useState([]);
+  const [flatlistData, setFlatlistData] = useState([]);
+  const [detailNames, setDetailNames] = useState(['All']);
+  const [markAllText, setMarkAllText] = useState('Account all');
+  const [noGoId, setNoGoId] = useState([]);
+  const [madeChanges, setMadeChanges] = useState(false);
+
+  function groupBy(xs, f) {
+    return xs.reduce(
+      (r, v, i, a, k = f(v)) => ((r[k] || (r[k] = [])).push(v), r),
+      {},
+    );
+  }
+
+  //   useEffect(() => {
+  //     const getNoGoArr = async () => {
+  //       const {data, error} = await SupaConductStatus.getNoGoIdForConduct(15);
+  //       const noGoArr = [];
+  //       data.forEach(x => {
+  //         noGoArr.push(x.statusid);
+  //       });
+  //       setNoGoId(noGoArr);
+  //     };
+
+  //     const setNoGoUsers = async () => {
+  //       let temp = [...nominalRoll];
+
+  //       temp.forEach(async userObj => {
+  //         // console.log(userObj);
+  //         const {data, error} = await SupaUserStatus.getAllStatusId(
+  //           userObj.userid,
+  //         );
+
+  //         const userStatus = [];
+  //         data.forEach(x => {
+  //           userStatus.push(x.statusId);
+  //         });
+  //         var intersections = userStatus.filter(e => noGoId.indexOf(e) !== -1);
+  //         console.log(intersections);
+  //         if (intersections.length !== 0) {
+  //           // console.log('Intersection: ', userObj);
+  //           userObj.noGo = true;
+  //         }
+  //         setNominalRoll(temp);
+  //         setTNominalRoll(temp);
+  //       });
+  //     };
+  //     getNoGoArr();
+  //     setNoGoUsers();
+  //   }, []);
+
+  const handleClick = userObj_prop => {
+    // console.log(userObj_prop);
+    // TODO: CHECK IF HE IS GO OR NO GO
+    let temp = [...tnominalRoll];
+    temp.forEach(userObj => {
+      if ((userObj.userid === userObj_prop.userid) & (userObj.noGo === null)) {
+        userObj.attendance = !userObj.attendance;
+      } else if (
+        (userObj.noGo === true) &
+        (userObj.userid === userObj_prop.userid)
+      ) {
+        console.log('No GO: ', userObj.userName);
+      }
+    });
+
+    setTNominalRoll(temp);
+    setFlatlistData(temp);
+    setMadeChanges(true);
+    console.log('Temp: ', temp);
+    //TODO: Handle flatlist data
+  };
+
+  const handleGo = userObj_prop => {
+    let temp = [...tnominalRoll];
+    temp.forEach(userObj => {
+      if ((userObj.userid === userObj_prop.userid) & (userObj.noGo === null)) {
+        userObj.noGo = true;
+      } else if (
+        (userObj.userid === userObj_prop.userid) &
+        (userObj.noGo === true)
+      ) {
+        userObj.noGo = null;
+      }
+    });
+    setMadeChanges(true);
+    setTNominalRoll(temp);
+    setFlatlistData(temp);
+    // TODO: Handle flatlist data
+  };
+
+  const handleCheckAll = () => {
+    let temp = [...tnominalRoll];
+    if (markAllText === 'Account all') {
+      // account all
+      temp.forEach(userObj => {
+        userObj.attendance = true;
+      });
+    } else if (markAllText === 'Unaccount all') {
+      //unaccount all
+      console.log('unaccounting');
+      temp.forEach(userObj => {
+        userObj.attendance = false;
+      });
+    }
+    setTNominalRoll(temp);
+    setFlatlistData(temp);
+    setMadeChanges(true);
+    // TODO: handle flatlist data;
+  };
+
+  const handleConfirm = async () => {
+    // go through each userObj
+    // update their attendance field to bool
+    // update their noGo
+    // set main nominal roll to tNominalRoll
+    tnominalRoll.forEach(async userObj => {
+      const {data, error} = await SupaIpptResult.updateAttendance(
+        conductdbuuid,
+        userObj.userid,
+        userObj.attendance,
+      );
+      if (error) {
+        console.log('[HandleConfirm] while handling updateAttendance: ', error);
+      }
+      const {data2, error2} = await SupaIpptResult.updateNoGo(
+        conductdbuuid,
+        userObj.userid,
+        userObj.noGo,
+      );
+      if (error2) {
+        console.log('[HandleConfirm] while handling updateNoGo: ', error2);
+      }
+    });
+    setNominalRoll(tnominalRoll);
+    var grouped = groupBy(tnominalRoll, obj => obj.detail);
+    // console.log(grouped);
+    setDetails(grouped);
+    setMadeChanges(false);
+    Alert.alert('Successfully updated attendance into backend');
+  };
+
+  useEffect(() => {
+    //  todo: retrieve data from backend
+    // group data by groupBy function
+    // set flatlistdata based on select
+
+    const getDetails = async () => {
+      //   console.log(conductdbuuid);
+      const {data, error} = await SupaIpptResult.getJoinDetail(conductdbuuid);
+      if (error) throw error;
+      if (data) {
+        const collatedList = [];
+        data.forEach(record => {
+          const UserObj = record.User;
+          const temp = {...UserObj};
+          for (const [key, val] of Object.entries(record)) {
+            if (key !== 'User') {
+              temp[key] = val;
+            }
+          }
+          collatedList.push(temp);
+        });
+        // console.log('[ConductingAttendanceView] Collated list: ', collatedList);
+        setNominalRoll(collatedList);
+        setTNominalRoll(collatedList);
+        setFlatlistData(collatedList);
+        var grouped = groupBy(collatedList, obj => obj.detail);
+        // console.log(grouped);
+        setDetails(grouped);
+        // console.log('Detail names are: ', detailNamesArr);
+        let tDetailNames = ['All'];
+        const detailNamesArr = Object.keys(grouped);
+        tDetailNames = tDetailNames.concat(detailNamesArr);
+        setDetailNames(tDetailNames);
+      }
+    };
+    // const getNoGoArr = async () => {
+    //   const {data, error} = await SupaConductStatus.getNoGoIdForConduct(15);
+    //   const noGoArr = [];
+    //   data.forEach(x => {
+    //     noGoArr.push(x.statusid);
+    //   });
+    //   setNoGoId(noGoArr);
+    // };
+
+    // const setNoGoUsers = async () => {
+    //   let temp = [...nominalRoll];
+
+    //   temp.forEach(async userObj => {
+    //     // console.log(userObj);
+    //     const {data, error} = await SupaUserStatus.getAllStatusId(
+    //       userObj.userid,
+    //     );
+
+    //     const userStatus = [];
+    //     data.forEach(x => {
+    //       userStatus.push(x.statusId);
+    //     });
+    //     var intersections = userStatus.filter(e => noGoId.indexOf(e) !== -1);
+    //     // console.log(intersections);
+    //     if (intersections.length !== 0) {
+    //       // console.log('Intersection: ', userObj);
+    //       userObj.noGo = true;
+    //     }
+    //     setNominalRoll(temp);
+    //     setTNominalRoll(temp);
+    //   });
+    // };
+
+    getDetails();
+    // getNoGoArr();
+    // setNoGoUsers();
+  }, [isFocused]);
+
+  useEffect(() => {
+    try {
+      // iterate through nominal roll
+      // for each obj if there is ANY that are attendance=true
+      // change mark all text to "Unaccount"
+      //   console.log(nominalRoll);
+      flag = false;
+      nominalRoll.forEach(userObj => {
+        if (userObj.attendance === true) {
+          flag = true;
+          setMarkAllText('Unaccount all');
+        }
+      });
+      if (flag) {
+        setMarkAllText('Unaccount all');
+      } else {
+        setMarkAllText('Account all');
+      }
+    } catch (e) {
+      console.log('Error occured while checking all attendances');
+    }
+  }, [tnominalRoll]);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
+          }}>
+          <MaterialIcons name="arrow-back-ios" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerText}>Conduct Attendance</Text>
+      </View>
+      <TouchableOpacity
+        onPress={() => handleCheckAll()}
+        style={{
+          width: 100,
+          borderWidth: 1,
+          alignItems: 'center',
+          borderRadius: 16,
+          backgroundColor: 'white',
+          marginRight: 10,
+          position: 'absolute',
+          top: 8,
+          right: 20,
+        }}>
+        <Text
+          style={{
+            color: 'black',
+            fontFamily: 'OpenSans-Bold',
+            paddingVertical: 18,
+            fontSize: 12,
+          }}>
+          {markAllText}
+        </Text>
+      </TouchableOpacity>
+      <View style={styles.flatlistContainer}>
+        <Dropdown
+          data={detailNames}
+          defaultText="Select nominal roll"
+          searchPlaceholderText="Search for detail"
+          handleOnSelect={() => {}}
+          width="85%"
+          btnColor="black"
+        />
+        {/* Flatlist component */}
+        <AttendanceFlatlist
+          //   data={flatlistData.sort(function (x, y) {
+          //     return x.attendance === y.attendance ? 0 : x.attendance ? 1 : -1;
+          //   })}
+          data={tnominalRoll}
+          handleClick={handleClick}
+          handleGo={handleGo}
+        />
+      </View>
+      <View style={styles.btnContainer}>
+        {/* Button to confirm changes */}
+        <TouchableOpacity style={styles.btn}>
+          <Text style={styles.btnText}>Scan RFID</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={async () => await handleConfirm()}
+          style={[
+            styles.btn,
+            {backgroundColor: madeChanges === true ? '#65a765' : 'black'},
+          ]}>
+          <Text style={styles.btnText}>Confirm</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
 };
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {flex: 1, flexDirection: 'column', backgroundColor: 'white'},
+  header: {flexDirection: 'row', paddingHorizontal: 14, paddingVertical: 18},
+  headerText: {
+    color: 'black',
+    fontFamily: 'OpenSans-Bold',
+    fontSize: 18,
+  },
+  flatlistContainer: {marginTop: 24},
+  btnContainer: {
+    paddingTop: 24,
+  },
+  btn: {
+    width: '80%',
+    height: 40,
+    backgroundColor: 'black',
+    borderRadius: 8,
+    marginTop: 14,
+    alignSelf: 'center',
+    justifyContent: 'center',
+  },
+  btnText: {
+    color: 'white',
+    fontFamily: 'OpenSans-Bold',
+    fontSize: 14,
+    alignSelf: 'center',
+  },
+});
 
 export default ConductingAttendanceView;

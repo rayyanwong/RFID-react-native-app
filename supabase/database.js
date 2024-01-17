@@ -37,7 +37,7 @@ class UserStatusTable {
   async getAllStatusId(userId) {
     let {data, error} = await supabase
       .from('UserStatus')
-      .select('statusid')
+      .select('statusId')
       .eq('userId', userId)
       .gte('end_date', new Date().toLocaleString());
     return {data, error};
@@ -214,7 +214,7 @@ class IpptResultTable {
           conductUUID: conductUUID,
           userid: userid,
           detail: detail,
-          attendance: true,
+          attendance: false,
         },
       ])
       .select();
@@ -283,6 +283,20 @@ class IpptResultTable {
       .update([
         {
           attendance: bool,
+        },
+      ])
+      .eq('conductUUID', conductUUID)
+      .eq('userid', userid)
+      .select();
+    return {data, error};
+  }
+
+  async updateNoGo(conductUUID, userid, val) {
+    let {data, error} = await supabase
+      .from('IpptResult')
+      .update([
+        {
+          noGo: val,
         },
       ])
       .eq('conductUUID', conductUUID)
