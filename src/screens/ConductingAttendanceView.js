@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
   View,
   StyleSheet,
@@ -10,6 +10,9 @@ import {
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useIsFocused} from '@react-navigation/native';
+import NfcManager, {NfcEvents, NfcTech, Ndef} from 'react-native-nfc-manager';
+
+import AndroidPrompt from '../components/AndroidPrompt';
 import AttendanceFlatlist from '../components/ConductingAttendanceView/AttendanceFlatlist';
 import Dropdown from '../components/StationMasterView/Dropdown';
 import {
@@ -30,6 +33,7 @@ const ConductingAttendanceView = props => {
   const [markAllText, setMarkAllText] = useState('Account all');
   const [noGoId, setNoGoId] = useState([]);
   const [madeChanges, setMadeChanges] = useState(false);
+  const promptRef = useRef();
 
   function groupBy(xs, f) {
     return xs.reduce(
@@ -164,6 +168,49 @@ const ConductingAttendanceView = props => {
     setDetails(grouped);
     setMadeChanges(false);
     Alert.alert('Successfully updated attendance into backend');
+  };
+
+  const handleRFID = async () => {
+    await NfcManager.registerTagEvent();
+    if (Platform.OS === 'android') {
+      promptRef.current.setPromptVisible(true);
+      promptRef.current.setHintText('Please scan your NFC');
+    }
+    NfcManager.setEventListener(NfcEvents.DiscoverTag, tag => {
+      try {
+        var newTag = Ndef.text.decodePayload(tag.ndefMessage[0].payload);
+        const [newName, newNRIC, newHPNo, ipptGo] = newTag.split(',');
+        // find userObj
+        // use handleClick
+        let tmp = {};
+        tnominalRoll.forEach(userObj => {
+          if (userObj.userNRIC === newNRIC) {
+            tmp = userObj;
+          }
+        });
+        if (ipptGo === '1') {
+          handleClick(tmp);
+        } else if (ipptGo === '0') {
+          // check with user if want to still allow him to do or put as no go
+
+          Alert.alert(
+            'Error',
+            'User is unable to participate in IPPT. Would you like him to continue participating in the conduct?',
+            [
+              {text: 'Force go', onPress: () => handleClick(tmp)},
+              {text: 'Mark as no go', onPress: () => handleGo(tmp)},
+            ],
+          );
+        }
+        console.log('handleRFID success');
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        NfcManager.unregisterTagEvent().catch(() => 0);
+        promptRef.current.setHintText('');
+        promptRef.current.setPromptVisible(false);
+      }
+    });
   };
 
   useEffect(() => {
@@ -317,7 +364,9 @@ const ConductingAttendanceView = props => {
       </View>
       <View style={styles.btnContainer}>
         {/* Button to confirm changes */}
-        <TouchableOpacity style={styles.btn}>
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={async () => await handleRFID()}>
           <Text style={styles.btnText}>Scan RFID</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -329,6 +378,7 @@ const ConductingAttendanceView = props => {
           <Text style={styles.btnText}>Confirm</Text>
         </TouchableOpacity>
       </View>
+      <AndroidPrompt ref={promptRef} />
     </SafeAreaView>
   );
 };
@@ -343,7 +393,7 @@ const styles = StyleSheet.create({
   },
   flatlistContainer: {marginTop: 24},
   btnContainer: {
-    paddingTop: 24,
+    paddingTop: 18,
   },
   btn: {
     width: '80%',
