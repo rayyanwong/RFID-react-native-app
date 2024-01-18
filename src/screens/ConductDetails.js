@@ -411,7 +411,7 @@ const ConductDetails = props => {
     NfcManager.setEventListener(NfcEvents.DiscoverTag, tag => {
       try {
         var newTag = Ndef.text.decodePayload(tag.ndefMessage[0].payload);
-        const [newName, newNRIC, newHPNo] = newTag.split(',');
+        const [newName, newNRIC, newHPNo, ipptGo] = newTag.split(',');
         console.log(newName, newNRIC, newHPNo);
         var newNotAccFor = [];
         var newAccFor = [...accFor];

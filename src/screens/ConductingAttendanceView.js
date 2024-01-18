@@ -272,7 +272,18 @@ const ConductingAttendanceView = props => {
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => {
-            navigation.goBack();
+            if (madeChanges) {
+              Alert.alert(
+                'Unsaved changes',
+                'You have made changes and not confirmed it. Are you sure you would like to exit?',
+                [
+                  {text: 'Yes', onPress: () => navigation.goBack()},
+                  {text: 'No', style: 'cancel', onPress: () => {}},
+                ],
+              );
+            } else {
+              navigation.goBack();
+            }
           }}>
           <MaterialIcons name="arrow-back-ios" size={24} color="black" />
         </TouchableOpacity>

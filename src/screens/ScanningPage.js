@@ -95,7 +95,7 @@ const ScanningPage = () => {
     NfcManager.setEventListener(NfcEvents.DiscoverTag, tag => {
       try {
         var newTag = Ndef.text.decodePayload(tag.ndefMessage[0].payload);
-        const [newName, newNRIC, newHPNo] = newTag.split(',');
+        const [newName, newNRIC, newHPNo, ipptGo] = newTag.split(',');
         db.transaction(tx => {
           tx.executeSql(
             `INSERT INTO Users(userNRIC,userName,userHPNo) VALUES (?,?,?)`,
@@ -129,7 +129,7 @@ const ScanningPage = () => {
       return;
     }
 
-    let newDataObj = `${towriteName},${towriteNRIC},${towriteHP}`;
+    let newDataObj = `${towriteName},${towriteNRIC},${towriteHP},1`;
     console.log(newDataObj);
     setNewWriteData(newDataObj);
     settoWriteName('');
