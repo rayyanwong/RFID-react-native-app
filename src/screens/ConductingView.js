@@ -265,6 +265,7 @@ const ConductingView = props => {
         'Pushup',
         'Situp',
         'Chip Number',
+        'No Go',
       ],
     ]; // array of arrays for each record required to be written into the excel
     collatedList.forEach(userObj => {
@@ -276,6 +277,7 @@ const ConductingView = props => {
       temp.push(userObj.pushup);
       temp.push(userObj.situp);
       temp.push(userObj.chipNo);
+      temp.push(userObj.noGo);
       aoa.push(temp);
     });
     let wb = XLSX.utils.book_new();
