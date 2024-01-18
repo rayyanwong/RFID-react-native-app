@@ -31,8 +31,8 @@ const ConductingAttendanceView = props => {
   const [flatlistData, setFlatlistData] = useState([]);
   const [detailNames, setDetailNames] = useState(['All']);
   const [markAllText, setMarkAllText] = useState('Account all');
-  const [noGoId, setNoGoId] = useState([]);
   const [madeChanges, setMadeChanges] = useState(false);
+  const [selected, setSelected] = useState('All');
   const promptRef = useRef();
 
   function groupBy(xs, f) {
@@ -41,43 +41,6 @@ const ConductingAttendanceView = props => {
       {},
     );
   }
-
-  //   useEffect(() => {
-  //     const getNoGoArr = async () => {
-  //       const {data, error} = await SupaConductStatus.getNoGoIdForConduct(15);
-  //       const noGoArr = [];
-  //       data.forEach(x => {
-  //         noGoArr.push(x.statusid);
-  //       });
-  //       setNoGoId(noGoArr);
-  //     };
-
-  //     const setNoGoUsers = async () => {
-  //       let temp = [...nominalRoll];
-
-  //       temp.forEach(async userObj => {
-  //         // console.log(userObj);
-  //         const {data, error} = await SupaUserStatus.getAllStatusId(
-  //           userObj.userid,
-  //         );
-
-  //         const userStatus = [];
-  //         data.forEach(x => {
-  //           userStatus.push(x.statusId);
-  //         });
-  //         var intersections = userStatus.filter(e => noGoId.indexOf(e) !== -1);
-  //         console.log(intersections);
-  //         if (intersections.length !== 0) {
-  //           // console.log('Intersection: ', userObj);
-  //           userObj.noGo = true;
-  //         }
-  //         setNominalRoll(temp);
-  //         setTNominalRoll(temp);
-  //       });
-  //     };
-  //     getNoGoArr();
-  //     setNoGoUsers();
-  //   }, []);
 
   const handleClick = userObj_prop => {
     // console.log(userObj_prop);
@@ -95,7 +58,7 @@ const ConductingAttendanceView = props => {
     });
 
     setTNominalRoll(temp);
-    setFlatlistData(temp);
+    handleSelectStateArr();
     setMadeChanges(true);
     console.log('Temp: ', temp);
     //TODO: Handle flatlist data
@@ -115,7 +78,7 @@ const ConductingAttendanceView = props => {
     });
     setMadeChanges(true);
     setTNominalRoll(temp);
-    setFlatlistData(temp);
+    handleSelectStateArr();
     // TODO: Handle flatlist data
   };
 
@@ -213,6 +176,35 @@ const ConductingAttendanceView = props => {
     });
   };
 
+  const handleSelectStateArr = () => {
+    //check state
+    // if all, data remains
+    // else, filter data and set proper state
+    if (selected === 'All') {
+      let tmp = [...tnominalRoll];
+      setFlatlistData(tmp);
+    } else {
+      let tmp = [...tnominalRoll];
+      tmp = tmp.filter(userObj => {
+        return userObj.detail === selected;
+      });
+      setFlatlistData(tmp);
+    }
+  };
+  const handleSelect = selectedItem => {
+    // setSelected(selectedItem);
+    if (selectedItem === 'All') {
+      let tmp = [...tnominalRoll];
+      setFlatlistData(tmp);
+    } else {
+      let tmp = [...tnominalRoll];
+      tmp = tmp.filter(userObj => {
+        return userObj.detail === selectedItem;
+      });
+      setFlatlistData(tmp);
+    }
+  };
+
   useEffect(() => {
     //  todo: retrieve data from backend
     // group data by groupBy function
@@ -237,7 +229,8 @@ const ConductingAttendanceView = props => {
         // console.log('[ConductingAttendanceView] Collated list: ', collatedList);
         setNominalRoll(collatedList);
         setTNominalRoll(collatedList);
-        setFlatlistData(collatedList);
+        // setFlatlistData(collatedList);
+        handleSelectStateArr();
         var grouped = groupBy(collatedList, obj => obj.detail);
         // console.log(grouped);
         setDetails(grouped);
@@ -248,42 +241,7 @@ const ConductingAttendanceView = props => {
         setDetailNames(tDetailNames);
       }
     };
-    // const getNoGoArr = async () => {
-    //   const {data, error} = await SupaConductStatus.getNoGoIdForConduct(15);
-    //   const noGoArr = [];
-    //   data.forEach(x => {
-    //     noGoArr.push(x.statusid);
-    //   });
-    //   setNoGoId(noGoArr);
-    // };
-
-    // const setNoGoUsers = async () => {
-    //   let temp = [...nominalRoll];
-
-    //   temp.forEach(async userObj => {
-    //     // console.log(userObj);
-    //     const {data, error} = await SupaUserStatus.getAllStatusId(
-    //       userObj.userid,
-    //     );
-
-    //     const userStatus = [];
-    //     data.forEach(x => {
-    //       userStatus.push(x.statusId);
-    //     });
-    //     var intersections = userStatus.filter(e => noGoId.indexOf(e) !== -1);
-    //     // console.log(intersections);
-    //     if (intersections.length !== 0) {
-    //       // console.log('Intersection: ', userObj);
-    //       userObj.noGo = true;
-    //     }
-    //     setNominalRoll(temp);
-    //     setTNominalRoll(temp);
-    //   });
-    // };
-
     getDetails();
-    // getNoGoArr();
-    // setNoGoUsers();
   }, [isFocused]);
 
   useEffect(() => {
@@ -348,7 +306,7 @@ const ConductingAttendanceView = props => {
           data={detailNames}
           defaultText="Select nominal roll"
           searchPlaceholderText="Search for detail"
-          handleOnSelect={() => {}}
+          handleOnSelect={handleSelect}
           width="85%"
           btnColor="black"
         />
@@ -357,7 +315,7 @@ const ConductingAttendanceView = props => {
           //   data={flatlistData.sort(function (x, y) {
           //     return x.attendance === y.attendance ? 0 : x.attendance ? 1 : -1;
           //   })}
-          data={tnominalRoll}
+          data={flatlistData}
           handleClick={handleClick}
           handleGo={handleGo}
         />
