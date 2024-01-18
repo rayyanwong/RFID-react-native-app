@@ -15,7 +15,7 @@ const SMFlatlistCard = ({
   const [cardColor, setCardColor] = useState('#D9D9D9');
 
   useEffect(() => {
-    if (data.attendance === false) {
+    if ((data.attendance === false) | (data.noGo === true)) {
       setCardColor('#fffd8d');
     } else {
       // check field if empty
