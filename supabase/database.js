@@ -322,6 +322,52 @@ class IpptResultTable {
   }
 }
 
+class DailyConductTable {
+  async insertRecord(new_company, new_conductDate, new_conductName) {
+    let {data, error} = await supabase
+      .from('DailyConduct')
+      .insert([
+        {
+          company: new_company,
+          conductDate: new_conductDate,
+          conductName: new_conductName,
+        },
+      ])
+      .select();
+    return {data, error};
+  }
+
+  async getconductUUID(company, conductDate, conductName) {
+    let {data, error} = await supabase
+      .from('DailyConduct')
+      .select('conductUUID')
+      .eq('company', company)
+      .eq('conductDate', conductDate)
+      .eq('conductName', conductName);
+    return {data, error};
+  }
+}
+
+class DailyConductAttendanceTable {
+  async upsertRecord(conductUUID, userid, attendance, noGo) {
+    let {data, error} = await supabase
+      .from('DailyConductAttendance')
+      .upsert(
+        {
+          conductUUID: conductUUID,
+          userid: userid,
+          attendance: attendance,
+          noGo: noGo,
+        },
+        {
+          onConflict: 'conductUUID, userid',
+        },
+      )
+      .select();
+    return {data, error};
+  }
+}
+
 export const SupaUser = new UserTable();
 export const SupaUserStatus = new UserStatusTable();
 export const SupaStatus = new StatusTable();
@@ -331,3 +377,5 @@ export const SupaArfAttendance = new ArfAttendanceTable();
 export const SupaDailyAttendance = new DailyAttendanceTable();
 export const SupaIpptConduct = new IpptConductTable();
 export const SupaIpptResult = new IpptResultTable();
+export const SupaDailyConduct = new DailyConductTable();
+export const SupaDailyConductAttendance = new DailyConductAttendanceTable();

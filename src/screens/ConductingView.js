@@ -21,7 +21,7 @@ import useInternetCheck from '../hooks/useInternetCheck';
 import OfflineErrorView from '../error/OfflineErrorView';
 import customStyle from '../../styles';
 import DetailFlatList from '../components/DetailFlatList';
-import {SupaIpptConduct} from '../../supabase/database';
+import {SupaDailyConduct, SupaIpptConduct} from '../../supabase/database';
 import {SupaIpptResult} from '../../supabase/database';
 import {FormatDate} from '../utils/FormatDate';
 
@@ -118,45 +118,88 @@ const ConductingView = props => {
   };
 
   const handleInsert = async () => {
-    try {
-      let {data, error} = await SupaIpptConduct.insertRecord(
-        company,
-        conductdate,
-        conductname,
-      );
-      if (error) {
-        console.log(
-          `Error has occured while trying to insert record into db:`,
-          error,
+    if (conductDBid === 15) {
+      try {
+        let {data, error} = await SupaIpptConduct.insertRecord(
+          company,
+          conductdate,
+          conductname,
         );
-      } else {
-        console.log(`Data from insertingRecord:`, data[0]);
+        if (error) {
+          console.log(
+            `Error has occured while trying to insert record into db:`,
+            error,
+          );
+        } else {
+          console.log(`Data from insertingRecord:`, data[0]);
+        }
+      } catch (e) {
+        console.log(`Error has occured while using handleInsert:`, error);
       }
-    } catch (e) {
-      console.log(`Error has occured while using handleInsert:`, error);
+    } else {
+      try {
+        let {data, error} = await SupaDailyConduct.insertRecord(
+          company,
+          conductdate,
+          conductname,
+        );
+        if (error) {
+          console.log(
+            `Error has occured while trying to insert record into db:`,
+            error,
+          );
+        } else {
+          console.log(`Data from insertingRecord:`, data[0]);
+        }
+      } catch (e) {
+        console.log(`Error has occured while using handleInsert:`, error);
+      }
     }
   };
 
   const getConductUUID = async () => {
-    try {
-      let {data, error} = await SupaIpptConduct.getconductUUID(
-        company,
-        conductdate,
-        conductname,
-      );
-      if (error) {
-        console.log(
-          `Error has occured while trying to retrieve uuid from db `,
-          error,
+    if (conductDBid === 15) {
+      try {
+        let {data, error} = await SupaIpptConduct.getconductUUID(
+          company,
+          conductdate,
+          conductname,
         );
+        if (error) {
+          console.log(
+            `Error has occured while trying to retrieve uuid from db `,
+            error,
+          );
+          return null;
+        } else {
+          console.log(`Data from getConductUUID:`, data[0].conductUUID);
+          return data[0].conductUUID;
+        }
+      } catch (e) {
+        console.log(`Error has occured while using getConductUUID:`, e);
         return null;
-      } else {
-        console.log(`Data from getConductUUID:`, data[0].conductUUID);
-        return data[0].conductUUID;
       }
-    } catch (e) {
-      console.log(`Error has occured while using getConductUUID:`, e);
-      return null;
+    } else {
+      try {
+        let {data, error} = await SupaDailyConduct.getconductUUID(
+          company,
+          conductdate,
+          conductname,
+        );
+        if (error) {
+          console.log(
+            `Error has occured while trying to retrieve uuid from db `,
+            error,
+          );
+          return null;
+        } else {
+          console.log(`Data from getConductUUID:`, data[0].conductUUID);
+          return data[0].conductUUID;
+        }
+      } catch (e) {
+        console.log(`Error has occured while using getConductUUID:`, e);
+        return null;
+      }
     }
   };
 
@@ -360,29 +403,40 @@ const ConductingView = props => {
             <Text style={styles.headerText}>{conductname}</Text>
           </View>
           {/* FlatList of details */}
-          <View style={styles.flatlistHeaderContainer}>
-            <Text style={styles.flatlistHeader}>Details</Text>
-          </View>
 
-          <DetailFlatList
-            data={details}
-            handleDelete={handleDelete}
-            handleClick={handleClick}
-          />
+          {conductDBid === 15 && (
+            <View>
+              <View style={styles.flatlistHeaderContainer}>
+                <Text style={styles.flatlistHeader}>Details</Text>
+              </View>
+
+              <DetailFlatList
+                data={details}
+                handleDelete={handleDelete}
+                handleClick={handleClick}
+              />
+            </View>
+          )}
+
           {/* Buttons to create detail -> Navigate to stacked page.*/}
           {/* Button to scan strength: modal */}
           <View style={styles.btnContainer}>
-            <TouchableOpacity
-              onPress={() => {
-                navigation.navigate('NewDetail', {
-                  handleAddDetail,
-                  checkDuplicate,
-                  details,
-                });
-              }}
-              style={styles.btnStyle}>
-              <Text style={styles.btnTextStyle}>Add Detail</Text>
-            </TouchableOpacity>
+            {conductDBid === 15 && (
+              <View>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('NewDetail', {
+                      handleAddDetail,
+                      checkDuplicate,
+                      details,
+                    });
+                  }}
+                  style={styles.btnStyle}>
+                  <Text style={styles.btnTextStyle}>Add Detail</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate('ConductingQrScanner');
@@ -400,14 +454,20 @@ const ConductingView = props => {
               }}>
               <Text style={styles.btnTextStyle}>Retrieve conduct UUID</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={async () => {
-                await handleSync();
-                Alert.alert('Successfully pushed details into backend');
-              }}
-              style={styles.btnStyle}>
-              <Text style={styles.btnTextStyle}>Push details</Text>
-            </TouchableOpacity>
+
+            {conductDBid === 15 && (
+              <View>
+                <TouchableOpacity
+                  onPress={async () => {
+                    await handleSync();
+                    Alert.alert('Successfully pushed details into backend');
+                  }}
+                  style={styles.btnStyle}>
+                  <Text style={styles.btnTextStyle}>Push details</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             {/* <TouchableOpacity onPress={() => {}} style={styles.btnStyle}>
               <Text style={styles.btnTextStyle}>Generate report</Text>
             </TouchableOpacity> */}

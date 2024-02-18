@@ -9,6 +9,7 @@ import {
   TextInput,
   Modal,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -25,6 +26,7 @@ import {
   SupaStatus,
   SupaIpptResult,
   SupaUser,
+  SupaDailyConductAttendance,
 } from '../../supabase/database';
 import NoGoFlatList from '../components/NoGoFlatList';
 import useInternetCheck from '../hooks/useInternetCheck';
@@ -85,6 +87,7 @@ const ConductDetails = props => {
   useEffect(() => {
     initialFilter2();
     getAccounted();
+    getNoGoArr();
   }, [isOffline]);
 
   const getAttendance = () => {
@@ -465,24 +468,79 @@ const ConductDetails = props => {
 
   const handleSync = async () => {
     console.log('Accounted for array: ', accFor);
-    if ((accFor.length !== 0) & (conductdbuuid !== null)) {
-      accFor.forEach(async userObj => {
-        let {data, error} = await SupaUser.findUser(userObj.userNRIC);
-        if (error) {
-          throw error;
-        }
-        if (data.length !== 0) {
-          let {data2, error2} = await SupaIpptResult.updateAttendance(
-            conductdbuuid,
-            data[0].userid,
-            true,
-          );
-          if (error2) {
-            throw error2;
+    console.log('Unaccounted for array: ', notAccFor);
+    console.log('Nogo array: ', noGo);
+    // go through each arr, and update accordingly
+    accFor.forEach(async userObj => {
+      let {data, error} = await SupaUser.findUser(userObj.userNRIC);
+      if (data.length !== 0) {
+        const userDBid = data[0].userid;
+        try {
+          if (conductdbuuid !== '') {
+            let {data2, error2} = await SupaDailyConductAttendance.upsertRecord(
+              conductdbuuid,
+              userDBid,
+              true,
+              false,
+            );
+            if (data2) {
+              console.log('Successfully upserted: ', data2);
+            } else if (error2) {
+              console.log('Error while upserting: ', error2);
+            }
           }
+        } catch (e) {
+          console.log('Error while upserting catch: ', e);
         }
-      });
-    }
+      }
+    });
+    notAccFor.forEach(async userObj => {
+      let {data, error} = await SupaUser.findUser(userObj.userNRIC);
+      if (data.length !== 0) {
+        const userDBid = data[0].userid;
+        try {
+          if (conductdbuuid !== '') {
+            let {data2, error2} = await SupaDailyConductAttendance.upsertRecord(
+              conductdbuuid,
+              userDBid,
+              false,
+              false,
+            );
+            if (data2) {
+              console.log('Successfully upserted: ', data2);
+            } else if (error2) {
+              console.log('Error while upserting: ', error2);
+            }
+          }
+        } catch (e) {
+          console.log('Error while upserting catch: ', e);
+        }
+      }
+    });
+    noGo.forEach(async userObj => {
+      let {data, error} = await SupaUser.findUser(userObj.userNRIC);
+      if (data.length !== 0) {
+        const userDBid = data[0].userid;
+        try {
+          if (conductdbuuid !== '') {
+            let {data2, error2} = await SupaDailyConductAttendance.upsertRecord(
+              conductdbuuid,
+              userDBid,
+              false,
+              true,
+            );
+            if (data2) {
+              console.log('Successfully upserted: ', data2);
+            } else if (error2) {
+              console.log('Error while upserting: ', error2);
+            }
+          }
+        } catch (e) {
+          console.log('Error while upserting catch: ', e);
+        }
+      }
+    });
+    Alert.alert('You have successfully synced the attendance to the backend.');
   };
 
   if (isLoading) {

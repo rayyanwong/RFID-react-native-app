@@ -70,6 +70,10 @@ const Home = ({navigation}) => {
             'An Error has occured while fetching DB conduct details: ',
             error,
           );
+          setConductsCreationArr([
+            {conductName: 'Conventional Operation Outfield', conductid: 23},
+            {conductName: 'Urban Operation Outfield', conductid: 22},
+          ]);
         } else {
           setConductsCreationArr(data);
           // [{'conductid','conductName'},...]
@@ -367,12 +371,15 @@ const Home = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topHeader}>
-        {/* <TouchableOpacity
+        <TouchableOpacity
           disabled={false}
           style={styles.actionBtn}
-          onPress={() => delConductTable()}>
+          onPress={async () => {
+            const {data, error} = await SupaConduct.getAllConducts();
+            console.log(data, error);
+          }}>
           <MaterialIcons name="info-outline" size={24} color="black" />
-        </TouchableOpacity> */}
+        </TouchableOpacity>
         <HomeAvatar />
         {/* <Text style={styles.headerText}>Home</Text> */}
         <TouchableOpacity
@@ -502,6 +509,18 @@ const Home = ({navigation}) => {
             </View>
           ) : (
             <>
+              <View>
+                <TextInput
+                  multiline={false}
+                  placeholder="UUID of conduct"
+                  placeholderTextColor="black"
+                  style={styles.inputField}
+                  value={ipptUUID}
+                  onChangeText={text => setIpptUUID(text)}
+                  textAlignVertical="center"
+                  maxLength={100}
+                />
+              </View>
               <TextInput
                 multiline={true}
                 placeholderTextColor="black"

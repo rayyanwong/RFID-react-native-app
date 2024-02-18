@@ -142,7 +142,7 @@ const ResultModal = ({
 
 const styles = StyleSheet.create({
   container: {
-    height: Dimensions.get('window').height / 3 + 24,
+    height: Dimensions.get('window').height / 3 + 40,
     width: '90%',
     backgroundColor: 'white',
     alignSelf: 'center',
