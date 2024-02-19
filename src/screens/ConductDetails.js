@@ -33,6 +33,7 @@ import useInternetCheck from '../hooks/useInternetCheck';
 import OfflineErrorView from '../error/OfflineErrorView';
 import ConductingView from './ConductingView';
 import Entypo from 'react-native-vector-icons/Entypo';
+import ConfirmModal from '../components/ConfirmModal';
 
 const db = openDatabase({
   name: 'appDatabase',
@@ -50,6 +51,12 @@ const ConductDetails = props => {
   const [qrModalVisibility, setQRmodalvisibility] = useState(false);
   const qrData = useRef([]);
   const [noGoIdArr, setNoGoIdArr] = useState([]);
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [combinedArr, setCombinedArr] = useState([
+    ...accFor,
+    ...notAccFor,
+    ...noGo,
+  ]);
 
   const promptRef = useRef();
   const conductid = props.route.params.data.conductid;
@@ -90,6 +97,12 @@ const ConductDetails = props => {
     getNoGoArr();
   }, [isOffline]);
 
+  useEffect(() => {
+    const temp = [...accFor, ...notAccFor, ...noGo];
+    setCombinedArr(temp);
+    // console.log([...accFor, ...notAccFor, ...noGo]);
+    // console.log('Passed combined');
+  }, [accFor, notAccFor, noGo, confirmModalVisible]);
   const getAttendance = () => {
     db.transaction(tx => {
       tx.executeSql(
@@ -125,7 +138,7 @@ const ConductDetails = props => {
     setNoGoIdArr(data);
     db.transaction(tx => {
       tx.executeSql(
-        `select attendance.userid, users.userName, users.userNRIC,attendance.forcego from attendance
+        `select attendance.userid, users.userName, users.userNRIC,attendance.forcego, attendance.accounted, attendance.eligible from attendance
         inner join users on users.userid=attendance.userid where attendance.accounted=0 and attendance.conductid=(?) and attendance.eligible=1`,
         [conductid],
         async (_, resultSet) => {
@@ -146,7 +159,7 @@ const ConductDetails = props => {
                   tempNotAccFor[i].userNRIC,
                 );
                 const userStatuses = data[0].Statusid;
-                console.log('userstatuses: ', userStatuses);
+                // console.log('userstatuses: ', userStatuses);
                 if (
                   userStatuses.length === 0 ||
                   tempNotAccFor[i].forcego === 1
@@ -201,7 +214,7 @@ const ConductDetails = props => {
   const getAccounted = () => {
     db.transaction(tx => {
       tx.executeSql(
-        `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC FROM ATTENDANCE
+        `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC , ATTENDANCE.accounted, ATTENDANCE.eligible, ATTENDANCE.forceGo FROM ATTENDANCE
          INNER JOIN USERS ON USERS.userid = ATTENDANCE.userid WHERE ATTENDANCE.accounted = 1 AND ATTENDANCE.conductid = (?) AND ATTENDANCE.eligible=1`,
         [conductid],
         (txObj, resultSet) => {
@@ -211,6 +224,7 @@ const ConductDetails = props => {
             curAccounted.push(result.item(i));
           }
           setAccFor(curAccounted);
+          // console.log('AccFor: ', curAccounted);
         },
         e => {
           console.log('Update error', e);
@@ -222,7 +236,7 @@ const ConductDetails = props => {
   const getnotAccounted = () => {
     db.transaction(tx => {
       tx.executeSql(
-        `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC FROM ATTENDANCE
+        `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC, ATTENDANCE.accounted, ATTENDANCE.eligible, ATTENDANCE.forceGo FROM ATTENDANCE
          INNER JOIN USERS ON USERS.userid = ATTENDANCE.userid WHERE ATTENDANCE.accounted = 0 AND ATTENDANCE.conductid = (?) and Attendance.eligible=1`,
         [conductid],
         (txObj, resultSet) => {
@@ -243,7 +257,7 @@ const ConductDetails = props => {
   const getNoGoArr = () => {
     db.transaction(tx => {
       tx.executeSql(
-        `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC FROM ATTENDANCE
+        `SELECT ATTENDANCE.userid, USERS.userName, USERS.userNRIC, ATTENDANCE.accounted, ATTENDANCE.eligible, ATTENDANCE.forceGo FROM ATTENDANCE
         INNER JOIN USERS on USERS.userid = ATTENDANCE.userid WHERE ATTENDANCE.conductid = (?) AND ATTENDANCE.eligible = 0 and attendance.forcego=0`,
         [conductid],
         (txObj, resultSet) => {
@@ -252,7 +266,7 @@ const ConductDetails = props => {
           for (let i = 0; i < result.length; i++) {
             curNoGo.push(result.item(i));
           }
-          console.log('[getNoGoArr]: pass');
+          // console.log('[getNoGoArr]: ', curNoGo);
           setNoGo(curNoGo);
         },
         e => {
@@ -295,6 +309,7 @@ const ConductDetails = props => {
     for (let i = 0; i < notAccFor.length; i++) {
       if (notAccFor[i].userid === userid) {
         newAccFor.push(notAccFor[i]);
+        notAccFor[i].accounted = 1;
         await db.transaction(tx => {
           tx.executeSql(
             `UPDATE ATTENDANCE SET ACCOUNTED = 1 WHERE USERID = (?) AND CONDUCTID = (?) AND ELIGIBLE=1`,
@@ -324,6 +339,7 @@ const ConductDetails = props => {
     for (let i = 0; i < accFor.length; i++) {
       if (accFor[i].userid === userid) {
         newNotAccFor.push(accFor[i]);
+        accFor[i].accounted = 1;
         await db.transaction(tx => {
           tx.executeSql(
             `UPDATE ATTENDANCE SET ACCOUNTED = 0 WHERE USERID = (?) AND CONDUCTID = (?) AND ELIGIBLE=1`,
@@ -362,6 +378,8 @@ const ConductDetails = props => {
     });
     initialFilter2();
     getAccounted();
+    getnotAccounted();
+    getNoGoArr();
   }
 
   async function noGoManually(userid) {
@@ -380,13 +398,16 @@ const ConductDetails = props => {
       );
     });
     initialFilter2();
+    getAccounted();
     getNoGoArr();
+    getnotAccounted();
   }
 
   async function resetNomRoll() {
     var newNotAccFor = [...notAccFor];
     for (let i = 0; i < accFor.length; i++) {
       newNotAccFor.push(accFor[i]);
+      accFor[i].accounted = 0;
     }
     await db.transaction(tx => {
       tx.executeSql(
@@ -427,7 +448,7 @@ const ConductDetails = props => {
             var userid = notAccFor[i].userid;
             db.transaction(tx => {
               tx.executeSql(
-                `UPDATE ATTENDANCE SET ACCOUNTED = 1 WHERE USERID = (?) AND CONDUCTID = (?)`,
+                `UPDATE ATTENDANCE SET ACCOUNTED = 1 WHERE USERID = (?) AND CONDUCTID = (?) AND ELIGIBLE=1`,
                 [userid, conductid],
                 (txObj, resultSet) => {
                   console.log(`${newName} has been accounted for`);
@@ -590,7 +611,10 @@ const ConductDetails = props => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionBtn}
-            onPress={() => setaddModalVisible(true)}>
+            // onPress={() => setaddModalVisible(true)}
+            onPress={() => {
+              console.log(combinedArr);
+            }}>
             <Ionicons name="person-add" size={16} color="black" />
           </TouchableOpacity>
           {/* <TouchableOpacity
@@ -611,7 +635,7 @@ const ConductDetails = props => {
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => {
-              handleSync();
+              setConfirmModalVisible(true);
             }}>
             <MaterialCommunityIcons name="cloud-sync" size={16} color="black" />
           </TouchableOpacity>
@@ -702,6 +726,13 @@ const ConductDetails = props => {
           <QRCode size={200} value={qrData.current.toString() || []} />
         </SafeAreaView>
       </Modal>
+      <ConfirmModal
+        visible={confirmModalVisible}
+        setVisible={setConfirmModalVisible}
+        accFor={accFor}
+        noGo={noGo}
+        notAccFor={notAccFor}
+      />
     </SafeAreaView>
   );
 };
